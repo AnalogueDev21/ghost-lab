@@ -67,3 +67,29 @@ body {
   width: 100%;
 }
 .input:focus { outline: none; border-color: var(--blood); }
+
+.configuration-error {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+.configuration-error__card { max-width: 640px; }
+.configuration-error__eyebrow {
+  color: var(--blood);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+}
+.configuration-error h1 { font-size: 24px; margin-bottom: 10px; }
+.configuration-error p { color: var(--ghost-gray); margin-bottom: 16px; }
+.configuration-error code {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--bone);
+  display: block;
+  font-size: 12px;
+  padding: 12px;
+}

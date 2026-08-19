@@ -13,8 +13,12 @@ import Expenses from './pages/Expenses'
 import Profile from './pages/Profile'
 import AdminStaff from './pages/AdminStaff'
 import { ROLES } from './lib/roles'
+import { isSupabaseConfigured } from './lib/supabase'
+import ConfigurationError from './components/ConfigurationError'
 
 export default function App() {
+  if (!isSupabaseConfigured) return <ConfigurationError />
+
   return (
     <AuthProvider>
       <BrowserRouter>
