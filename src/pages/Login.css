@@ -76,7 +76,7 @@
 .pin-pad { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); }
 .pin-pad__key { cursor: pointer; font-size: 17px; padding: 15px 0; text-align: center; }
 .login-footer { color: var(--ghost-gray); font-size: 13px; margin-top: 18px; text-align: center; }
-.login-footer strong { color: var(--bone); }
+.login-footer a { color: var(--bone); font-weight: 700; text-decoration: none; }
 
 @media (max-width: 480px) {
   .login-page { padding: 24px; }

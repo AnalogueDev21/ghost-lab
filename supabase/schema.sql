@@ -230,8 +230,21 @@ create policy staff_delete_owner on staff for delete using (
   exists (select 1 from staff where auth_user_id = auth.uid() and role = 'owner')
 );
 
--- (Self-signup policy removed — new staff are created via scripts/seed-staff.mjs
--- by an owner instead, so there's no client-side insert path to guard here.)
+-- Self-signup creates a pending, low-privilege staff row only. An owner still
+-- has to activate the staff member and can assign their final role afterwards.
+create policy staff_insert_self_signup on staff for insert with check (
+  auth_user_id = auth.uid()
+  and active = false
+  and pin_hash = 'managed-by-supabase-auth'
+  and (
+    (role = 'mechanic_trainee' and exists (
+      select 1 from branches where branches.id = primary_branch and branches.key = 'garage'
+    ))
+    or (role = 'chill_staff' and exists (
+      select 1 from branches where branches.id = primary_branch and branches.key = 'chill'
+    ))
+  )
+);
 
 -- ---- SERVICES: readable by everyone logged in; editable by owner + branch lead ----
 create policy services_read on services for select using (auth.uid() is not null);

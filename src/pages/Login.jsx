@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import './Login.css'
@@ -98,7 +98,7 @@ export default function Login() {
           </div>
         </div>
         <div className="login-footer">
-          พนักงานใหม่? <strong>ติดต่อ Admin เพื่อสร้างบัญชีให้</strong>
+          พนักงานใหม่? <Link to="/signup">สมัครสมาชิก</Link>
         </div>
       </div>
     </div>
