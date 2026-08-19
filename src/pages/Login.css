@@ -1,0 +1,83 @@
+.login-page {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px;
+}
+
+.login-shell { max-width: 420px; width: 100%; }
+
+.login-brand { margin-bottom: 24px; text-align: center; }
+.login-brand__name {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+.login-brand__dot { color: var(--blood); }
+.login-brand__subtitle {
+  color: var(--ghost-gray);
+  font-size: 11px;
+  letter-spacing: 6px;
+  margin-top: 8px;
+}
+
+.staff-picker {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 0 auto 20px;
+  max-width: 220px;
+}
+.staff-card {
+  background: var(--static);
+  border-color: var(--line);
+  cursor: pointer;
+  text-align: center;
+}
+.staff-card--selected {
+  background: linear-gradient(180deg, var(--ember), var(--static));
+  border-color: var(--blood);
+}
+.staff-card__avatar {
+  align-items: center;
+  background: linear-gradient(135deg, var(--blood), var(--ember));
+  border-radius: 50%;
+  display: flex;
+  font-family: Inter, "Noto Sans Thai", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  height: 38px;
+  justify-content: center;
+  margin: 0 auto 8px;
+  width: 38px;
+}
+.staff-card__name { font-size: 12px; font-weight: 500; }
+.staff-picker__empty {
+  color: var(--ghost-gray);
+  font-size: 11px;
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+.pin-panel__label {
+  color: var(--ghost-gray);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+  text-align: center;
+  text-transform: uppercase;
+}
+.pin-panel__error { color: var(--blood); font-size: 11px; min-height: 14px; margin-bottom: 8px; text-align: center; }
+.pin-dots { display: flex; gap: 14px; justify-content: center; margin-bottom: 20px; }
+.pin-dot { background: transparent; border: 1.5px solid var(--ghost-gray); border-radius: 50%; height: 14px; width: 14px; }
+.pin-dot--filled { background: var(--blood); border-color: var(--blood); }
+.pin-pad { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); }
+.pin-pad__key { cursor: pointer; font-size: 17px; padding: 15px 0; text-align: center; }
+.login-footer { color: var(--ghost-gray); font-size: 13px; margin-top: 18px; text-align: center; }
+.login-footer strong { color: var(--bone); }
+
+@media (max-width: 480px) {
+  .login-page { padding: 24px; }
+}

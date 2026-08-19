@@ -1,18 +1,22 @@
 :root {
-  --void: #0A0908;
-  --bone: #E8E4DC;
-  --ghost-gray: #8B8680;
+  --void: #111315;
+  --bone: #f2eee7;
+  --ghost-gray: #aaa39b;
   --blood: #C41E2A;
-  --ember: #3A0E12;
-  --static: #1C1A18;
-  --line: rgba(232, 228, 220, 0.08);
+  --ember: #52141b;
+  --static: #202224;
+  --static-raised: #292b2e;
+  --line: rgba(242, 238, 231, 0.12);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body, #root { min-height: 100%; }
+
 body {
   background:
-    radial-gradient(ellipse 1000px 400px at 15% -10%, rgba(196,30,42,0.14), transparent 60%),
+    radial-gradient(ellipse 900px 480px at 12% -10%, rgba(196,30,42,0.24), transparent 62%),
+    radial-gradient(ellipse 700px 500px at 100% 100%, rgba(92, 43, 21, 0.16), transparent 64%),
     var(--void);
   color: var(--bone);
   font-family: 'Noto Sans Thai', 'Inter', sans-serif;
@@ -45,14 +49,15 @@ body {
 .btn-secondary { background: rgba(255,255,255,0.03); color: var(--bone); }
 
 .panel {
-  background: var(--static);
+  background: linear-gradient(145deg, var(--static-raised), var(--static));
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 18px 20px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
 }
 
 .input {
-  background: rgba(255,255,255,0.03);
+  background: rgba(255,255,255,0.05);
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 10px 12px;

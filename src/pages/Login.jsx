@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import './Login.css'
 
 export default function Login() {
   const [staffList, setStaffList] = useState([])
@@ -45,75 +46,59 @@ export default function Login() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-      <div style={{ width: '100%', maxWidth: 420 }}>
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <div className="font-display" style={{ fontWeight: 700, fontSize: 34, letterSpacing: 4, textTransform: 'uppercase' }}>
-            GHOST<span style={{ color: 'var(--blood)' }}>·</span>LAB
+    <div className="login-page">
+      <div className="login-shell">
+        <div className="login-brand">
+          <div className="font-display login-brand__name">
+            GHOST<span className="login-brand__dot">·</span>LAB
           </div>
-          <div style={{ fontSize: 11, color: 'var(--ghost-gray)', letterSpacing: 6, marginTop: 8 }}>ゴースト ラボ</div>
+          <div className="login-brand__subtitle">ゴースト ラボ</div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, maxWidth: 220, margin: '0 auto 20px' }}>
+        <div className="staff-picker">
           {staffList.map(s => (
             <div
               key={s.id}
               onClick={() => setSelected(s)}
-              className="panel"
-              style={{
-                textAlign: 'center', cursor: 'pointer',
-                borderColor: selected?.id === s.id ? 'var(--blood)' : 'var(--line)',
-                background: selected?.id === s.id ? 'linear-gradient(180deg, var(--ember), var(--static))' : 'var(--static)'
-              }}
+              className={`panel staff-card ${selected?.id === s.id ? 'staff-card--selected' : ''}`}
             >
-              <div style={{
-                width: 38, height: 38, borderRadius: '50%', margin: '0 auto 8px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'Inter, "Noto Sans Thai", sans-serif', fontWeight: 600, fontSize: 13,
-                background: 'linear-gradient(135deg, var(--blood), var(--ember))'
-              }}>
+              <div className="staff-card__avatar">
                 {s.name_en.slice(0, 2).toUpperCase()}
               </div>
-              <div style={{ fontSize: 12, fontWeight: 500 }}>{s.name_en}</div>
+              <div className="staff-card__name">{s.name_en}</div>
             </div>
           ))}
           {staffList.length === 0 && (
-            <div style={{ gridColumn: '1 / -1', fontSize: 11, color: 'var(--ghost-gray)', textAlign: 'center' }}>
+            <div className="staff-picker__empty">
               ยังไม่มีพนักงานในระบบ — เพิ่มผ่าน Supabase dashboard ก่อน
             </div>
           )}
         </div>
 
         <div className="panel">
-          <div style={{ fontSize: 11, color: 'var(--ghost-gray)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12, textAlign: 'center' }}>
+          <div className="pin-panel__label">
             ใส่ PIN 4 หลักเพื่อเข้าใช้งาน
           </div>
-          <div style={{ fontSize: 11, color: 'var(--blood)', textAlign: 'center', marginBottom: 8, minHeight: 14 }}>{error}</div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 14, marginBottom: 20 }}>
+          <div className="pin-panel__error">{error}</div>
+          <div className="pin-dots">
             {[0, 1, 2, 3].map(i => (
-              <div key={i} style={{
-                width: 14, height: 14, borderRadius: '50%',
-                border: '1.5px solid var(--ghost-gray)',
-                background: i < pin.length ? 'var(--blood)' : 'transparent',
-                borderColor: i < pin.length ? 'var(--blood)' : 'var(--ghost-gray)'
-              }} />
+              <div key={i} className={`pin-dot ${i < pin.length ? 'pin-dot--filled' : ''}`} />
             ))}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+          <div className="pin-pad">
             {['1','2','3','4','5','6','7','8','9','clear','0','back'].map(k => (
               <div
                 key={k}
                 onClick={() => press(k)}
-                className="input font-mono"
-                style={{ textAlign: 'center', padding: '15px 0', fontSize: 17, cursor: 'pointer' }}
+                className="input font-mono pin-pad__key"
               >
                 {k === 'clear' ? 'C' : k === 'back' ? '⌫' : k}
               </div>
             ))}
           </div>
         </div>
-        <div style={{ textAlign: 'center', marginTop: 18, fontSize: 13, color: 'var(--ghost-gray)' }}>
-          พนักงานใหม่? <b style={{ color: 'var(--bone)' }}>ติดต่อ Admin เพื่อสร้างบัญชีให้</b>
+        <div className="login-footer">
+          พนักงานใหม่? <strong>ติดต่อ Admin เพื่อสร้างบัญชีให้</strong>
         </div>
       </div>
     </div>
