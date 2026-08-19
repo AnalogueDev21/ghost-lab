@@ -1,0 +1,64 @@
+:root {
+  --void: #0A0908;
+  --bone: #E8E4DC;
+  --ghost-gray: #8B8680;
+  --blood: #C41E2A;
+  --ember: #3A0E12;
+  --static: #1C1A18;
+  --line: rgba(232, 228, 220, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background:
+    radial-gradient(ellipse 1000px 400px at 15% -10%, rgba(196,30,42,0.14), transparent 60%),
+    var(--void);
+  color: var(--bone);
+  font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* Readable everywhere: headings use a clean, wide-legible sans instead of a
+   condensed display face. Kept bold + slightly spaced only where it's the
+   brand wordmark, not for regular UI text. */
+.font-display { font-family: 'Inter', 'Noto Sans Thai', sans-serif; font-weight: 600; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+.btn {
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all .12s ease;
+  user-select: none;
+}
+.btn:hover { filter: brightness(1.1); }
+.btn-primary { background: var(--blood); border-color: var(--blood); color: var(--bone); }
+.btn-secondary { background: rgba(255,255,255,0.03); color: var(--bone); }
+
+.panel {
+  background: var(--static);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+
+.input {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--bone);
+  font-family: inherit;
+  font-size: 13px;
+  width: 100%;
+}
+.input:focus { outline: none; border-color: var(--blood); }
