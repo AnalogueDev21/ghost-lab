@@ -160,6 +160,7 @@ function MemberModal({ member, branches, onClose, onSaved }) {
   const [branchId, setBranchId] = useState(member.branch_id || branches[0]?.id || '')
   const [tier, setTier] = useState(MEMBERSHIP_PLAN_KEYS.includes(member.tier) ? member.tier : 'regular')
   const [renew, setRenew] = useState(isNew)
+  const [tierChanged, setTierChanged] = useState(false)
   const [startDate, setStartDate] = useState(toDateInput(isNew ? new Date() : (isMembershipActive(member) ? member.membership_expires_at : new Date())))
   const [months, setMonths] = useState(1)
   const [saving, setSaving] = useState(false)
@@ -170,23 +171,32 @@ function MemberModal({ member, branches, onClose, onSaved }) {
     event.preventDefault()
     if (!name.trim()) return setError('กรุณากรอกชื่อสมาชิก')
     setSaving(true); setError('')
+    const adjustingActivePlan = !isNew && tierChanged && !renew && isMembershipActive(member)
+    if (adjustingActivePlan) {
+      const adjustment = await supabase.rpc('adjust_active_membership_plan', { p_member_id: member.id, p_tier: tier })
+      if (adjustment.error) {
+        setSaving(false)
+        return setError(adjustment.error.message)
+      }
+    }
+
     const payload = { name: name.trim(), phone: phone.trim() || null, plate_or_note: plate.trim() || null, branch_id: branchId || null, tier }
     const startsAt = new Date(`${startDate}T00:00:00`).toISOString()
     const expiresAt = addMembershipMonths(startsAt, months)
     const totalPaid = plan.monthlyFee * months
     if (renew) Object.assign(payload, { membership_started_at: startsAt, membership_expires_at: expiresAt, membership_fee: plan.monthlyFee })
     const result = isNew ? await supabase.from('members').insert(payload).select().single() : await supabase.from('members').update(payload).eq('id', member.id).select().single()
-    setSaving(false)
-    if (result.error) return setError(result.error.message)
-    if (renew) {
+    if (result.error) { setSaving(false); return setError(result.error.message) }
+    if (renew && !adjustingActivePlan) {
       const subscription = await supabase.from('member_memberships').insert({
         member_id: result.data.id, tier: plan.key, monthly_fee: plan.monthlyFee,
         months, total_paid: totalPaid, started_at: startsAt, expires_at: expiresAt,
       })
-      if (subscription.error) return setError(subscription.error.message)
+      if (subscription.error) { setSaving(false); return setError(subscription.error.message) }
     }
+    setSaving(false)
     onSaved()
   }
 
-  return <div className="member-modal" role="dialog" aria-modal="true" aria-label={isNew ? 'เพิ่มสมาชิกใหม่' : 'แก้ไขสมาชิก'} onMouseDown={event => event.target === event.currentTarget && onClose()}><form className="member-modal__card" onSubmit={save}><header><div><span>{isNew ? 'NEW MEMBER' : 'MEMBER PROFILE'}</span><h2 className="font-display">{isNew ? 'สมัครสมาชิกใหม่' : 'จัดการสมาชิก'}</h2></div><button type="button" onClick={onClose} aria-label="ปิด">×</button></header><div className="member-modal__body"><label>ชื่อสมาชิก <em>*</em><input autoFocus className="input" value={name} onChange={event => setName(event.target.value)} placeholder="ชื่อลูกค้า" /></label><div className="member-modal__grid"><label>เบอร์โทร<input className="input" value={phone} onChange={event => setPhone(event.target.value)} placeholder="08x-xxx-xxxx" /></label><label>ทะเบียน / โน้ต<input className="input" value={plate} onChange={event => setPlate(event.target.value)} placeholder="เช่น กข 1234" /></label></div><div className="member-modal__grid"><label>สาขา<select className="input" value={branchId} onChange={event => setBranchId(event.target.value)}><option value="">ยังไม่ระบุ</option>{branches.map(branch => <option key={branch.id} value={branch.id}>{branch.name}</option>)}</select></label><label>ระดับสมาชิก<select className="input" value={tier} onChange={event => { setTier(event.target.value); if (!isNew) setRenew(true) }}>{MEMBERSHIP_PLAN_KEYS.map(item => <option key={item} value={item}>{getMembershipPlan(item).label}</option>)}</select></label></div><div className="member-modal__grid"><label>วันเริ่มสมาชิก<input className="input" type="date" value={startDate} onChange={event => setStartDate(event.target.value)} disabled={!renew} /></label><label>จำนวนเดือน<select className="input" value={months} onChange={event => setMonths(Number(event.target.value))} disabled={!renew}>{[1,2,3,4,5,6,12].map(value => <option key={value} value={value}>{value} เดือน</option>)}</select></label></div><div className="membership-modal-plan"><strong>{plan.label} · {formatAmount(plan.monthlyFee)} / เดือน</strong><span>เริ่ม {formatDate(startDate)} · หมดอายุ {formatDate(addMembershipMonths(`${startDate}T00:00:00`, months))}</span><span>รวม {months} เดือน: {formatAmount(plan.monthlyFee * months)}</span>{tier === 'gold' && <span className="membership-gold-repair">✦ ซ่อมฟรีไม่จำกัด ตลอดอายุสมาชิก</span>}</div>{!isNew && <label className="membership-renew"><input type="checkbox" checked={renew} onChange={event => setRenew(event.target.checked)} /> ต่ออายุ/เปลี่ยนแพ็กเกจตามรายละเอียดข้างบน</label>}{error && <p className="member-modal__error">⚠ {error}</p>}</div><footer><button type="button" onClick={onClose}>ยกเลิก</button><button className="btn btn-primary" disabled={saving}>{saving ? 'กำลังบันทึก…' : renew ? `บันทึกและเก็บ ¥${(plan.monthlyFee * months).toLocaleString()}` : 'บันทึกข้อมูล'}</button></footer></form></div>
+  return <div className="member-modal" role="dialog" aria-modal="true" aria-label={isNew ? 'เพิ่มสมาชิกใหม่' : 'แก้ไขสมาชิก'} onMouseDown={event => event.target === event.currentTarget && onClose()}><form className="member-modal__card" onSubmit={save}><header><div><span>{isNew ? 'NEW MEMBER' : 'MEMBER PROFILE'}</span><h2 className="font-display">{isNew ? 'สมัครสมาชิกใหม่' : 'จัดการสมาชิก'}</h2></div><button type="button" onClick={onClose} aria-label="ปิด">×</button></header><div className="member-modal__body"><label>ชื่อสมาชิก <em>*</em><input autoFocus className="input" value={name} onChange={event => setName(event.target.value)} placeholder="ชื่อลูกค้า" /></label><div className="member-modal__grid"><label>เบอร์โทร<input className="input" value={phone} onChange={event => setPhone(event.target.value)} placeholder="08x-xxx-xxxx" /></label><label>ทะเบียน / โน้ต<input className="input" value={plate} onChange={event => setPlate(event.target.value)} placeholder="เช่น กข 1234" /></label></div><div className="member-modal__grid"><label>สาขา<select className="input" value={branchId} onChange={event => setBranchId(event.target.value)}><option value="">ยังไม่ระบุ</option>{branches.map(branch => <option key={branch.id} value={branch.id}>{branch.name}</option>)}</select></label><label>ระดับสมาชิก<select className="input" value={tier} onChange={event => { const nextTier = event.target.value; setTier(nextTier); if (!isNew) { const changed = nextTier !== (member.tier || 'regular'); setTierChanged(changed); if (changed) setRenew(!isMembershipActive(member)) } }}>{MEMBERSHIP_PLAN_KEYS.map(item => <option key={item} value={item}>{getMembershipPlan(item).label}</option>)}</select></label></div><div className="member-modal__grid"><label>วันเริ่มสมาชิก<input className="input" type="date" value={startDate} onChange={event => setStartDate(event.target.value)} disabled={!renew} /></label><label>จำนวนเดือน<select className="input" value={months} onChange={event => setMonths(Number(event.target.value))} disabled={!renew}>{[1,2,3,4,5,6,12].map(value => <option key={value} value={value}>{value} เดือน</option>)}</select></label></div><div className="membership-modal-plan"><strong>{plan.label} · {formatAmount(plan.monthlyFee)} / เดือน</strong><span>{tierChanged && !renew && isMembershipActive(member) ? 'ปรับยอดสมาชิกเดิมตามแพ็กเกจใหม่ โดยคิดเฉพาะส่วนต่าง' : `เริ่ม ${formatDate(startDate)} · หมดอายุ ${formatDate(addMembershipMonths(`${startDate}T00:00:00`, months))}`}</span><span>รวม {months} เดือน: {formatAmount(plan.monthlyFee * months)}</span>{tier === 'gold' && <span className="membership-gold-repair">✦ ซ่อมฟรีไม่จำกัด ตลอดอายุสมาชิก</span>}</div>{!isNew && <label className="membership-renew"><input type="checkbox" checked={renew} onChange={event => setRenew(event.target.checked)} /> ต่ออายุเป็นรายการใหม่ (ถ้าไม่ติ๊ก จะปรับยอดแพ็กเกจเดิม)</label>}{error && <p className="member-modal__error">⚠ {error}</p>}</div><footer><button type="button" onClick={onClose}>ยกเลิก</button><button className="btn btn-primary" disabled={saving}>{saving ? 'กำลังบันทึก…' : tierChanged && !renew ? `ปรับยอดเป็น ¥${(plan.monthlyFee * months).toLocaleString()}` : renew ? `บันทึกและเก็บ ¥${(plan.monthlyFee * months).toLocaleString()}` : 'บันทึกข้อมูล'}</button></footer></form></div>
 }
