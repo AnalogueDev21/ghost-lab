@@ -53,7 +53,7 @@ export default function AdminStaff() {
   }
 
   async function deleteStaff(target) {
-    if (target.id === currentStaff?.id) return alert('ไม่สามารถลบบัญชี Owner ที่กำลังใช้งานอยู่ได้')
+    if (target.id === currentStaff?.id) return alert('ไม่สามารถลบบัญชีที่กำลังใช้งานอยู่ได้')
     const ownerCount = staffList.filter(item => item.role === 'owner').length
     if (target.role === 'owner' && ownerCount <= 1) return alert('ต้องมี Owner อย่างน้อย 1 คนในระบบ')
     if (!window.confirm(`ลบ “${target.name_en}” ออกจากรายชื่อพนักงาน?\n\nบัญชีนี้จะไม่แสดงในหน้า Login อีก`)) return

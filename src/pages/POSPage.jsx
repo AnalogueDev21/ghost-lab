@@ -33,7 +33,7 @@ export default function POSPage({ branchKey, title, leadRole }) {
 
   // Only the owner can change services or their material recipes. Staff still
   // use the POS normally, but cannot alter what a sale consumes from stock.
-  const canManage = staff?.role === 'owner'
+  const canManage = staff?.role === 'owner' || staff?.role === 'god'
 
   useEffect(() => {
     supabase.from('branches').select('*').eq('key', branchKey).single()
@@ -507,7 +507,8 @@ function BillsHistoryTab({ branch, staff, onBillDeleted }) {
 
   async function deleteBill(bill) {
     if (!window.confirm(`ยกเลิกบิล ${bill.bill_number} ?\n\nยอดรายรับและ Commission ของบิลนี้จะถูกตัดออก และสต็อกที่ใช้จะถูกคืน`)) return
-    const { error } = await supabase.rpc('delete_own_bill', { target_bill_id: bill.id })
+    const rpcName = staff?.role === 'god' ? 'delete_any_bill_as_god' : 'delete_own_bill'
+    const { error } = await supabase.rpc(rpcName, { target_bill_id: bill.id })
     if (error) {
       console.error(error)
       alert(`ลบบิลไม่สำเร็จ: ${error.message}`)
@@ -570,7 +571,7 @@ function BillsHistoryTab({ branch, staff, onBillDeleted }) {
       {itemsLoadError && <div style={{ background: 'rgba(196,30,42,.1)', border: '1px solid rgba(196,30,42,.35)', color: '#ff9ea5', fontSize: 11, marginBottom: 12, padding: '9px 10px' }}>ดึงรายการในบิลไม่สำเร็จ: {itemsLoadError}</div>}
       {loading ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12 }}>กำลังโหลด...</div>
         : bills.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12, textAlign: 'center', padding: '24px 0' }}>ยังไม่มีบิล</div>
-        : bills.map(b => <BillHistoryRow key={b.id} bill={b} expanded={expandedBillId === b.id} onToggle={() => setExpandedBillId(current => current === b.id ? null : b.id)} canDelete={b.staff_id === staff?.id && (staff?.role === 'owner' || staff?.permissions?.includes('bill_delete_own'))} onDelete={() => deleteBill(b)} />)
+        : bills.map(b => <BillHistoryRow key={b.id} bill={b} expanded={expandedBillId === b.id} onToggle={() => setExpandedBillId(current => current === b.id ? null : b.id)} canDelete={staff?.role === 'god' || (b.staff_id === staff?.id && (staff?.role === 'owner' || staff?.permissions?.includes('bill_delete_own')))} onDelete={() => deleteBill(b)} />)
       }
     </div>
   )

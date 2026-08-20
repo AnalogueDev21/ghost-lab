@@ -3,6 +3,7 @@
 // what the UI *shows*; the database still enforces what's actually allowed.
 
 export const ROLES = {
+  GOD: 'god',
   OWNER: 'owner',
   HEAD_MECHANIC: 'head_mechanic',
   MECHANIC: 'mechanic',
@@ -14,6 +15,7 @@ export const ROLES = {
 }
 
 export const ROLE_LABELS = {
+  [ROLES.GOD]: 'GOD · สิทธิ์สูงสุด',
   [ROLES.OWNER]: 'Owner',
   [ROLES.HEAD_MECHANIC]: 'หัวหน้าช่าง',
   [ROLES.MECHANIC]: 'ช่าง',
@@ -50,7 +52,8 @@ export const NAV_ITEMS = [
 ]
 
 export function canSeeNavItem(item, staff) {
-  return item.allow === 'all'
+  return staff?.role === ROLES.GOD
+    || item.allow === 'all'
     || item.allow.includes(staff.role)
     || Boolean(item.permission && staff.permissions?.includes(item.permission))
 }

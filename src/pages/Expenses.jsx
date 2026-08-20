@@ -15,7 +15,7 @@ export default function Expenses() {
   const [showAdjust, setShowAdjust] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [cashLedger, setCashLedger] = useState([])
-  const isOwner = staff?.role === 'owner'
+  const isOwner = staff?.role === 'owner' || staff?.role === 'god'
   const canMarkPaid = isOwner || staff?.role === 'accountant'
 
   useEffect(() => {

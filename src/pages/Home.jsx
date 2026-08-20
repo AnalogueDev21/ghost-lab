@@ -19,6 +19,7 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState(localDateValue)
   const [openAttendance, setOpenAttendance] = useState(null)
   const [attendanceSaving, setAttendanceSaving] = useState(false)
+  const hasOwnerOverview = staff?.role === 'owner' || staff?.role === 'god'
 
   const periodLabels = { today: 'วันนี้', week: '7 วันล่าสุด', month: 'เดือนนี้', all: 'ทั้งหมด' }
   const selectedDateLabel = new Date(`${selectedDate}T00:00:00`).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -154,7 +155,7 @@ export default function Home() {
         <StatCard label="พนักงานเข้างาน" value={`${onShiftCount} คน`} />
       </div>
 
-      {staff?.role === 'owner' && (
+      {hasOwnerOverview && (
         <section style={{ marginBottom: 22 }}>
           <div className="font-display" style={{ color: 'var(--blood)', fontSize: 12, letterSpacing: 1.2, marginBottom: 10 }}>OWNER OVERVIEW · {periodLabel}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: 14 }}>
@@ -165,7 +166,7 @@ export default function Home() {
         </section>
       )}
 
-      {staff?.role === 'owner' && (
+      {hasOwnerOverview && (
         <section className="panel" style={{ marginBottom: 22 }}>
           <div style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
             <div><div className="font-display" style={{ fontSize: 14, fontWeight: 600 }}>บิลของทีม · {periodLabel}</div><div style={{ color: 'var(--ghost-gray)', fontSize: 11, marginTop: 3 }}>สรุปบิลที่พนักงานทุกคนเปิด แยกจากรายการล่าสุด</div></div>
