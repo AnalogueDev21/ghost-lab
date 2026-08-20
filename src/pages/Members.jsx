@@ -1,8 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import './Members.css'
 
 const TIERS = ['regular', 'silver', 'gold', 'xkate_origin']
-const TIER_LABELS = { regular: 'Regular', silver: 'Silver', gold: 'Gold', xkate_origin: 'Xkate_Origin' }
+const TIER_LABELS = { regular: 'Regular', silver: 'Silver', gold: 'Gold', xkate_origin: 'Origin' }
+const TIER_CLASS = { regular: 'tier--regular', silver: 'tier--silver', gold: 'tier--gold', xkate_origin: 'tier--origin' }
+const formatAmount = amount => `¥${Number(amount || 0).toLocaleString()}`
+
+function Avatar({ name }) {
+  return <span className="member-avatar">{name?.slice(0, 2).toUpperCase() || 'GL'}</span>
+}
 
 export default function Members() {
   const [members, setMembers] = useState([])
@@ -10,211 +17,156 @@ export default function Members() {
   const [branchFilter, setBranchFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
-  const [editingMember, setEditingMember] = useState(null) // null = closed, {} = new, {...} = editing
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [editingMember, setEditingMember] = useState(null)
   const [couponCounts, setCouponCounts] = useState({})
+  const [error, setError] = useState('')
 
-  useEffect(() => {
-    supabase.from('branches').select('*').then(({ data }) => setBranches(data || []))
-  }, [])
-
-  useEffect(() => {
+  async function loadData() {
     setLoading(true)
-    supabase.from('members').select('*, branches:branch_id(key,name)').order('name')
-      .then(({ data, error }) => {
-        if (error) console.error(error)
-        setMembers(data || [])
-        setLoading(false)
-      })
-  }, [refreshKey])
+    setError('')
+    const [branchResult, memberResult, rewardResult] = await Promise.all([
+      supabase.from('branches').select('*').order('name'),
+      supabase.from('members').select('*, branches:branch_id(key,name)').order('created_at', { ascending: false }),
+      supabase.from('member_rewards').select('member_id').eq('status', 'available'),
+    ])
 
-  useEffect(() => {
-    supabase.from('member_rewards').select('member_id').eq('status', 'available').then(({ data, error }) => {
-      if (error) { console.error(error); return }
+    if (branchResult.error || memberResult.error) {
+      console.error(branchResult.error || memberResult.error)
+      setError('โหลดข้อมูลสมาชิกไม่สำเร็จ ลองรีเฟรชอีกครั้ง')
+    }
+    setBranches(branchResult.data || [])
+    setMembers(memberResult.data || [])
+    if (!rewardResult.error) {
       const counts = {}
-      ;(data || []).forEach(reward => { counts[reward.member_id] = (counts[reward.member_id] || 0) + 1 })
+      rewardResult.data.forEach(reward => { counts[reward.member_id] = (counts[reward.member_id] || 0) + 1 })
       setCouponCounts(counts)
-    })
-  }, [refreshKey])
-
-  const filtered = members.filter(m => {
-    const matchesBranch = branchFilter === 'all' || m.branches?.key === branchFilter
-    const q = search.trim().toLowerCase()
-    const matchesSearch = !q || m.name?.toLowerCase().includes(q) || m.phone?.includes(q) || m.plate_or_note?.toLowerCase().includes(q)
-    return matchesBranch && matchesSearch
-  })
-
-  const counts = {
-    all: members.length,
-    garage: members.filter(m => m.branches?.key === 'garage').length,
-    chill: members.filter(m => m.branches?.key === 'chill').length,
+    }
+    setLoading(false)
   }
 
-  async function deleteMember(id) {
-    if (!confirm('ลบลูกค้ารายนี้?')) return
-    const { error } = await supabase.from('members').delete().eq('id', id)
-    if (error) { console.error(error); return }
-    setMembers(m => m.filter(x => x.id !== id))
+  useEffect(() => { loadData() }, [])
+
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    return members.filter(member => {
+      const matchesBranch = branchFilter === 'all' || member.branches?.key === branchFilter
+      const matchesQuery = !query
+        || member.name?.toLowerCase().includes(query)
+        || member.phone?.includes(query)
+        || member.plate_or_note?.toLowerCase().includes(query)
+      return matchesBranch && matchesQuery
+    })
+  }, [members, branchFilter, search])
+
+  const stats = useMemo(() => ({
+    total: members.length,
+    spend: members.reduce((sum, member) => sum + Number(member.total_spent || 0), 0),
+    rewards: Object.values(couponCounts).reduce((sum, count) => sum + count, 0),
+    visits: members.reduce((sum, member) => sum + Number(member.repair_visits || 0), 0),
+  }), [members, couponCounts])
+
+  const filters = [
+    { key: 'all', label: 'ทั้งหมด', count: members.length },
+    ...branches.map(branch => ({ key: branch.key, label: branch.name, count: members.filter(member => member.branches?.key === branch.key).length })),
+  ]
+
+  async function deleteMember(member) {
+    if (!window.confirm(`ลบสมาชิก “${member.name}” ?`)) return
+    const { error: deleteError } = await supabase.from('members').delete().eq('id', member.id)
+    if (deleteError) {
+      console.error(deleteError)
+      setError('ลบสมาชิกไม่สำเร็จ')
+      return
+    }
+    setMembers(current => current.filter(item => item.id !== member.id))
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+    <section className="members-page">
+      <header className="members-hero">
         <div>
-          <div className="font-display" style={{ fontSize: 18, fontWeight: 600 }}>Members & Coupons</div>
-          <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>จัดการลูกค้าประจำ · ส่วนลดสมาชิก</div>
+          <p className="members-kicker">LOYALTY DESK</p>
+          <h1 className="font-display">Members <span>& Coupons</span></h1>
+          <p className="members-subtitle">ดูแลข้อมูลลูกค้าประจำ ติดตามยอดสะสม และมอบรางวัลให้ตรงเวลา</p>
         </div>
-        <div onClick={() => setEditingMember({})} className="btn btn-primary">+ เพิ่มลูกค้า</div>
+        <button type="button" className="members-add" onClick={() => setEditingMember({})}>+ เพิ่มสมาชิก</button>
+      </header>
+
+      <div className="member-stats" aria-label="สรุปสมาชิก">
+        <StatCard label="สมาชิกทั้งหมด" value={stats.total.toLocaleString()} note="ในฐานข้อมูลลูกค้า" icon="◎" />
+        <StatCard label="ยอดสะสมรวม" value={formatAmount(stats.spend)} note="ยอดใช้จ่ายตลอดอายุสมาชิก" icon="¥" />
+        <StatCard label="คูปองพร้อมใช้" value={stats.rewards.toLocaleString()} note="รางวัลซ่อมฟรีที่ยังไม่ใช้" icon="✦" accent />
+        <StatCard label="งานสะสม" value={stats.visits.toLocaleString()} note="ครั้งซ่อมที่นับเข้าโปรแกรม" icon="↗" />
       </div>
 
-      <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-        <input
-          className="input" placeholder="ค้นหาชื่อ / เบอร์ / ทะเบียน..."
-          value={search} onChange={e => setSearch(e.target.value)}
-          style={{ maxWidth: 280 }}
-        />
-        {[['all', 'ทุกสาขา'], ['garage', 'Ghost Lab Garage'], ['chill', 'Ghost Chill']].map(([key, label]) => (
-          <div
-            key={key} onClick={() => setBranchFilter(key)} className="btn"
-            style={{
-              fontSize: 12,
-              borderColor: branchFilter === key ? 'var(--blood)' : 'var(--line)',
-              color: branchFilter === key ? 'var(--bone)' : 'var(--ghost-gray)',
-              background: branchFilter === key ? 'rgba(196,30,42,0.14)' : 'rgba(255,255,255,0.02)',
-            }}
-          >
-            {label} ({counts[key]})
+      <div className="members-workspace">
+        <div className="members-toolbar">
+          <label className="member-search">
+            <span>⌕</span>
+            <input value={search} onChange={event => setSearch(event.target.value)} placeholder="ค้นหาชื่อ, เบอร์โทร หรือทะเบียน" />
+            {search && <button type="button" onClick={() => setSearch('')} aria-label="ล้างคำค้น">×</button>}
+          </label>
+          <button type="button" className="members-refresh" onClick={loadData} disabled={loading}>↻ รีเฟรช</button>
+        </div>
+
+        <div className="member-filters" role="tablist" aria-label="กรองตามสาขา">
+          {filters.map(filter => (
+            <button key={filter.key} type="button" role="tab" aria-selected={branchFilter === filter.key} className={branchFilter === filter.key ? 'is-active' : ''} onClick={() => setBranchFilter(filter.key)}>
+              {filter.label}<span>{filter.count}</span>
+            </button>
+          ))}
+        </div>
+
+        {error && <div className="members-error">⚠ {error}</div>}
+
+        <div className="members-list">
+          <div className="members-list__header">
+            <span>สมาชิก</span><span>สาขา</span><span>สถานะสะสม</span><span>ยอดใช้จ่าย</span><span>รางวัล</span><span aria-label="จัดการ" />
           </div>
-        ))}
+          {loading ? <LoadingRows /> : filtered.map(member => (
+            <article className="member-row" key={member.id}>
+              <div className="member-identity"><Avatar name={member.name} /><div><strong>{member.name}</strong><small>{member.phone || 'ไม่ระบุเบอร์'}{member.plate_or_note && ` · ${member.plate_or_note}`}</small></div></div>
+              <div className="member-branch">{member.branches?.name || 'ไม่ระบุสาขา'}</div>
+              <div className="member-loyalty"><div><span className={`tier ${TIER_CLASS[member.tier] || 'tier--regular'}`}>{TIER_LABELS[member.tier] || 'Regular'}</span><b>{member.repair_visits || 0}<small> / 10 MT</small></b></div><Progress value={member.repair_visits || 0} /></div>
+              <strong className="member-spend">{formatAmount(member.total_spent)}</strong>
+              <div className="member-reward"><b>{couponCounts[member.id] || 0}</b><span>ซ่อมฟรี</span></div>
+              <div className="member-actions"><button type="button" onClick={() => setEditingMember(member)}>แก้ไข</button><button type="button" className="member-actions__delete" onClick={() => deleteMember(member)} aria-label={`ลบ ${member.name}`}>×</button></div>
+            </article>
+          ))}
+          {!loading && filtered.length === 0 && <EmptyState hasSearch={Boolean(search || branchFilter !== 'all')} onAdd={() => setEditingMember({})} />}
+        </div>
       </div>
 
-      <div className="panel">
-        {loading ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12 }}>กำลังโหลด...</div> : (
-          <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1.1fr 1fr 0.7fr 0.9fr 1.1fr 0.9fr auto', gap: 10, padding: '0 0 10px', fontSize: 10, color: 'var(--ghost-gray)', textTransform: 'uppercase', letterSpacing: 1 }}>
-              <div>ลูกค้า</div><div>สาขา</div><div>ติดต่อ</div><div>Tier</div><div>ยอดใช้จ่าย</div><div>เป้าหมาย MT</div><div>คูปอง</div><div></div>
-            </div>
-            {filtered.map(m => (
-              <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '1.5fr 1.1fr 1fr 0.7fr 0.9fr 1.1fr 0.9fr auto', gap: 10, padding: '10px 0', borderTop: '1px solid var(--line)', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{
-                    width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
-                    background: 'linear-gradient(135deg, var(--blood), var(--ember))',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600
-                  }}>
-                    {m.name?.slice(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 500 }}>{m.name}</div>
-                    {m.plate_or_note && <div style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{m.plate_or_note}</div>}
-                  </div>
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>{m.branches?.name || '—'}</div>
-                <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>{m.phone || '—'}</div>
-                <div>
-                  <span style={{
-                    fontSize: 10, padding: '2px 8px', borderRadius: 10, border: '1px solid var(--line)',
-                    color: m.tier === 'gold' ? '#e5c158' : m.tier === 'silver' ? '#c0c0c0' : m.tier === 'xkate_origin' ? 'var(--blood)' : 'var(--ghost-gray)'
-                  }}>
-                    {TIER_LABELS[m.tier] || m.tier}
-                  </span>
-                </div>
-                <div className="font-mono" style={{ fontSize: 13 }}>¥{(m.total_spent || 0).toLocaleString()}</div>
-                <div>
-                  <div className="font-mono" style={{ color: 'var(--bone)', fontSize: 13 }}>{m.repair_visits || 0} / 10 MT</div>
-                  <div style={{ background: 'rgba(255,255,255,.1)', borderRadius: 5, height: 4, marginTop: 5, overflow: 'hidden' }}>
-                    <div style={{ background: 'var(--blood)', height: '100%', width: `${((m.repair_visits || 0) % 10) * 10}%` }} />
-                  </div>
-                </div>
-                <div style={{ color: couponCounts[m.id] ? '#e5c158' : 'var(--ghost-gray)', fontSize: 12, fontWeight: 600 }}>{couponCounts[m.id] || 0} × ซ่อมฟรี</div>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <div onClick={() => setEditingMember(m)} className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: 11 }}>แก้ไข</div>
-                  <div onClick={() => deleteMember(m.id)} className="btn" style={{ padding: '6px 10px', fontSize: 11, color: 'var(--blood)', borderColor: 'rgba(196,30,42,0.4)' }}>ลบ</div>
-                </div>
-              </div>
-            ))}
-            {filtered.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--ghost-gray)', fontSize: 12 }}>
-                ไม่พบลูกค้า
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {editingMember && (
-        <MemberModal
-          member={editingMember}
-          branches={branches}
-          onClose={() => setEditingMember(null)}
-          onSaved={() => { setEditingMember(null); setRefreshKey(k => k + 1) }}
-        />
-      )}
-    </div>
+      {editingMember && <MemberModal member={editingMember} branches={branches} onClose={() => setEditingMember(null)} onSaved={() => { setEditingMember(null); loadData() }} />}
+    </section>
   )
 }
+
+function StatCard({ label, value, note, icon, accent }) { return <div className={`member-stat ${accent ? 'member-stat--accent' : ''}`}><span className="member-stat__icon">{icon}</span><div><span>{label}</span><strong>{value}</strong><small>{note}</small></div></div> }
+function Progress({ value }) { return <div className="member-progress"><i style={{ width: `${Math.min((value % 10) * 10, 100)}%` }} /></div> }
+function LoadingRows() { return <div className="members-loading"><i /><i /><i /><span>กำลังโหลดข้อมูลสมาชิก…</span></div> }
+function EmptyState({ hasSearch, onAdd }) { return <div className="members-empty"><span>◎</span><h2>{hasSearch ? 'ไม่พบสมาชิกที่ค้นหา' : 'ยังไม่มีสมาชิกในระบบ'}</h2><p>{hasSearch ? 'ลองเปลี่ยนคำค้นหาหรือเลือกสาขาอื่น' : 'เริ่มสร้างฐานลูกค้าประจำและสะสมรางวัลให้พวกเขา'}</p>{!hasSearch && <button type="button" onClick={onAdd}>+ เพิ่มสมาชิกคนแรก</button>}</div> }
 
 function MemberModal({ member, branches, onClose, onSaved }) {
   const isNew = !member.id
   const [name, setName] = useState(member.name || '')
   const [phone, setPhone] = useState(member.phone || '')
   const [plate, setPlate] = useState(member.plate_or_note || '')
-  const [branchId, setBranchId] = useState(member.branch_id || (branches[0]?.id ?? ''))
+  const [branchId, setBranchId] = useState(member.branch_id || branches[0]?.id || '')
   const [tier, setTier] = useState(member.tier || 'regular')
   const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
-  async function save() {
-    if (!name.trim()) return
-    setSaving(true)
-    const payload = { name: name.trim(), phone: phone || null, plate_or_note: plate || null, branch_id: branchId, tier }
-    const { error } = isNew
-      ? await supabase.from('members').insert(payload)
-      : await supabase.from('members').update(payload).eq('id', member.id)
+  async function save(event) {
+    event.preventDefault()
+    if (!name.trim()) return setError('กรุณากรอกชื่อสมาชิก')
+    setSaving(true); setError('')
+    const payload = { name: name.trim(), phone: phone.trim() || null, plate_or_note: plate.trim() || null, branch_id: branchId || null, tier }
+    const result = isNew ? await supabase.from('members').insert(payload) : await supabase.from('members').update(payload).eq('id', member.id)
     setSaving(false)
-    if (error) { console.error(error); return }
+    if (result.error) return setError(result.error.message)
     onSaved()
   }
 
-  return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-      <div className="panel" style={{ width: '100%', maxWidth: 420, background: 'var(--static)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div className="font-display" style={{ fontSize: 16, fontWeight: 600 }}>{isNew ? 'เพิ่มลูกค้าใหม่' : 'แก้ไขลูกค้า'}</div>
-          <div onClick={onClose} style={{ cursor: 'pointer', color: 'var(--ghost-gray)', fontSize: 18 }}>✕</div>
-        </div>
-        <div style={{ marginBottom: 10 }}>
-          <label style={{ fontSize: 11, color: 'var(--ghost-gray)', display: 'block', marginBottom: 6 }}>ชื่อ</label>
-          <input className="input" value={name} onChange={e => setName(e.target.value)} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-          <div>
-            <label style={{ fontSize: 11, color: 'var(--ghost-gray)', display: 'block', marginBottom: 6 }}>เบอร์</label>
-            <input className="input" value={phone} onChange={e => setPhone(e.target.value)} />
-          </div>
-          <div>
-            <label style={{ fontSize: 11, color: 'var(--ghost-gray)', display: 'block', marginBottom: 6 }}>ทะเบียน / โน้ต</label>
-            <input className="input" value={plate} onChange={e => setPlate(e.target.value)} />
-          </div>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 18 }}>
-          <div>
-            <label style={{ fontSize: 11, color: 'var(--ghost-gray)', display: 'block', marginBottom: 6 }}>สาขา</label>
-            <select className="input" value={branchId} onChange={e => setBranchId(e.target.value)}>
-              {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
-          </div>
-          <div>
-            <label style={{ fontSize: 11, color: 'var(--ghost-gray)', display: 'block', marginBottom: 6 }}>Tier</label>
-            <select className="input" value={tier} onChange={e => setTier(e.target.value)}>
-              {TIERS.map(t => <option key={t} value={t}>{TIER_LABELS[t]}</option>)}
-            </select>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <div onClick={onClose} className="btn btn-secondary">ยกเลิก</div>
-          <div onClick={save} className="btn btn-primary" style={{ opacity: saving ? 0.6 : 1 }}>{saving ? 'กำลังบันทึก...' : 'บันทึก'}</div>
-        </div>
-      </div>
-    </div>
-  )
+  return <div className="member-modal" role="dialog" aria-modal="true" aria-label={isNew ? 'เพิ่มสมาชิกใหม่' : 'แก้ไขสมาชิก'} onMouseDown={event => event.target === event.currentTarget && onClose()}><form className="member-modal__card" onSubmit={save}><header><div><span>{isNew ? 'NEW MEMBER' : 'MEMBER PROFILE'}</span><h2 className="font-display">{isNew ? 'เพิ่มสมาชิกใหม่' : 'แก้ไขข้อมูลสมาชิก'}</h2></div><button type="button" onClick={onClose} aria-label="ปิด">×</button></header><div className="member-modal__body"><label>ชื่อสมาชิก <em>*</em><input autoFocus className="input" value={name} onChange={event => setName(event.target.value)} placeholder="ชื่อลูกค้า" /></label><div className="member-modal__grid"><label>เบอร์โทร<input className="input" value={phone} onChange={event => setPhone(event.target.value)} placeholder="08x-xxx-xxxx" /></label><label>ทะเบียน / โน้ต<input className="input" value={plate} onChange={event => setPlate(event.target.value)} placeholder="เช่น กข 1234" /></label></div><div className="member-modal__grid"><label>สาขา<select className="input" value={branchId} onChange={event => setBranchId(event.target.value)}><option value="">ยังไม่ระบุ</option>{branches.map(branch => <option key={branch.id} value={branch.id}>{branch.name}</option>)}</select></label><label>ระดับสมาชิก<select className="input" value={tier} onChange={event => setTier(event.target.value)}>{TIERS.map(item => <option key={item} value={item}>{TIER_LABELS[item]}</option>)}</select></label></div>{error && <p className="member-modal__error">⚠ {error}</p>}</div><footer><button type="button" onClick={onClose}>ยกเลิก</button><button className="btn btn-primary" disabled={saving}>{saving ? 'กำลังบันทึก…' : 'บันทึกสมาชิก'}</button></footer></form></div>
 }
