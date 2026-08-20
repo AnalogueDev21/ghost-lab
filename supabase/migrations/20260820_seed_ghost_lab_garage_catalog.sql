@@ -1,20 +1,24 @@
 -- Ghost Lab Garage: canonical service catalogue
 --
--- This keeps historical bill rows intact.  Services not in this catalogue are
--- archived (active = false) instead of deleted, then the POS only shows active
--- services.  Re-running this migration is safe: it updates existing matching
--- services and inserts only missing ones.
+-- This is intentionally a single SQL statement, so it also works in Supabase
+-- SQL Editor configurations that execute each submitted statement separately.
+-- It keeps historical bill rows intact: old catalogue entries are archived,
+-- not deleted.
 
-begin;
+do $seed$
+declare
+  garage_id uuid;
+  item record;
+  canonical_service_id uuid;
+  catalogue_service_ids uuid[] := array[]::uuid[];
+begin
+  select id into garage_id from branches where key = 'garage';
+  if garage_id is null then
+    raise exception 'The garage branch does not exist.';
+  end if;
 
-create temporary table garage_catalog (
-  name text not null,
-  category text not null,
-  price integer not null,
-  primary key (name, category)
-);
-
-insert into garage_catalog (name, category, price) values
+  for item in
+  select * from (values
   ('Aerials', 'Body part', 5000),
   ('Air filter', 'Body part', 5000),
   ('Arch Cover', 'Body part', 5000),
@@ -120,59 +124,41 @@ insert into garage_catalog (name, category, price) values
   ('ทำความสะอาดรถ', 'Cleaning', 500),
   ('เหมา Handing', 'Handing', 300000),
   ('เหมา N/A (Standard)', 'N/A (Standard)', 420000),
-  ('เหมา Turbo Set !!', 'turbo (Standard)', 522500);
+  ('เหมา Turbo Set !!', 'turbo (Standard)', 522500)
+  ) as catalog(name, category, price)
+  loop
+    -- Normalise case-only duplicates, then locate one canonical row.
+    update services as service
+    set name = item.name,
+        category = item.category,
+        price = item.price,
+        active = true
+    where service.branch_id = garage_id
+      and lower(btrim(service.name)) = lower(btrim(item.name))
+      and lower(btrim(service.category)) = lower(btrim(item.category));
 
--- Update every matching row first, including case-only duplicates.
-update services as service
-set name = catalog.name,
-    category = catalog.category,
-    price = catalog.price,
-    active = true
-from garage_catalog as catalog
-where service.branch_id = (select id from branches where key = 'garage')
-  and lower(btrim(service.name)) = lower(btrim(catalog.name))
-  and lower(btrim(service.category)) = lower(btrim(catalog.category));
-
--- Add any catalogue entry that does not exist yet.
-insert into services (branch_id, name, category, price, active)
-select branch.id, catalog.name, catalog.category, catalog.price, true
-from branches as branch
-cross join garage_catalog as catalog
-where branch.key = 'garage'
-  and not exists (
-    select 1
+    select service.id into canonical_service_id
     from services as service
-    where service.branch_id = branch.id
-      and lower(btrim(service.name)) = lower(btrim(catalog.name))
-      and lower(btrim(service.category)) = lower(btrim(catalog.category))
-  );
+    where service.branch_id = garage_id
+      and lower(btrim(service.name)) = lower(btrim(item.name))
+      and lower(btrim(service.category)) = lower(btrim(item.category))
+    order by service.created_at, service.id
+    limit 1;
 
--- Hide legacy services and keep one active copy of each catalogue service.
-update services as service
-set active = false
-where service.branch_id = (select id from branches where key = 'garage')
-  and not exists (
-    select 1 from garage_catalog as catalog
-    where lower(btrim(service.name)) = lower(btrim(catalog.name))
-      and lower(btrim(service.category)) = lower(btrim(catalog.category))
-  );
+    if canonical_service_id is null then
+      insert into services (branch_id, name, category, price, active)
+      values (garage_id, item.name, item.category, item.price, true)
+      returning id into canonical_service_id;
+    end if;
 
-with ranked_duplicates as (
-  select service.id,
-         row_number() over (
-           partition by lower(btrim(service.name)), lower(btrim(service.category))
-           order by service.created_at, service.id
-         ) as row_number
-  from services as service
-  where service.branch_id = (select id from branches where key = 'garage')
-    and service.active = true
-)
-update services as service
-set active = false
-from ranked_duplicates
-where service.id = ranked_duplicates.id
-  and ranked_duplicates.row_number > 1;
+    catalogue_service_ids := array_append(catalogue_service_ids, canonical_service_id);
+  end loop;
 
-drop table garage_catalog;
-
-commit;
+  -- Old services and duplicate rows remain in the database for bill history,
+  -- but are hidden from the POS and Service Catalog.
+  update services as service
+  set active = false
+  where service.branch_id = garage_id
+    and not (service.id = any(catalogue_service_ids));
+end
+$seed$;
