@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { PERMISSIONS, ROLES, ROLE_LABELS } from '../lib/roles'
+import { useAuth } from '../context/AuthContext'
 
 const ROLE_OPTIONS = Object.values(ROLES)
 
 export default function AdminStaff() {
+  const { staff: currentStaff } = useAuth()
   const [staffList, setStaffList] = useState([])
   const [branches, setBranches] = useState([])
   const [loading, setLoading] = useState(true)
@@ -48,6 +50,20 @@ export default function AdminStaff() {
           : [...permissions, permission],
       }
     }))
+  }
+
+  async function deleteStaff(target) {
+    if (target.id === currentStaff?.id) return alert('ไม่สามารถลบบัญชี Owner ที่กำลังใช้งานอยู่ได้')
+    const ownerCount = staffList.filter(item => item.role === 'owner').length
+    if (target.role === 'owner' && ownerCount <= 1) return alert('ต้องมี Owner อย่างน้อย 1 คนในระบบ')
+    if (!window.confirm(`ลบ “${target.name_en}” ออกจากรายชื่อพนักงาน?\n\nบัญชีนี้จะไม่แสดงในหน้า Login อีก`)) return
+    const { error } = await supabase.from('staff').delete().eq('id', target.id)
+    if (error) {
+      console.error(error)
+      alert(`ลบไม่สำเร็จ: ${error.message}\n\nถ้ามีประวัติบิลหรือรายการเงินอยู่ ให้ปิดสถานะแทนเพื่อเก็บประวัติ`)
+      return
+    }
+    setStaffList(list => list.filter(item => item.id !== target.id))
   }
 
   return (
@@ -112,8 +128,11 @@ export default function AdminStaff() {
                   <span style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{s.active ? 'ใช้งาน' : 'ปิด'}</span>
                 </div>
 
-                <div onClick={() => saveStaff(s.id)} className="btn btn-primary" style={{ padding: '6px 14px', fontSize: 11, opacity: savingId === s.id ? 0.6 : 1 }}>
-                  {savingId === s.id ? '...' : 'บันทึก'}
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <div onClick={() => saveStaff(s.id)} className="btn btn-primary" style={{ padding: '6px 14px', fontSize: 11, opacity: savingId === s.id ? 0.6 : 1 }}>
+                    {savingId === s.id ? '...' : 'บันทึก'}
+                  </div>
+                  {s.id !== currentStaff?.id && <button type="button" onClick={() => deleteStaff(s)} title={`ลบ ${s.name_en}`} style={{ background: 'transparent', border: '1px solid rgba(196,30,42,.5)', borderRadius: 5, color: '#f18b92', cursor: 'pointer', fontSize: 14, padding: '4px 9px' }}>🗑</button>}
                 </div>
               </div>
             ))}
