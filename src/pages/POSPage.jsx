@@ -478,9 +478,10 @@ function AddMemberModal({ branch, initialQuery, onClose, onCreated }) {
 function BillsHistoryTab({ branch }) {
   const [bills, setBills] = useState([])
   const [loading, setLoading] = useState(true)
+  const [expandedBillId, setExpandedBillId] = useState(null)
 
   useEffect(() => {
-    supabase.from('bills').select('*, staff:staff_id(name_en)').eq('branch_id', branch.id)
+    supabase.from('bills').select('*, staff:staff_id(name_en), items:bill_items(name_snapshot,price_snapshot)').eq('branch_id', branch.id)
       .order('created_at', { ascending: false }).limit(100)
       .then(({ data, error }) => {
         if (error) console.error(error)
@@ -494,21 +495,27 @@ function BillsHistoryTab({ branch }) {
       <div className="font-display" style={{ fontSize: 14, fontWeight: 600, marginBottom: 14 }}>ประวัติบิล · Bills</div>
       {loading ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12 }}>กำลังโหลด...</div>
         : bills.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12, textAlign: 'center', padding: '24px 0' }}>ยังไม่มีบิล</div>
-        : bills.map(b => (
-          <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '11px 0', borderBottom: '1px solid var(--line)', fontSize: 12 }}>
-            <div>
-              <span className="font-mono" style={{ fontWeight: 600 }}>{b.bill_number}</span>
-              <span style={{ color: 'var(--ghost-gray)', marginLeft: 10 }}>{b.plate || '—'} {b.vehicle ? `· ${b.vehicle}` : ''}</span>
-              <div style={{ color: 'var(--ghost-gray)', fontSize: 11, marginTop: 2 }}>
-                {b.staff?.name_en || '—'} · {new Date(b.created_at).toLocaleString('th-TH')}
-              </div>
-            </div>
-            <div className="font-mono" style={{ fontWeight: 600 }}>¥{b.total.toLocaleString()}</div>
-          </div>
-        ))
+        : bills.map(b => <BillHistoryRow key={b.id} bill={b} expanded={expandedBillId === b.id} onToggle={() => setExpandedBillId(current => current === b.id ? null : b.id)} />)
       }
     </div>
   )
+}
+
+function BillHistoryRow({ bill, expanded, onToggle }) {
+  const groupedItems = Object.values((bill.items || []).reduce((items, item) => {
+    const current = items[item.name_snapshot] || { name: item.name_snapshot, quantity: 0, total: 0 }
+    items[item.name_snapshot] = { ...current, quantity: current.quantity + 1, total: current.total + Number(item.price_snapshot || 0) }
+    return items
+  }, {}))
+  const discountAmount = Math.max(0, Number(bill.subtotal || 0) - Number(bill.total || 0))
+
+  return <div style={{ borderBottom: '1px solid var(--line)', fontSize: 12 }}>
+    <div onClick={onToggle} style={{ alignItems: 'center', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', padding: '11px 0' }}>
+      <div><span className="font-mono" style={{ fontWeight: 600 }}>{expanded ? '⌄' : '›'} {bill.bill_number}</span><span style={{ color: 'var(--ghost-gray)', marginLeft: 10 }}>{bill.plate || '—'} {bill.vehicle ? `· ${bill.vehicle}` : ''}</span><div style={{ color: 'var(--ghost-gray)', fontSize: 11, marginTop: 2 }}>{bill.staff?.name_en || '—'} · {new Date(bill.created_at).toLocaleString('th-TH')} · คลิกเพื่อดูรายการ</div></div>
+      <div className="font-mono" style={{ fontWeight: 600 }}>¥{Number(bill.total || 0).toLocaleString()}</div>
+    </div>
+    {expanded && <div style={{ background: 'rgba(255,255,255,.025)', borderTop: '1px solid var(--line)', margin: '0 -8px', padding: '12px 14px' }}><div style={{ color: 'var(--ghost-gray)', fontSize: 10, letterSpacing: .8, marginBottom: 7 }}>รายการที่ทำ</div>{groupedItems.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 11 }}>ไม่มีรายละเอียดรายการในบิลนี้</div> : groupedItems.map(item => <div key={item.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}><span>{item.name} <span style={{ color: 'var(--ghost-gray)' }}>×{item.quantity}</span></span><span className="font-mono">¥{item.total.toLocaleString()}</span></div>)}<div style={{ borderTop: '1px dashed var(--line)', display: 'grid', gap: 4, gridTemplateColumns: '1fr auto', marginTop: 9, paddingTop: 9 }}><span style={{ color: 'var(--ghost-gray)' }}>Subtotal</span><span className="font-mono">¥{Number(bill.subtotal || 0).toLocaleString()}</span>{discountAmount > 0 && <><span style={{ color: '#84d6a8' }}>ส่วนลด {bill.discount_pct ? `(${bill.discount_pct}%)` : ''}</span><span className="font-mono" style={{ color: '#84d6a8' }}>−¥{discountAmount.toLocaleString()}</span></>}<span style={{ color: 'var(--ghost-gray)' }}>Commission</span><span className="font-mono" style={{ color: '#e5c158' }}>¥{Number(bill.commission || 0).toLocaleString()}</span><strong>TOTAL</strong><strong className="font-mono" style={{ color: 'var(--blood)' }}>¥{Number(bill.total || 0).toLocaleString()}</strong></div>{bill.notes && <div style={{ color: 'var(--ghost-gray)', fontSize: 11, marginTop: 10 }}>หมายเหตุ: {bill.notes}</div>}</div>}
+  </div>
 }
 
 // ---------------- Services Catalog ----------------
