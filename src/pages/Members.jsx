@@ -101,7 +101,7 @@ export default function Members() {
         <StatCard label="ค่าสมาชิกต่อเดือน" value={formatAmount(stats.fees)} note="มูลค่าแพ็กเกจที่กำลังใช้งาน" icon="◫" />
       </div>
 
-      <MembershipPlans />
+      <MembershipPlans onAdd={tier => setEditingMember({ tier })} />
 
       <div className="members-workspace">
         <div className="members-toolbar">
@@ -148,7 +148,7 @@ export default function Members() {
 }
 
 function StatCard({ label, value, note, icon, accent }) { return <div className={`member-stat ${accent ? 'member-stat--accent' : ''}`}><span className="member-stat__icon">{icon}</span><div><span>{label}</span><strong>{value}</strong><small>{note}</small></div></div> }
-function MembershipPlans() { return <section className="membership-plans" aria-label="แพ็กเกจสมาชิก">{MEMBERSHIP_PLAN_KEYS.map(key => { const plan = getMembershipPlan(key); return <article className={`membership-plan membership-plan--${key}`} key={key}><span>{plan.label} MEMBER</span><strong>{formatAmount(plan.monthlyFee)}<small>/ เดือน</small></strong><p>ยอดบิล ¥50,000 ลด {plan.discounts[50000]}%</p><p>ยอดบิล ¥100,000 ลด {plan.discounts[100000]}%</p>{key === 'gold' && <p className="membership-plan__reward">✦ ซ่อมฟรีไม่จำกัด ตลอดอายุสมาชิก</p>}</article> })}</section> }
+function MembershipPlans({ onAdd }) { return <section className="membership-plans" aria-label="แพ็กเกจสมาชิก">{MEMBERSHIP_PLAN_KEYS.map(key => { const plan = getMembershipPlan(key); return <article className={`membership-plan membership-plan--${key}`} key={key}><span>{plan.label} MEMBER</span><strong>{formatAmount(plan.monthlyFee)}<small>/ เดือน</small></strong><p>ยอดบิล ¥50,000 ลด {plan.discounts[50000]}%</p><p>ยอดบิล ¥100,000 ลด {plan.discounts[100000]}%</p>{key === 'gold' && <p className="membership-plan__reward">✦ ซ่อมฟรีไม่จำกัด ตลอดอายุสมาชิก</p>}<button type="button" className="membership-plan__add" onClick={() => onAdd(key)}>+ สมัคร {plan.label}</button></article> })}</section> }
 function LoadingRows() { return <div className="members-loading"><i /><i /><i /><span>กำลังโหลดข้อมูลสมาชิก…</span></div> }
 function EmptyState({ hasSearch, onAdd }) { return <div className="members-empty"><span>◎</span><h2>{hasSearch ? 'ไม่พบสมาชิกที่ค้นหา' : 'ยังไม่มีสมาชิกในระบบ'}</h2><p>{hasSearch ? 'ลองเปลี่ยนคำค้นหาหรือเลือกสาขาอื่น' : 'เริ่มสร้างฐานลูกค้าประจำและสะสมรางวัลให้พวกเขา'}</p>{!hasSearch && <button type="button" onClick={onAdd}>+ เพิ่มสมาชิกคนแรก</button>}</div> }
 

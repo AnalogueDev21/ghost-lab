@@ -15,4 +15,8 @@
 .member-active { color: #84d6a8; }.member-expired { color: #ed7880; }.member-loyalty > small { color: var(--ghost-gray); display: block; font-size: 10px; margin-top: 7px; }
 .membership-modal-plan { background: rgba(196,30,42,.09); border: 1px solid rgba(196,30,42,.32); border-radius: 7px; display: grid; gap: 4px; padding: 10px 12px; }.membership-modal-plan strong { font-size: 12px; }.membership-modal-plan span { color: var(--ghost-gray); font-size: 11px; }.membership-renew { align-items: center; background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 6px; color: var(--bone) !important; cursor: pointer; display: flex !important; gap: 8px; padding: 10px; }.membership-renew input { accent-color: var(--blood); }
 .membership-plan__reward,.membership-gold-repair { color: #e5c158 !important; font-weight: 600; }
+.membership-plan__add { background: rgba(255,255,255,.025); border: 1px solid var(--line); border-radius: 6px; color: var(--bone); cursor: pointer; font-size: 11px; font-weight: 600; margin-top: 12px; padding: 7px 10px; transition: .16s ease; width: 100%; }
+.membership-plan__add:hover { background: rgba(196,30,42,.14); border-color: var(--blood); color: #fff; }
+.membership-plan--gold .membership-plan__add { border-color: rgba(229,193,88,.48); color: #e5c158; }
+.membership-plan--gold .membership-plan__add:hover { background: rgba(229,193,88,.12); border-color: #e5c158; }
 @media (max-width: 850px) { .membership-plans { grid-template-columns: 1fr; } }
