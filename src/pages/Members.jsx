@@ -25,7 +25,7 @@ export default function Members() {
     setError('')
     const [branchResult, memberResult, rewardResult] = await Promise.all([
       supabase.from('branches').select('*').order('name'),
-      supabase.from('members').select('*, branches:branch_id(key,name)').order('created_at', { ascending: false }),
+      supabase.from('members').select('*, branches:branch_id(key,name)').is('archived_at', null).order('created_at', { ascending: false }),
       supabase.from('member_rewards').select('member_id').eq('status', 'available'),
     ])
 
@@ -71,8 +71,8 @@ export default function Members() {
   ]
 
   async function deleteMember(member) {
-    if (!window.confirm(`ลบสมาชิก “${member.name}” ?`)) return
-    const { error: deleteError } = await supabase.from('members').delete().eq('id', member.id)
+    if (!window.confirm(`ลบ “${member.name}” ออกจากรายชื่อสมาชิก?\n\nบิลและประวัติการเงินเก่าจะยังถูกเก็บไว้`)) return
+    const { error: deleteError } = await supabase.from('members').update({ archived_at: new Date().toISOString() }).eq('id', member.id)
     if (deleteError) {
       console.error(deleteError)
       setError('ลบสมาชิกไม่สำเร็จ')
