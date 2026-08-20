@@ -68,6 +68,20 @@ body {
 }
 .input:focus { outline: none; border-color: var(--blood); }
 
+/* Native dropdown menus need their own colours on Windows/Chromium. Without
+   these, options open on a white surface while retaining the app's light text. */
+select.input {
+  color-scheme: dark;
+}
+select.input option {
+  background: var(--static-raised);
+  color: var(--bone);
+}
+select.input option:checked {
+  background: var(--blood);
+  color: var(--bone);
+}
+
 .configuration-error {
   align-items: center;
   display: flex;

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
@@ -12,7 +13,9 @@ export default function POSPage({ branchKey, title, leadRole }) {
   const [billCount, setBillCount] = useState(0)
   const [serviceCount, setServiceCount] = useState(0)
 
-  const canManage = staff && (staff.role === 'owner' || staff.role === leadRole)
+  // Only the owner can change services or their material recipes. Staff still
+  // use the POS normally, but cannot alter what a sale consumes from stock.
+  const canManage = staff?.role === 'owner'
 
   useEffect(() => {
     supabase.from('branches').select('*').eq('key', branchKey).single()
@@ -90,6 +93,7 @@ function NewBillTab({ branch, title, staff }) {
   const [submitting, setSubmitting] = useState(false)
   const [toast, setToast] = useState('')
   const [selfService, setSelfService] = useState(false)
+  const [memberEnabled, setMemberEnabled] = useState(false)
 
   // Customer / member search
   const [customerQuery, setCustomerQuery] = useState('')
@@ -135,8 +139,20 @@ function NewBillTab({ branch, title, staff }) {
     if (m.plate_or_note) setPlate(m.plate_or_note)
   }
 
+  function toggleMember() {
+    setMemberEnabled(enabled => {
+      if (enabled) {
+        setSelectedMember(null)
+        setCustomerQuery('')
+        setCustomerResults([])
+      }
+      return !enabled
+    })
+  }
+
   async function submitBill() {
     if (cart.length === 0 || !staff) return
+    if (memberEnabled && !selectedMember) { showToast('กรุณาเลือก Member ก่อนบันทึกบิล'); return }
     setSubmitting(true)
     const billNumber = `${branch.key.slice(0, 3).toUpperCase()}-${Date.now().toString().slice(-6)}`
 
@@ -167,7 +183,7 @@ function NewBillTab({ branch, title, staff }) {
       }).eq('id', selectedMember.id)
     }
 
-    setCart([]); setPlate(''); setVehicle(''); setNotes(''); setSelectedMember(null); setSelfService(false)
+    setCart([]); setPlate(''); setVehicle(''); setNotes(''); setSelectedMember(null); setSelfService(false); setMemberEnabled(false)
     showToast('บันทึกบิลสำเร็จ ✓ ' + billNumber)
     setSubmitting(false)
   }
@@ -209,41 +225,6 @@ function NewBillTab({ branch, title, staff }) {
             ▸ NEW BILL — {title}
           </div>
 
-          {/* Customer / member search */}
-          <div style={{ fontSize: 10, color: 'var(--ghost-gray)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Customer · Member</div>
-          {selectedMember ? (
-            <div className="panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', marginBottom: 8 }}>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600 }}>{selectedMember.name}</div>
-                <div style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{selectedMember.visits || 0}x · ¥{(selectedMember.total_spent || 0).toLocaleString()}</div>
-              </div>
-              <div onClick={() => setSelectedMember(null)} style={{ color: 'var(--ghost-gray)', cursor: 'pointer', fontSize: 14 }}>✕</div>
-            </div>
-          ) : (
-            <div style={{ position: 'relative', marginBottom: 8 }}>
-              <input
-                className="input" placeholder="ค้นหาทะเบียนรถ หรือชื่อลูกค้า..."
-                value={customerQuery} onChange={e => setCustomerQuery(e.target.value)}
-              />
-              {(customerResults.length > 0 || customerQuery.trim()) && (
-                <div className="panel" style={{ position: 'absolute', top: '110%', left: 0, right: 0, zIndex: 10, padding: 8 }}>
-                  {customerResults.map(m => (
-                    <div key={m.id} onClick={() => pickMember(m)} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 6px', cursor: 'pointer', borderRadius: 6 }}>
-                      <div>
-                        <span style={{ fontSize: 13, fontWeight: 500 }}>{m.name}</span>
-                        <span style={{ fontSize: 11, color: 'var(--ghost-gray)', marginLeft: 8 }}>{m.plate_or_note}</span>
-                      </div>
-                      <div style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{m.visits || 0}x · ¥{(m.total_spent || 0).toLocaleString()}</div>
-                    </div>
-                  ))}
-                  <div onClick={() => setShowAddMember(true)} style={{ padding: '8px 6px', color: 'var(--blood)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                    + เพิ่มลูกค้าใหม่
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
           <input className="input" placeholder="ทะเบียน / Plate" value={plate} onChange={e => setPlate(e.target.value)} style={{ marginBottom: 8 }} />
           <input className="input" placeholder="รถ / รายละเอียด" value={vehicle} onChange={e => setVehicle(e.target.value)} style={{ marginBottom: 8 }} />
           <input className="input" placeholder="หมายเหตุ (optional)" value={notes} onChange={e => setNotes(e.target.value)} style={{ marginBottom: 14 }} />
@@ -259,6 +240,45 @@ function NewBillTab({ branch, title, staff }) {
               ))
             }
           </div>
+
+          <div
+            onClick={toggleMember}
+            className="panel"
+            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', marginBottom: memberEnabled ? 8 : 12, cursor: 'pointer' }}
+          >
+            <div style={{ width: 34, height: 18, borderRadius: 10, background: memberEnabled ? 'var(--blood)' : 'rgba(255,255,255,0.15)', position: 'relative', flexShrink: 0, transition: 'background .15s' }}>
+              <div style={{ width: 14, height: 14, borderRadius: '50%', background: 'var(--bone)', position: 'absolute', top: 2, left: memberEnabled ? 18 : 2, transition: 'left .15s' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600 }}>★ มี MEMBER</div>
+              <div style={{ fontSize: 10, color: 'var(--ghost-gray)' }}>เลือกสมาชิกเพื่อสะสมเป้าหมาย MT และคูปอง</div>
+            </div>
+          </div>
+
+          {memberEnabled && (
+            <div style={{ marginBottom: 12 }} onClick={event => event.stopPropagation()}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ color: 'var(--ghost-gray)', fontSize: 10, letterSpacing: .8 }}>MEMBERS & COUPONS</span>
+                <Link to="/members" style={{ color: 'var(--bone)', fontSize: 10, textDecoration: 'underline' }}>จัดการรายชื่อ Members ↗</Link>
+              </div>
+              {selectedMember ? (
+                <div className="panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px' }}>
+                  <div><div style={{ fontSize: 13, fontWeight: 600 }}>{selectedMember.name}</div><div style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{selectedMember.repair_visits || 0} / 10 MT · ¥{(selectedMember.total_spent || 0).toLocaleString()}</div></div>
+                  <div onClick={() => setSelectedMember(null)} style={{ color: 'var(--ghost-gray)', cursor: 'pointer', fontSize: 14 }}>✕</div>
+                </div>
+              ) : (
+                <div style={{ position: 'relative' }}>
+                  <input className="input" autoFocus placeholder="ค้นหาทะเบียนรถ หรือชื่อ Member..." value={customerQuery} onChange={e => setCustomerQuery(e.target.value)} />
+                  {(customerResults.length > 0 || customerQuery.trim()) && (
+                    <div className="panel" style={{ position: 'absolute', top: '110%', left: 0, right: 0, zIndex: 10, padding: 8 }}>
+                      {customerResults.map(m => <div key={m.id} onClick={() => pickMember(m)} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 6px', cursor: 'pointer', borderRadius: 6 }}><div><span style={{ fontSize: 13, fontWeight: 500 }}>{m.name}</span><span style={{ fontSize: 11, color: 'var(--ghost-gray)', marginLeft: 8 }}>{m.plate_or_note}</span></div><div style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{m.repair_visits || 0} / 10 MT</div></div>)}
+                      <div onClick={() => setShowAddMember(true)} style={{ padding: '8px 6px', color: 'var(--blood)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>+ เพิ่ม Member ใหม่</div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Self service toggle */}
           <div
@@ -472,12 +492,12 @@ function ServicesTab({ branch }) {
 
       {loading ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12 }}>กำลังโหลด...</div> : (
         <div>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.3fr 1fr 1fr auto', gap: 10, padding: '0 0 10px', fontSize: 10, color: 'var(--ghost-gray)', textTransform: 'uppercase', letterSpacing: 1 }}>
-            <div>Name</div><div>Category</div><div>Price (¥)</div><div>Materials</div><div></div>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.3fr 1fr 1fr 1fr auto', gap: 10, padding: '0 0 10px', fontSize: 10, color: 'var(--ghost-gray)', textTransform: 'uppercase', letterSpacing: 1 }}>
+            <div>Name</div><div>Category</div><div>Price (¥)</div><div>Materials</div><div>MT Loyalty</div><div></div>
           </div>
           {services.map(s => (
             <div key={s.id} style={{ borderBottom: '1px solid var(--line)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.3fr 1fr 1fr auto', gap: 10, padding: '6px 0', alignItems: 'center' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.3fr 1fr 1fr 1fr auto', gap: 10, padding: '6px 0', alignItems: 'center' }}>
                 <input
                   className="input" value={s.name}
                   onChange={e => updateField(s.id, 'name', e.target.value)}
@@ -500,6 +520,10 @@ function ServicesTab({ branch }) {
                 >
                   {materialCounts[s.id] ? `${materialCounts[s.id]} items` : '⚙ ตั้งค่า'}
                 </div>
+                <label style={{ alignItems: 'center', color: s.loyalty_eligible ? 'var(--bone)' : 'var(--ghost-gray)', cursor: 'pointer', display: 'flex', fontSize: 11, gap: 6 }}>
+                  <input type="checkbox" checked={Boolean(s.loyalty_eligible)} onChange={event => { updateField(s.id, 'loyalty_eligible', event.target.checked); saveField(s.id, 'loyalty_eligible', event.target.checked) }} />
+                  นับซ่อม
+                </label>
                 <div onClick={() => removeService(s.id)} className="btn" style={{ color: 'var(--blood)', borderColor: 'rgba(196,30,42,0.4)', padding: '10px 14px' }}>🗑</div>
               </div>
 

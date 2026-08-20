@@ -34,19 +34,19 @@ export default function App() {
           } />
 
           <Route path="/garage" element={
-            <ProtectedRoute allow={[ROLES.OWNER, ROLES.HEAD_MECHANIC, ROLES.MECHANIC, ROLES.MECHANIC_TRAINEE]}>
+            <ProtectedRoute allow={[ROLES.OWNER, ROLES.HEAD_MECHANIC, ROLES.MECHANIC, ROLES.MECHANIC_TRAINEE]} permission="garage_access">
               <Layout title="Ghost Lab Garage" sub="Garage Operations"><GaragePOS /></Layout>
             </ProtectedRoute>
           } />
 
           <Route path="/chill" element={
-            <ProtectedRoute allow={[ROLES.OWNER, ROLES.CHILL_MANAGER, ROLES.CHILL_STAFF]}>
+            <ProtectedRoute allow={[ROLES.OWNER, ROLES.CHILL_MANAGER, ROLES.CHILL_STAFF]} permission="chill_access">
               <Layout title="Ghost Chill" sub="Food & Drink Operations"><ChillPOS /></Layout>
             </ProtectedRoute>
           } />
 
           <Route path="/members" element={
-            <ProtectedRoute allow={[ROLES.OWNER, ROLES.HEAD_MECHANIC, ROLES.CHILL_MANAGER]}>
+            <ProtectedRoute allow={[ROLES.OWNER, ROLES.HEAD_MECHANIC, ROLES.CHILL_MANAGER]} permission="members_access">
               <Layout title="Members & Coupons" sub="Loyalty Program">
                 <Members />
               </Layout>
@@ -60,7 +60,7 @@ export default function App() {
           } />
 
           <Route path="/stock" element={
-            <ProtectedRoute allow={[ROLES.OWNER, ROLES.STOCK_KEEPER]}>
+            <ProtectedRoute allow={[ROLES.OWNER, ROLES.STOCK_KEEPER]} permission="stock_access">
               <Layout title="สต๊อก & เบิกจ่าย" sub="Stock & Prepay Management">
                 <Stock />
               </Layout>

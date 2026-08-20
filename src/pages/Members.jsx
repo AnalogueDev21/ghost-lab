@@ -12,6 +12,7 @@ export default function Members() {
   const [loading, setLoading] = useState(true)
   const [editingMember, setEditingMember] = useState(null) // null = closed, {} = new, {...} = editing
   const [refreshKey, setRefreshKey] = useState(0)
+  const [couponCounts, setCouponCounts] = useState({})
 
   useEffect(() => {
     supabase.from('branches').select('*').then(({ data }) => setBranches(data || []))
@@ -25,6 +26,15 @@ export default function Members() {
         setMembers(data || [])
         setLoading(false)
       })
+  }, [refreshKey])
+
+  useEffect(() => {
+    supabase.from('member_rewards').select('member_id').eq('status', 'available').then(({ data, error }) => {
+      if (error) { console.error(error); return }
+      const counts = {}
+      ;(data || []).forEach(reward => { counts[reward.member_id] = (counts[reward.member_id] || 0) + 1 })
+      setCouponCounts(counts)
+    })
   }, [refreshKey])
 
   const filtered = members.filter(m => {
@@ -81,11 +91,11 @@ export default function Members() {
       <div className="panel">
         {loading ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12 }}>กำลังโหลด...</div> : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.2fr 1fr 0.8fr 1fr 0.6fr auto', gap: 10, padding: '0 0 10px', fontSize: 10, color: 'var(--ghost-gray)', textTransform: 'uppercase', letterSpacing: 1 }}>
-              <div>ลูกค้า</div><div>สาขา</div><div>ติดต่อ</div><div>Tier</div><div>ยอดใช้จ่าย</div><div>ครั้ง</div><div></div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1.1fr 1fr 0.7fr 0.9fr 1.1fr 0.9fr auto', gap: 10, padding: '0 0 10px', fontSize: 10, color: 'var(--ghost-gray)', textTransform: 'uppercase', letterSpacing: 1 }}>
+              <div>ลูกค้า</div><div>สาขา</div><div>ติดต่อ</div><div>Tier</div><div>ยอดใช้จ่าย</div><div>เป้าหมาย MT</div><div>คูปอง</div><div></div>
             </div>
             {filtered.map(m => (
-              <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.2fr 1fr 0.8fr 1fr 0.6fr auto', gap: 10, padding: '10px 0', borderTop: '1px solid var(--line)', alignItems: 'center' }}>
+              <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '1.5fr 1.1fr 1fr 0.7fr 0.9fr 1.1fr 0.9fr auto', gap: 10, padding: '10px 0', borderTop: '1px solid var(--line)', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{
                     width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
@@ -110,7 +120,13 @@ export default function Members() {
                   </span>
                 </div>
                 <div className="font-mono" style={{ fontSize: 13 }}>¥{(m.total_spent || 0).toLocaleString()}</div>
-                <div className="font-mono" style={{ fontSize: 13 }}>{m.visits || 0}x</div>
+                <div>
+                  <div className="font-mono" style={{ color: 'var(--bone)', fontSize: 13 }}>{m.repair_visits || 0} / 10 MT</div>
+                  <div style={{ background: 'rgba(255,255,255,.1)', borderRadius: 5, height: 4, marginTop: 5, overflow: 'hidden' }}>
+                    <div style={{ background: 'var(--blood)', height: '100%', width: `${((m.repair_visits || 0) % 10) * 10}%` }} />
+                  </div>
+                </div>
+                <div style={{ color: couponCounts[m.id] ? '#e5c158' : 'var(--ghost-gray)', fontSize: 12, fontWeight: 600 }}>{couponCounts[m.id] || 0} × ซ่อมฟรี</div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <div onClick={() => setEditingMember(m)} className="btn btn-secondary" style={{ padding: '6px 10px', fontSize: 11 }}>แก้ไข</div>
                   <div onClick={() => deleteMember(m.id)} className="btn" style={{ padding: '6px 10px', fontSize: 11, color: 'var(--blood)', borderColor: 'rgba(196,30,42,0.4)' }}>ลบ</div>

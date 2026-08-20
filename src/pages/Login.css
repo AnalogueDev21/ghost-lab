@@ -1,83 +1,44 @@
-.login-page {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 40px;
-}
-
-.login-shell { max-width: 420px; width: 100%; }
-
-.login-brand { margin-bottom: 24px; text-align: center; }
-.login-brand__name {
-  font-size: 34px;
-  font-weight: 700;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-}
+.login-page { align-items: center; display: flex; justify-content: center; min-height: 100vh; padding: 40px 24px; }
+.login-shell { max-width: 460px; width: 100%; }
+.login-brand { margin-bottom: 26px; text-align: center; }
+.login-brand__name { font-size: 34px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; }
 .login-brand__dot { color: var(--blood); }
-.login-brand__subtitle {
-  color: var(--ghost-gray);
-  font-size: 11px;
-  letter-spacing: 6px;
-  margin-top: 8px;
-}
-
-.staff-picker {
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(2, 1fr);
-  margin: 0 auto 20px;
-  max-width: 220px;
-}
-.staff-card {
-  background: var(--static);
-  border-color: var(--line);
-  cursor: pointer;
-  text-align: center;
-}
-.staff-card--selected {
-  background: linear-gradient(180deg, var(--ember), var(--static));
-  border-color: var(--blood);
-}
-.staff-card__avatar {
-  align-items: center;
-  background: linear-gradient(135deg, var(--blood), var(--ember));
-  border-radius: 50%;
-  display: flex;
-  font-family: Inter, "Noto Sans Thai", sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  height: 38px;
-  justify-content: center;
-  margin: 0 auto 8px;
-  width: 38px;
-}
-.staff-card__name { font-size: 12px; font-weight: 500; }
-.staff-picker__empty {
-  color: var(--ghost-gray);
-  font-size: 11px;
-  grid-column: 1 / -1;
-  text-align: center;
-}
-
-.pin-panel__label {
-  color: var(--ghost-gray);
-  font-size: 11px;
-  letter-spacing: 1.5px;
-  margin-bottom: 12px;
-  text-align: center;
-  text-transform: uppercase;
-}
-.pin-panel__error { color: var(--blood); font-size: 11px; min-height: 14px; margin-bottom: 8px; text-align: center; }
-.pin-dots { display: flex; gap: 14px; justify-content: center; margin-bottom: 20px; }
-.pin-dot { background: transparent; border: 1.5px solid var(--ghost-gray); border-radius: 50%; height: 14px; width: 14px; }
-.pin-dot--filled { background: var(--blood); border-color: var(--blood); }
-.pin-pad { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); }
-.pin-pad__key { cursor: pointer; font-size: 17px; padding: 15px 0; text-align: center; }
+.login-brand__subtitle { color: var(--ghost-gray); font-size: 11px; letter-spacing: 6px; margin-top: 8px; }
+.login-card { background: linear-gradient(145deg, rgba(41, 43, 46, .98), rgba(25, 27, 29, .98)); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 58px rgba(0, 0, 0, .28); padding: 28px; }
+.login-card__header { margin-bottom: 22px; text-align: center; }
+.login-card__eyebrow, .selected-profile__label { color: var(--blood); display: block; font-size: 10px; font-weight: 700; letter-spacing: 1.7px; text-transform: uppercase; }
+.login-card h1 { font-size: 23px; line-height: 1.3; margin-top: 6px; }
+.login-card__header p { color: var(--ghost-gray); font-size: 13px; margin-top: 7px; }
+.staff-picker { display: grid; gap: 10px; }
+.staff-card { align-items: center; appearance: none; background: rgba(255, 255, 255, .035); border: 1px solid var(--line); border-radius: 11px; color: var(--bone); cursor: pointer; display: flex; font: inherit; gap: 13px; padding: 12px; text-align: left; transition: background .16s ease, border-color .16s ease, transform .16s ease; width: 100%; }
+.staff-card:hover, .staff-card:focus-visible { background: linear-gradient(90deg, rgba(196, 30, 42, .17), rgba(255, 255, 255, .04)); border-color: rgba(196, 30, 42, .7); outline: none; transform: translateX(3px); }
+.staff-avatar { align-items: center; background: linear-gradient(135deg, var(--blood), var(--ember)); border: 1px solid rgba(255, 255, 255, .16); border-radius: 50%; display: flex; flex: 0 0 auto; font-family: Inter, 'Noto Sans Thai', sans-serif; font-size: 12px; font-weight: 700; height: 42px; justify-content: center; letter-spacing: .4px; width: 42px; }
+.staff-avatar--large { font-size: 15px; height: 58px; width: 58px; }
+.staff-card__details { display: grid; gap: 1px; }
+.staff-card__details strong { font-size: 15px; font-weight: 600; }
+.staff-card__details small { color: var(--ghost-gray); font-size: 12px; }
+.staff-card__arrow { color: var(--ghost-gray); font-size: 18px; margin-left: auto; transition: color .16s ease, transform .16s ease; }
+.staff-card:hover .staff-card__arrow { color: var(--bone); transform: translateX(2px); }
+.staff-picker__empty { color: var(--ghost-gray); font-size: 12px; padding: 18px 8px; text-align: center; }
+.login-card--pin { padding: 20px 28px 28px; }
+.change-profile { background: transparent; border: 0; color: var(--ghost-gray); cursor: pointer; font: inherit; font-size: 12px; padding: 4px 0; transition: color .15s ease; }
+.change-profile:hover, .change-profile:focus-visible { color: var(--bone); outline: none; }
+.change-profile:disabled { cursor: wait; opacity: .5; }
+.selected-profile { align-items: center; border-bottom: 1px solid var(--line); display: flex; gap: 14px; justify-content: center; margin: 12px 0 22px; padding: 0 0 20px; text-align: left; }
+.selected-profile h1 { font-size: 22px; margin: 2px 0 0; }
+.selected-profile p { color: var(--ghost-gray); font-size: 12px; margin-top: 1px; }
+.pin-panel__label { color: var(--ghost-gray); font-size: 11px; letter-spacing: 1.2px; margin-bottom: 12px; text-align: center; text-transform: uppercase; }
+.pin-panel__error { color: #ec6872; font-size: 12px; min-height: 18px; text-align: center; }
+.pin-dots { display: flex; gap: 14px; justify-content: center; margin: 5px 0 21px; }
+.pin-dot { background: transparent; border: 1.5px solid var(--ghost-gray); border-radius: 50%; height: 13px; transition: background .15s ease, border-color .15s ease; width: 13px; }
+.pin-dot--filled { background: var(--blood); border-color: var(--blood); box-shadow: 0 0 10px rgba(196, 30, 42, .42); }
+.pin-pad { display: grid; gap: 9px; grid-template-columns: repeat(3, 1fr); }
+.pin-pad__key { background: rgba(255, 255, 255, .045); border: 1px solid var(--line); border-radius: 9px; color: var(--bone); cursor: pointer; font: 500 17px 'JetBrains Mono', monospace; min-height: 49px; transition: background .12s ease, border-color .12s ease, transform .12s ease; }
+.pin-pad__key:hover, .pin-pad__key:focus-visible { background: rgba(196, 30, 42, .2); border-color: rgba(196, 30, 42, .72); outline: none; }
+.pin-pad__key:active { transform: scale(.96); }
+.pin-pad__key:disabled { cursor: wait; opacity: .45; }
+.pin-pad__key--muted { color: var(--ghost-gray); font-family: 'Noto Sans Thai', 'Inter', sans-serif; font-size: 12px; }
+.pin-panel__status { color: var(--ghost-gray); font-size: 11px; margin-top: 13px; text-align: center; }
 .login-footer { color: var(--ghost-gray); font-size: 13px; margin-top: 18px; text-align: center; }
 .login-footer a { color: var(--bone); font-weight: 700; text-decoration: none; }
-
-@media (max-width: 480px) {
-  .login-page { padding: 24px; }
-}
+@media (max-width: 480px) { .login-page { padding: 24px 16px; }.login-card { border-radius: 14px; padding: 24px 18px; }.login-card--pin { padding: 18px 18px 24px; }.login-brand__name { font-size: 30px; }.login-card h1 { font-size: 21px; } }

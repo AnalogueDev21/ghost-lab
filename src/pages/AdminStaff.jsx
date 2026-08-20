@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { ROLES, ROLE_LABELS } from '../lib/roles'
+import { PERMISSIONS, ROLES, ROLE_LABELS } from '../lib/roles'
 
 const ROLE_OPTIONS = Object.values(ROLES)
 
@@ -31,10 +31,23 @@ export default function AdminStaff() {
     const s = staffList.find(x => x.id === id)
     setSavingId(id)
     const { error } = await supabase.from('staff').update({
-      role: s.role, active: s.active, primary_branch: s.primary_branch, name_th: s.name_th,
+      role: s.role, active: s.active, primary_branch: s.primary_branch, name_th: s.name_th, permissions: s.permissions || [],
     }).eq('id', id)
     setSavingId(null)
     if (error) { console.error(error); alert('บันทึกไม่สำเร็จ: ' + error.message) }
+  }
+
+  function togglePermission(staffId, permission) {
+    setStaffList(list => list.map(staff => {
+      if (staff.id !== staffId) return staff
+      const permissions = staff.permissions || []
+      return {
+        ...staff,
+        permissions: permissions.includes(permission)
+          ? permissions.filter(value => value !== permission)
+          : [...permissions, permission],
+      }
+    }))
   }
 
   return (
@@ -42,18 +55,18 @@ export default function AdminStaff() {
       <div style={{ marginBottom: 16 }}>
         <div className="font-display" style={{ fontSize: 18, fontWeight: 600 }}>จัดการพนักงาน</div>
         <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>
-          ปรับยศ / เปิด-ปิดใช้งาน / ย้ายสาขา ของพนักงานที่มีอยู่ — สร้าง login ใหม่ยังต้องใช้ scripts/seed-staff.mjs
+          ปรับยศ สาขา และสิทธิ์เสริมรายคนได้ — Owner เท่านั้นที่สามารถบันทึกการเปลี่ยนแปลง
         </div>
       </div>
 
       <div className="panel">
         {loading ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12 }}>กำลังโหลด...</div> : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.4fr 1.4fr 0.8fr auto', gap: 10, padding: '0 0 10px', fontSize: 10, color: 'var(--ghost-gray)', textTransform: 'uppercase', letterSpacing: 1 }}>
-              <div>ชื่อ</div><div>ยศ (Role)</div><div>สาขาหลัก</div><div>สถานะ</div><div></div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.2fr 1.2fr 1.8fr 0.7fr auto', gap: 10, padding: '0 0 10px', fontSize: 10, color: 'var(--ghost-gray)', textTransform: 'uppercase', letterSpacing: 1 }}>
+              <div>ชื่อ</div><div>ยศ (Role)</div><div>สาขาหลัก</div><div>สิทธิ์เสริม</div><div>สถานะ</div><div></div>
             </div>
             {staffList.map(s => (
-              <div key={s.id} style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.4fr 1.4fr 0.8fr auto', gap: 10, padding: '10px 0', borderTop: '1px solid var(--line)', alignItems: 'center' }}>
+              <div key={s.id} style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.2fr 1.2fr 1.8fr 0.7fr auto', gap: 10, padding: '10px 0', borderTop: '1px solid var(--line)', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{
                     width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
@@ -73,6 +86,15 @@ export default function AdminStaff() {
                   <option value="">— ไม่ระบุ —</option>
                   {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
+
+                <div style={{ display: 'grid', gap: 5 }}>
+                  {PERMISSIONS.map(permission => (
+                    <label key={permission.key} title={permission.description} style={{ alignItems: 'center', color: 'var(--ghost-gray)', cursor: 'pointer', display: 'flex', fontSize: 11, gap: 6 }}>
+                      <input type="checkbox" checked={(s.permissions || []).includes(permission.key)} onChange={() => togglePermission(s.id, permission.key)} />
+                      <span>{permission.label}</span>
+                    </label>
+                  ))}
+                </div>
 
                 <div
                   onClick={() => updateLocal(s.id, 'active', !s.active)}

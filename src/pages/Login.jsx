@@ -4,103 +4,119 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import './Login.css'
 
+function StaffAvatar({ staff, large = false }) {
+  return <div className={`staff-avatar ${large ? 'staff-avatar--large' : ''}`} aria-hidden="true">{staff.name_en.slice(0, 2).toUpperCase()}</div>
+}
+
 export default function Login() {
   const [staffList, setStaffList] = useState([])
   const [selected, setSelected] = useState(null)
+  const [step, setStep] = useState('profile')
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
-  const { loginWithPin, session } = useAuth()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { loginWithPin, session, staff, loading } = useAuth()
   const navigate = useNavigate()
 
+  // Wait for AuthProvider to finish loading the matching staff row.  This
+  // prevents navigating to a protected route in the short gap after PIN auth.
   useEffect(() => {
-    if (session) navigate('/')
-  }, [session])
-
+    if (session && staff && !loading) navigate('/')
+  }, [session, staff, loading, navigate])
   useEffect(() => {
-    supabase
-      .from('staff')
-      .select('id, name_en, name_th, role')
-      .eq('active', true)
-      .then(({ data, error }) => {
-        if (error) { console.error(error); return }
-        setStaffList(data || [])
-        if (data && data.length) setSelected(data[0])
-      })
+    supabase.from('staff').select('id, name_en, name_th, role').eq('active', true).then(({ data, error: fetchError }) => {
+      if (fetchError) { console.error(fetchError); return }
+      setStaffList(data || [])
+    })
   }, [])
 
-  function press(k) {
+  function chooseProfile(staff) {
+    setSelected(staff)
+    setPin('')
     setError('')
-    if (k === 'clear') setPin('')
-    else if (k === 'back') setPin(p => p.slice(0, -1))
+    setStep('pin')
+  }
+
+  function changeProfile() {
+    if (isSubmitting) return
+    setPin('')
+    setError('')
+    setStep('profile')
+  }
+
+  function press(key) {
+    if (isSubmitting) return
+    setError('')
+    if (key === 'clear') setPin('')
+    else if (key === 'back') setPin(current => current.slice(0, -1))
     else if (pin.length < 4) {
-      const next = pin + k
-      setPin(next)
-      if (next.length === 4) submit(next)
+      const nextPin = pin + key
+      setPin(nextPin)
+      if (nextPin.length === 4) submit(nextPin)
     }
   }
 
   async function submit(fullPin) {
     if (!selected) return
-    const res = await loginWithPin(selected.name_en, fullPin)
-    if (!res.ok) { setError(res.message); setPin('') }
+    setIsSubmitting(true)
+    const result = await loginWithPin(selected.name_en, fullPin)
+    setIsSubmitting(false)
+    if (!result.ok) {
+      setError(result.message)
+      setPin('')
+    }
   }
 
   return (
-    <div className="login-page">
-      <div className="login-shell">
+    <main className="login-page">
+      <section className="login-shell" aria-label="เข้าสู่ระบบ Ghost Lab">
         <div className="login-brand">
-          <div className="font-display login-brand__name">
-            GHOST<span className="login-brand__dot">·</span>LAB
-          </div>
+          <div className="font-display login-brand__name">GHOST<span className="login-brand__dot">·</span>LAB</div>
           <div className="login-brand__subtitle">ゴースト ラボ</div>
         </div>
 
-        <div className="staff-picker">
-          {staffList.map(s => (
-            <div
-              key={s.id}
-              onClick={() => setSelected(s)}
-              className={`panel staff-card ${selected?.id === s.id ? 'staff-card--selected' : ''}`}
-            >
-              <div className="staff-card__avatar">
-                {s.name_en.slice(0, 2).toUpperCase()}
-              </div>
-              <div className="staff-card__name">{s.name_en}</div>
+        {step === 'profile' ? (
+          <div className="login-card login-card--profiles">
+            <div className="login-card__header">
+              <span className="login-card__eyebrow">STEP 01 · PROFILE</span>
+              <h1>เลือกโปรไฟล์ของคุณ</h1>
+              <p>เลือกชื่อก่อน แล้วจึงใส่ PIN เพื่อเข้าสู่ระบบ</p>
             </div>
-          ))}
-          {staffList.length === 0 && (
-            <div className="staff-picker__empty">
-              ยังไม่มีพนักงานในระบบ — เพิ่มผ่าน Supabase dashboard ก่อน
+            <div className="staff-picker" role="list" aria-label="รายชื่อพนักงาน">
+              {staffList.map(staff => (
+                <button key={staff.id} type="button" className="staff-card" onClick={() => chooseProfile(staff)} role="listitem">
+                  <StaffAvatar staff={staff} />
+                  <span className="staff-card__details"><strong>{staff.name_en}</strong>{staff.name_th && <small>{staff.name_th}</small>}</span>
+                  <span className="staff-card__arrow" aria-hidden="true">→</span>
+                </button>
+              ))}
+              {staffList.length === 0 && <div className="staff-picker__empty">ยังไม่มีพนักงานในระบบ — เพิ่มผ่าน Supabase dashboard ก่อน</div>}
             </div>
-          )}
-        </div>
-
-        <div className="panel">
-          <div className="pin-panel__label">
-            ใส่ PIN 4 หลักเพื่อเข้าใช้งาน
           </div>
-          <div className="pin-panel__error">{error}</div>
-          <div className="pin-dots">
-            {[0, 1, 2, 3].map(i => (
-              <div key={i} className={`pin-dot ${i < pin.length ? 'pin-dot--filled' : ''}`} />
-            ))}
-          </div>
-          <div className="pin-pad">
-            {['1','2','3','4','5','6','7','8','9','clear','0','back'].map(k => (
-              <div
-                key={k}
-                onClick={() => press(k)}
-                className="input font-mono pin-pad__key"
-              >
-                {k === 'clear' ? 'C' : k === 'back' ? '⌫' : k}
+        ) : (
+          <div className="login-card login-card--pin">
+            <button type="button" className="change-profile" onClick={changeProfile} disabled={isSubmitting}>← เปลี่ยนโปรไฟล์</button>
+            <div className="selected-profile">
+              <StaffAvatar staff={selected} large />
+              <div><span className="selected-profile__label">กำลังเข้าสู่ระบบเป็น</span><h1>{selected.name_en}</h1>{selected.name_th && <p>{selected.name_th}</p>}</div>
+            </div>
+            <div className="pin-panel">
+              <div className="pin-panel__label">ใส่ PIN 4 หลักเพื่อเข้าใช้งาน</div>
+              <div className="pin-panel__error" role="alert">{error}</div>
+              <div className="pin-dots" aria-label={`ใส่ PIN แล้ว ${pin.length} จาก 4 หลัก`}>
+                {[0, 1, 2, 3].map(index => <span key={index} className={`pin-dot ${index < pin.length ? 'pin-dot--filled' : ''}`} />)}
               </div>
-            ))}
+              <div className="pin-pad">
+                {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'clear', '0', 'back'].map(key => (
+                  <button key={key} type="button" onClick={() => press(key)} disabled={isSubmitting} className={`pin-pad__key ${key === 'clear' ? 'pin-pad__key--muted' : ''}`} aria-label={key === 'clear' ? 'ล้าง PIN' : key === 'back' ? 'ลบตัวเลขล่าสุด' : key}>{key === 'clear' ? 'ล้าง' : key === 'back' ? '⌫' : key}</button>
+                ))}
+              </div>
+              {isSubmitting && <div className="pin-panel__status">กำลังตรวจสอบ PIN…</div>}
+            </div>
           </div>
-        </div>
-        <div className="login-footer">
-          พนักงานใหม่? <Link to="/signup">สมัครสมาชิก</Link>
-        </div>
-      </div>
-    </div>
+        )}
+        <footer className="login-footer">พนักงานใหม่? <Link to="/signup">สมัครสมาชิก</Link></footer>
+      </section>
+    </main>
   )
 }

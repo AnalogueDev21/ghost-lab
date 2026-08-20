@@ -22,7 +22,7 @@ export default function Sidebar() {
       </div>
 
       <div style={{ flex: 1, padding: '0 12px' }}>
-        {NAV_ITEMS.filter(item => canSeeNavItem(item, staff.role)).map(item => (
+        {NAV_ITEMS.filter(item => canSeeNavItem(item, staff)).map(item => (
           <NavLink
             key={item.key}
             to={item.path}

@@ -24,6 +24,10 @@ export function AuthProvider({ children }) {
     })
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      // Set the loading state before exposing a new session.  Without this,
+      // a successful sign-in can render a protected route while its staff row
+      // is still being fetched, which sends the user back to Login until a refresh.
+      setLoading(true)
       setSession(newSession)
       if (newSession) loadStaff(newSession.user.id)
       else { setStaff(null); setLoading(false) }
