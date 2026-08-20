@@ -30,7 +30,8 @@ export function getMembershipPlan(tier) {
 
 export function isMembershipActive(member, now = new Date()) {
   if (!member?.membership_expires_at) return false
-  return new Date(member.membership_expires_at).getTime() >= now.getTime()
+  const referenceTime = now instanceof Date ? now.getTime() : Date.now()
+  return new Date(member.membership_expires_at).getTime() >= referenceTime
 }
 
 export function calculateMemberDiscount(member, subtotal, now = new Date()) {
