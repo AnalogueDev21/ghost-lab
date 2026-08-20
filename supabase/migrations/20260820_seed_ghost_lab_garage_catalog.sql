@@ -12,7 +12,7 @@ create temporary table garage_catalog (
   category text not null,
   price integer not null,
   primary key (name, category)
-) on commit drop;
+);
 
 insert into garage_catalog (name, category, price) values
   ('Aerials', 'Body part', 5000),
@@ -172,5 +172,7 @@ set active = false
 from ranked_duplicates
 where service.id = ranked_duplicates.id
   and ranked_duplicates.row_number > 1;
+
+drop table garage_catalog;
 
 commit;
