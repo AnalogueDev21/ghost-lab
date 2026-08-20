@@ -37,8 +37,8 @@ export default function Home() {
   const commissionPending = filteredBills.reduce((a, b) => a + (b.commission || 0), 0)
   const teamSummary = Object.values(todayBills.reduce((summary, bill) => {
     const key = bill.staff_id || 'unknown'
-    const current = summary[key] || { id: key, name: bill.staff?.name_en || 'ไม่ระบุพนักงาน', bills: 0, total: 0 }
-    summary[key] = { ...current, bills: current.bills + 1, total: current.total + bill.total }
+    const current = summary[key] || { id: key, name: bill.staff?.name_en || 'ไม่ระบุพนักงาน', bills: 0, total: 0, commission: 0 }
+    summary[key] = { ...current, bills: current.bills + 1, total: current.total + bill.total, commission: current.commission + Number(bill.commission || 0) }
     return summary
   }, {})).sort((a, b) => b.total - a.total)
 
@@ -88,7 +88,7 @@ export default function Home() {
           {teamSummary.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12, textAlign: 'center', padding: '16px 0' }}>วันนี้ยังไม่มีบิลจากทีม</div> : teamSummary.map(member => (
             <div key={member.id} style={{ alignItems: 'center', borderTop: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', padding: '10px 0' }}>
               <div><strong style={{ fontSize: 13 }}>{member.name}</strong><span style={{ color: 'var(--ghost-gray)', fontSize: 11, marginLeft: 8 }}>{member.bills} บิล</span></div>
-              <strong className="font-mono" style={{ color: '#84d6a8', fontSize: 14 }}>¥{member.total.toLocaleString()}</strong>
+              <div style={{ display: 'flex', gap: 20, textAlign: 'right' }}><div><div style={{ color: 'var(--ghost-gray)', fontSize: 9, letterSpacing: .7 }}>COMMISSION</div><strong className="font-mono" style={{ color: '#e5c158', fontSize: 13 }}>¥{member.commission.toLocaleString()}</strong></div><div><div style={{ color: 'var(--ghost-gray)', fontSize: 9, letterSpacing: .7 }}>BILL TOTAL</div><strong className="font-mono" style={{ color: '#84d6a8', fontSize: 14 }}>¥{member.total.toLocaleString()}</strong></div></div>
             </div>
           ))}
         </section>
