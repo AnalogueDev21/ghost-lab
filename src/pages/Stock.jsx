@@ -8,7 +8,6 @@ export default function Stock() {
   const [branches, setBranches] = useState([])
   const [branchFilter, setBranchFilter] = useState('all')
   const [loading, setLoading] = useState(true)
-  const [adjusting, setAdjusting] = useState(null) // stock item being adjusted
   const [showAdd, setShowAdd] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
 
@@ -63,29 +62,22 @@ export default function Stock() {
         ) : Object.entries(grouped).map(([category, catItems]) => (
           <div key={category} className="panel" style={{ marginBottom: 16 }}>
             <div className="font-display" style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>{category}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr 1fr auto', gap: 10, padding: '0 0 8px', fontSize: 10, color: 'var(--ghost-gray)', textTransform: 'uppercase', letterSpacing: 1 }}>
-              <div>รายการ</div><div>สาขา</div><div>คงเหลือ</div><div>หน่วย</div><div></div>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr .65fr 1.45fr .65fr', gap: 10, padding: '0 0 8px', fontSize: 10, color: 'var(--ghost-gray)', textTransform: 'uppercase', letterSpacing: 1 }}>
+              <div>รายการ</div><div>สาขา</div><div>คงเหลือ</div><div>ปรับจำนวน</div><div>หน่วย</div>
             </div>
             {catItems.map(item => (
-              <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr 1fr auto', gap: 10, padding: '8px 0', borderTop: '1px solid var(--line)', alignItems: 'center' }}>
+              <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr .65fr 1.45fr .65fr', gap: 10, padding: '8px 0', borderTop: '1px solid var(--line)', alignItems: 'center' }}>
                 <div style={{ fontSize: 13, fontWeight: 500 }}>{item.name}</div>
                 <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>{item.branches?.name || '—'}</div>
                 <div className="font-mono" style={{ fontSize: 14, fontWeight: 700, color: item.quantity > 0 ? '#3FB950' : 'var(--blood)' }}>{item.quantity}</div>
+                <StockQuantityControl item={item} staff={staff} onSaved={() => setRefreshKey(key => key + 1)} />
                 <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>{item.unit || 'ชิ้น'}</div>
-                <div onClick={() => setAdjusting(item)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: 12 }}>±</div>
               </div>
             ))}
           </div>
         ))
       )}
 
-      {adjusting && (
-        <AdjustModal
-          item={adjusting} staff={staff}
-          onClose={() => setAdjusting(null)}
-          onSaved={() => { setAdjusting(null); setRefreshKey(k => k + 1) }}
-        />
-      )}
       {showAdd && (
         <AddStockModal
           branches={branches}
@@ -96,6 +88,38 @@ export default function Stock() {
     </div>
   )
 }
+
+function StockQuantityControl({ item, staff, onSaved }) {
+  const [change, setChange] = useState(0)
+  const [saving, setSaving] = useState(false)
+
+  function nudge(amount) { setChange(current => Number(current || 0) + amount) }
+
+  async function save() {
+    const amount = parseInt(change, 10)
+    if (!amount) return
+    setSaving(true)
+    const { error: updateError } = await supabase.from('stock_items').update({
+      quantity: item.quantity + amount, updated_by: staff?.id, updated_at: new Date().toISOString(),
+    }).eq('id', item.id)
+    if (updateError) { console.error(updateError); setSaving(false); return }
+    const { error: movementError } = await supabase.from('stock_movements').insert({
+      stock_item_id: item.id, staff_id: staff?.id, change: amount,
+      reason: amount > 0 ? 'ปรับเพิ่มจากหน้าสต๊อก' : 'ปรับลดจากหน้าสต๊อก',
+    })
+    if (movementError) console.error(movementError)
+    setChange(0); setSaving(false); onSaved()
+  }
+
+  return <div style={{ alignItems: 'center', display: 'flex', gap: 5 }}>
+    <button type="button" onClick={() => nudge(-1)} aria-label={`ลด ${item.name}`} style={stepButtonStyle}>−</button>
+    <input className="input font-mono" type="number" value={change || ''} onChange={event => setChange(event.target.value === '' ? '' : Number(event.target.value))} placeholder="0" style={{ minWidth: 0, padding: '7px 6px', textAlign: 'center', width: 62 }} />
+    <button type="button" onClick={() => nudge(1)} aria-label={`เพิ่ม ${item.name}`} style={stepButtonStyle}>+</button>
+    <button type="button" onClick={save} disabled={!change || saving} aria-label={`บันทึก ${item.name}`} style={{ ...stepButtonStyle, color: '#84d6a8', opacity: !change || saving ? .4 : 1 }}>✓</button>
+  </div>
+}
+
+const stepButtonStyle = { background: 'rgba(255,255,255,.03)', border: '1px solid var(--line)', borderRadius: 5, color: 'var(--bone)', cursor: 'pointer', fontSize: 15, height: 30, lineHeight: 1, width: 30 }
 
 function AdjustModal({ item, staff, onClose, onSaved }) {
   const [amount, setAmount] = useState('')
