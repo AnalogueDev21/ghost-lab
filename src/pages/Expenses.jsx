@@ -60,6 +60,12 @@ export default function Expenses() {
   const billIncome = cashLedger.filter(entry => entry.entry_type === 'bill_income').reduce((sum, entry) => sum + entry.amount, 0)
   const membershipIncome = cashLedger.filter(entry => entry.entry_type === 'membership_income').reduce((sum, entry) => sum + entry.amount, 0)
   const manualAdjustments = cashLedger.filter(entry => entry.entry_type === 'manual_adjustment').reduce((sum, entry) => sum + entry.amount, 0)
+  const openingBalance = cashLedger.filter(entry => entry.entry_type === 'opening_balance').reduce((sum, entry) => sum + entry.amount, 0)
+  const recentLedger = [...cashLedger]
+    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+    .reduce((entries, entry) => [...entries, { ...entry, runningBalance: (entries.at(-1)?.runningBalance || 0) + Number(entry.amount || 0) }], [])
+    .slice(-8)
+    .reverse()
 
   async function markPaid(id) {
     const { error } = await supabase.from('expenses').update({ status: 'paid', paid_at: new Date().toISOString() }).eq('id', id)
@@ -87,6 +93,26 @@ export default function Expenses() {
           <FinanceCard label="จำนวนรายการการเงิน" value={cashLedger.length} accent="neutral" count />
         </div>
       )}
+
+      {isOwner && <section className="panel" style={{ marginBottom: 18, padding: 18 }}>
+        <div style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 14 }}>
+          <div><div className="font-display" style={{ fontSize: 14, fontWeight: 600 }}>เงินกลางคำนวณอย่างไร</div><div style={{ color: 'var(--ghost-gray)', fontSize: 11, marginTop: 3 }}>ค่าใช้จ่ายที่จ่ายแล้วจะหักจากยอดคงเหลือทันที</div></div>
+          <strong className="font-mono" style={{ color: 'var(--bone)', fontSize: 18 }}>¥{centralCash.toLocaleString()}</strong>
+        </div>
+        <div style={{ alignItems: 'stretch', display: 'grid', gap: 8, gridTemplateColumns: 'repeat(5, minmax(0, 1fr))' }}>
+          <CashFlow label="เงินตั้งต้น" value={openingBalance} color="var(--bone)" />
+          <CashFlow label="รายรับบิล" value={billIncome} color="#84d6a8" prefix="+" />
+          <CashFlow label="ค่าสมาชิก" value={membershipIncome} color="#84d6a8" prefix="+" />
+          <CashFlow label="ปรับยอด Owner" value={manualAdjustments} color={manualAdjustments < 0 ? '#f18b92' : '#84d6a8'} prefix={manualAdjustments < 0 ? '−' : '+'} />
+          <CashFlow label="ซื้อ / ค่าใช้จ่าย" value={purchaseTotal} color="#f18b92" prefix="−" emphasis />
+        </div>
+        <div style={{ borderTop: '1px solid var(--line)', color: 'var(--ghost-gray)', fontSize: 11, marginTop: 14, paddingTop: 12 }}>รายการการเงินล่าสุด</div>
+        {recentLedger.map(entry => <div key={entry.id} style={{ alignItems: 'center', borderTop: '1px solid rgba(255,255,255,.05)', display: 'grid', gap: 12, gridTemplateColumns: '1fr auto auto', padding: '9px 0' }}>
+          <div><strong style={{ fontSize: 12 }}>{entry.description}</strong><span style={{ color: 'var(--ghost-gray)', fontSize: 10, marginLeft: 8 }}>{new Date(entry.created_at).toLocaleString('th-TH')}</span></div>
+          <strong className="font-mono" style={{ color: entry.amount < 0 ? '#f18b92' : '#84d6a8', fontSize: 12 }}>{entry.amount < 0 ? '−' : '+'}¥{Math.abs(entry.amount).toLocaleString()}</strong>
+          <span className="font-mono" style={{ color: 'var(--ghost-gray)', fontSize: 11 }}>คงเหลือ ¥{entry.runningBalance.toLocaleString()}</span>
+        </div>)}
+      </section>}
 
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${branches.length + 1}, 1fr)`, gap: 14, marginBottom: 18 }}>
         <div className="panel">
@@ -159,6 +185,10 @@ function FinanceCard({ label, value, accent, prefix = '', signed = false, count 
   const color = accent === 'negative' ? 'var(--blood)' : accent === 'positive' ? '#84d6a8' : 'var(--bone)'
   const rendered = signed && value > 0 ? `+${value.toLocaleString()}` : `${prefix}${value.toLocaleString()}`
   return <div className="panel"><div style={{ fontSize: 11, color: 'var(--ghost-gray)', textTransform: 'uppercase', marginBottom: 8 }}>{label}</div><div className="font-mono" style={{ fontSize: 22, fontWeight: 700, color }}>{count ? rendered : `¥${rendered}`}</div></div>
+}
+
+function CashFlow({ label, value, color, prefix = '', emphasis = false }) {
+  return <div style={{ background: emphasis ? 'rgba(196,30,42,.09)' : 'rgba(255,255,255,.025)', border: `1px solid ${emphasis ? 'rgba(196,30,42,.34)' : 'var(--line)'}`, borderRadius: 7, minWidth: 0, padding: '10px 11px' }}><div style={{ color: 'var(--ghost-gray)', fontSize: 10, marginBottom: 5 }}>{label}</div><strong className="font-mono" style={{ color, fontSize: 15 }}>{prefix}¥{Math.abs(value).toLocaleString()}</strong></div>
 }
 
 function FilterBtn({ active, onClick, children }) {
