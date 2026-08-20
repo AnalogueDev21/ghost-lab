@@ -46,7 +46,7 @@ export default function Signup() {
 
     // Supabase can return an obfuscated user (with no identities) when the
     // email already exists. Signing in here lets a retried application finish
-    // creating its pending staff row after an admin enables the signup policy.
+    // creating its staff row after an interrupted sign-up.
     let authUser = authData.user
     if (authUser?.identities?.length === 0) {
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
@@ -65,7 +65,7 @@ export default function Signup() {
       pin_hash: 'managed-by-supabase-auth',
       role: DEFAULT_ROLE_BY_BRANCH[branch.key],
       primary_branch: branch.id,
-      active: false,
+      active: true,
     })
     if (staffError) {
       setError(`สมัครไม่สำเร็จ: ${staffError.message}`)
@@ -81,7 +81,7 @@ export default function Signup() {
       <section className="signup-card signup-success">
         <span className="signup-card__mark">G·L</span>
         <h1 className="font-display">สมัครสำเร็จ ✓</h1>
-        <p>บัญชีของคุณถูกสร้างแล้ว รอ Admin อนุมัติก่อนจึงจะเข้าใช้งานได้</p>
+        <p>บัญชีของคุณพร้อมใช้งานแล้ว เลือกชื่อของคุณจากหน้า Login เพื่อใส่ PIN ได้เลย</p>
         <Link to="/login" className="signup-submit">← กลับหน้า Login</Link>
       </section>
     </main>
@@ -94,7 +94,7 @@ export default function Signup() {
           <span className="signup-card__mark">G·L</span>
           <p className="signup-brand">GHOST LAB</p>
           <h1 className="font-display">สมัครสมาชิกพนักงานใหม่</h1>
-          <p>กรอกข้อมูลให้ครบ จากนั้นรอ Admin อนุมัติ</p>
+          <p>กรอกข้อมูลให้ครบ แล้วเริ่มใช้งานได้ทันที</p>
         </header>
         <section className="signup-notice">
           <strong>⚠️ ชื่อ Login กับชื่อ IC ในเกมคนละอันกัน</strong>

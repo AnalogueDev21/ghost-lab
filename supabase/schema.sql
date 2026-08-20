@@ -244,11 +244,11 @@ create policy staff_delete_owner on staff for delete using (
   exists (select 1 from staff where auth_user_id = auth.uid() and role = 'owner')
 );
 
--- Self-signup creates a pending, low-privilege staff row only. An owner still
--- has to activate the staff member and can assign their final role afterwards.
+-- Self-signup creates an active, low-privilege staff row. An owner can still
+-- change its final role afterwards.
 create policy staff_insert_self_signup on staff for insert with check (
   auth_user_id = auth.uid()
-  and active = false
+  and active = true
   and pin_hash = 'managed-by-supabase-auth'
   and (
     (role = 'mechanic_trainee' and exists (

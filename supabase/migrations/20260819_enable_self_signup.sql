@@ -1,11 +1,11 @@
--- Allow a newly authenticated employee to create only their own pending staff row.
--- They cannot choose an elevated role, activate themselves, or assign a branch
--- that does not match the starter role.
+-- Allow a newly authenticated employee to create their own active staff row.
+-- They cannot choose an elevated role or assign a branch that does not match
+-- the starter role.
 create policy staff_insert_self_signup on staff
 for insert
 with check (
   auth_user_id = auth.uid()
-  and active = false
+  and active = true
   and pin_hash = 'managed-by-supabase-auth'
   and (
     (role = 'mechanic_trainee' and exists (
