@@ -29,6 +29,7 @@ export const PERMISSIONS = [
   { key: 'chill_access', label: 'Ghost Chill', description: 'เปิดบิลและดูงาน Ghost Chill' },
   { key: 'members_access', label: 'Members & Coupons', description: 'ดูข้อมูลสมาชิกและคูปอง' },
   { key: 'stock_access', label: 'สต๊อก & เบิกจ่าย', description: 'ดูและปรับยอดสต๊อก' },
+  { key: 'bill_delete_own', label: 'ลบบิลของตัวเอง', description: 'ยกเลิกบิลที่ตัวเองเปิด พร้อมตัดยอดรายได้และคืนสต๊อก' },
 ]
 
 // Menu items and which roles see each one.

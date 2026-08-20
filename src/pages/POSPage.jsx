@@ -59,7 +59,7 @@ export default function POSPage({ branchKey, title, leadRole }) {
       </div>
 
       {tab === 'bill' && <NewBillTab branch={branch} title={title} staff={staff} />}
-      {tab === 'history' && <BillsHistoryTab branch={branch} />}
+      {tab === 'history' && <BillsHistoryTab branch={branch} staff={staff} onBillDeleted={() => setBillCount(count => Math.max(0, count - 1))} />}
       {tab === 'services' && canManage && <ServicesTab branch={branch} />}
     </div>
   )
@@ -480,11 +480,24 @@ function AddMemberModal({ branch, initialQuery, onClose, onCreated }) {
 }
 
 // ---------------- Bills history ----------------
-function BillsHistoryTab({ branch }) {
+function BillsHistoryTab({ branch, staff, onBillDeleted }) {
   const [bills, setBills] = useState([])
   const [loading, setLoading] = useState(true)
   const [itemsLoadError, setItemsLoadError] = useState('')
   const [expandedBillId, setExpandedBillId] = useState(null)
+
+  async function deleteBill(bill) {
+    if (!window.confirm(`ยกเลิกบิล ${bill.bill_number} ?\n\nยอดรายรับและ Commission ของบิลนี้จะถูกตัดออก และสต็อกที่ใช้จะถูกคืน`)) return
+    const { error } = await supabase.rpc('delete_own_bill', { target_bill_id: bill.id })
+    if (error) {
+      console.error(error)
+      alert(`ลบบิลไม่สำเร็จ: ${error.message}`)
+      return
+    }
+    setBills(current => current.filter(item => item.id !== bill.id))
+    setExpandedBillId(null)
+    onBillDeleted?.()
+  }
 
   useEffect(() => {
     let active = true
@@ -538,13 +551,13 @@ function BillsHistoryTab({ branch }) {
       {itemsLoadError && <div style={{ background: 'rgba(196,30,42,.1)', border: '1px solid rgba(196,30,42,.35)', color: '#ff9ea5', fontSize: 11, marginBottom: 12, padding: '9px 10px' }}>ดึงรายการในบิลไม่สำเร็จ: {itemsLoadError}</div>}
       {loading ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12 }}>กำลังโหลด...</div>
         : bills.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12, textAlign: 'center', padding: '24px 0' }}>ยังไม่มีบิล</div>
-        : bills.map(b => <BillHistoryRow key={b.id} bill={b} expanded={expandedBillId === b.id} onToggle={() => setExpandedBillId(current => current === b.id ? null : b.id)} />)
+        : bills.map(b => <BillHistoryRow key={b.id} bill={b} expanded={expandedBillId === b.id} onToggle={() => setExpandedBillId(current => current === b.id ? null : b.id)} canDelete={b.staff_id === staff?.id && (staff?.role === 'owner' || staff?.permissions?.includes('bill_delete_own'))} onDelete={() => deleteBill(b)} />)
       }
     </div>
   )
 }
 
-function BillHistoryRow({ bill, expanded, onToggle }) {
+function BillHistoryRow({ bill, expanded, onToggle, canDelete, onDelete }) {
   const groupedItems = Object.values((bill.items || []).reduce((items, item) => {
     const current = items[item.name_snapshot] || { name: item.name_snapshot, quantity: 0, total: 0 }
     items[item.name_snapshot] = { ...current, quantity: current.quantity + 1, total: current.total + Number(item.price_snapshot || 0) }
@@ -555,7 +568,10 @@ function BillHistoryRow({ bill, expanded, onToggle }) {
   return <div style={{ borderBottom: '1px solid var(--line)', fontSize: 12 }}>
     <div onClick={onToggle} style={{ alignItems: 'center', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', padding: '11px 0' }}>
       <div><span className="font-mono" style={{ fontWeight: 600 }}>{expanded ? '⌄' : '›'} {bill.bill_number}</span><span style={{ color: 'var(--ghost-gray)', marginLeft: 10 }}>{bill.plate || '—'} {bill.vehicle ? `· ${bill.vehicle}` : ''}</span><div style={{ color: 'var(--ghost-gray)', fontSize: 11, marginTop: 2 }}>{bill.staff?.name_en || '—'} · {new Date(bill.created_at).toLocaleString('th-TH')} · คลิกเพื่อดูรายการ</div></div>
-      <div className="font-mono" style={{ fontWeight: 600 }}>¥{Number(bill.total || 0).toLocaleString()}</div>
+      <div style={{ alignItems: 'center', display: 'flex', gap: 10 }}>
+        <div className="font-mono" style={{ fontWeight: 600 }}>¥{Number(bill.total || 0).toLocaleString()}</div>
+        {canDelete && <button type="button" onClick={event => { event.stopPropagation(); onDelete() }} title="ยกเลิกบิลของฉัน" style={{ background: 'transparent', border: '1px solid rgba(196,30,42,.55)', borderRadius: 5, color: '#f18b92', cursor: 'pointer', fontSize: 11, padding: '4px 7px' }}>ลบบิล</button>}
+      </div>
     </div>
     {expanded && <div style={{ background: 'rgba(255,255,255,.025)', borderTop: '1px solid var(--line)', margin: '0 -8px', padding: '12px 14px' }}><div style={{ color: 'var(--ghost-gray)', fontSize: 10, letterSpacing: .8, marginBottom: 7 }}>รายการที่ทำ</div>{groupedItems.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 11 }}>ไม่มีรายละเอียดรายการในบิลนี้</div> : groupedItems.map(item => <div key={item.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}><span>{item.name} <span style={{ color: 'var(--ghost-gray)' }}>×{item.quantity}</span></span><span className="font-mono">¥{item.total.toLocaleString()}</span></div>)}<div style={{ borderTop: '1px dashed var(--line)', display: 'grid', gap: 4, gridTemplateColumns: '1fr auto', marginTop: 9, paddingTop: 9 }}><span style={{ color: 'var(--ghost-gray)' }}>Subtotal</span><span className="font-mono">¥{Number(bill.subtotal || 0).toLocaleString()}</span>{discountAmount > 0 && <><span style={{ color: '#84d6a8' }}>ส่วนลด {bill.discount_pct ? `(${bill.discount_pct}%)` : ''}</span><span className="font-mono" style={{ color: '#84d6a8' }}>−¥{discountAmount.toLocaleString()}</span></>}<span style={{ color: 'var(--ghost-gray)' }}>Commission</span><span className="font-mono" style={{ color: '#e5c158' }}>¥{Number(bill.commission || 0).toLocaleString()}</span><strong>TOTAL</strong><strong className="font-mono" style={{ color: 'var(--blood)' }}>¥{Number(bill.total || 0).toLocaleString()}</strong></div>{bill.notes && <div style={{ color: 'var(--ghost-gray)', fontSize: 11, marginTop: 10 }}>หมายเหตุ: {bill.notes}</div>}</div>}
   </div>
