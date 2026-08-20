@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { calculateMemberDiscount, formatDate, getMembershipPlan, nextMonthlyExpiry } from '../lib/membership'
 
 // Reusable branch page. Pass branchKey="garage" or branchKey="chill".
 // Matches the Xkate pattern: one page per branch with 3 tabs —
@@ -125,7 +126,10 @@ function NewBillTab({ branch, title, staff }) {
   const categories = ['all', ...new Set(services.map(s => s.category))]
   const visible = activeCat === 'all' ? services : services.filter(s => s.category === activeCat)
   const cartTotal = cart.reduce((a, s) => a + s.price, 0)
-  const displayTotal = selfService ? 0 : cartTotal
+  const memberDiscount = selectedMember && memberEnabled
+    ? calculateMemberDiscount(selectedMember, cartTotal)
+    : { active: false, percentage: 0, amount: 0, total: cartTotal }
+  const displayTotal = selfService ? 0 : memberDiscount.total
   const displayCommission = selfService ? 0 : branch.commission_flat
 
   function addToCart(service) { setCart(c => [...c, service]) }
@@ -165,6 +169,7 @@ function NewBillTab({ branch, title, staff }) {
       vehicle: vehicle || null,
       notes: notes || null,
       subtotal: cartTotal,
+      discount_pct: selfService ? 0 : memberDiscount.percentage,
       commission: displayCommission,
       total: displayTotal,
       status: 'approved',
@@ -263,7 +268,7 @@ function NewBillTab({ branch, title, staff }) {
               </div>
               {selectedMember ? (
                 <div className="panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px' }}>
-                  <div><div style={{ fontSize: 13, fontWeight: 600 }}>{selectedMember.name}</div><div style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{selectedMember.repair_visits || 0} / 10 MT · ¥{(selectedMember.total_spent || 0).toLocaleString()}</div></div>
+                  <div><div style={{ fontSize: 13, fontWeight: 600 }}>{selectedMember.name}</div><div style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{memberDiscount.plan.label} · {memberDiscount.active ? `หมดอายุ ${formatDate(selectedMember.membership_expires_at)}` : 'สมาชิกหมดอายุ — ไม่ได้รับส่วนลด'}</div></div>
                   <div onClick={() => setSelectedMember(null)} style={{ color: 'var(--ghost-gray)', cursor: 'pointer', fontSize: 14 }}>✕</div>
                 </div>
               ) : (
@@ -271,7 +276,7 @@ function NewBillTab({ branch, title, staff }) {
                   <input className="input" autoFocus placeholder="ค้นหาทะเบียนรถ หรือชื่อ Member..." value={customerQuery} onChange={e => setCustomerQuery(e.target.value)} />
                   {(customerResults.length > 0 || customerQuery.trim()) && (
                     <div className="panel" style={{ position: 'absolute', top: '110%', left: 0, right: 0, zIndex: 10, padding: 8 }}>
-                      {customerResults.map(m => <div key={m.id} onClick={() => pickMember(m)} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 6px', cursor: 'pointer', borderRadius: 6 }}><div><span style={{ fontSize: 13, fontWeight: 500 }}>{m.name}</span><span style={{ fontSize: 11, color: 'var(--ghost-gray)', marginLeft: 8 }}>{m.plate_or_note}</span></div><div style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{m.repair_visits || 0} / 10 MT</div></div>)}
+                      {customerResults.map(m => <div key={m.id} onClick={() => pickMember(m)} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 6px', cursor: 'pointer', borderRadius: 6 }}><div><span style={{ fontSize: 13, fontWeight: 500 }}>{m.name}</span><span style={{ fontSize: 11, color: 'var(--ghost-gray)', marginLeft: 8 }}>{m.plate_or_note}</span></div><div style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{calculateMemberDiscount(m, cartTotal).active ? 'ACTIVE' : 'หมดอายุ'}</div></div>)}
                       <div onClick={() => setShowAddMember(true)} style={{ padding: '8px 6px', color: 'var(--blood)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>+ เพิ่ม Member ใหม่</div>
                     </div>
                   )}
@@ -304,6 +309,16 @@ function NewBillTab({ branch, title, staff }) {
           <div className="font-mono" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--ghost-gray)', marginBottom: 6 }}>
             <span>COMMISSION (FLAT)</span><span>¥{displayCommission.toLocaleString()}</span>
           </div>
+          {memberEnabled && selectedMember && !selfService && (
+            <>
+              <div className="font-mono" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--ghost-gray)', marginBottom: 6 }}>
+                <span>SUBTOTAL</span><span>¥{cartTotal.toLocaleString()}</span>
+              </div>
+              <div className="font-mono" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: memberDiscount.percentage ? '#84d6a8' : 'var(--ghost-gray)', marginBottom: 6 }}>
+                <span>MEMBER DISCOUNT {memberDiscount.percentage ? `(${memberDiscount.percentage}%)` : ''}</span><span>−¥{memberDiscount.amount.toLocaleString()}</span>
+              </div>
+            </>
+          )}
           <div className="font-mono" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 700, marginBottom: 14 }}>
             <span>TOTAL</span><span style={{ color: 'var(--blood)' }}>¥{displayTotal.toLocaleString()}</span>
           </div>
@@ -343,15 +358,25 @@ function AddMemberModal({ branch, initialQuery, onClose, onCreated }) {
   async function save() {
     if (!name.trim()) return
     setSaving(true)
+    const plan = getMembershipPlan('regular')
+    const startsAt = new Date().toISOString()
+    const expiresAt = nextMonthlyExpiry()
     const { data, error } = await supabase.from('members').insert({
       branch_id: branch.id,
       name: name.trim(),
       phone: phone || null,
       plate_or_note: plate || note || null,
       tier: 'regular',
+      membership_started_at: startsAt,
+      membership_expires_at: expiresAt,
+      membership_fee: plan.monthlyFee,
     }).select().single()
     setSaving(false)
     if (error) { console.error(error); return }
+    await supabase.from('member_memberships').insert({
+      member_id: data.id, tier: plan.key, monthly_fee: plan.monthlyFee,
+      started_at: startsAt, expires_at: expiresAt,
+    })
     onCreated(data)
   }
 
@@ -385,7 +410,7 @@ function AddMemberModal({ branch, initialQuery, onClose, onCreated }) {
         </div>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <div onClick={onClose} className="btn btn-secondary">ยกเลิก</div>
-          <div onClick={save} className="btn btn-primary" style={{ opacity: saving ? 0.6 : 1 }}>{saving ? 'กำลังเพิ่ม...' : 'เพิ่ม'}</div>
+          <div onClick={save} className="btn btn-primary" style={{ opacity: saving ? 0.6 : 1 }}>{saving ? 'กำลังเพิ่ม...' : 'สมัคร Regular ¥30,000'}</div>
         </div>
       </div>
     </div>

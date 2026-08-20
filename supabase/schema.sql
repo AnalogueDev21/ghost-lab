@@ -67,9 +67,22 @@ create table members (
   phone         text,
   plate_or_note text,
   tier          text default 'regular', -- regular / silver / gold / xkate_origin-style
+  membership_started_at timestamptz,
+  membership_expires_at timestamptz,
+  membership_fee integer,
   total_spent   integer default 0,
   visits        integer default 0,
   created_at    timestamptz default now()
+);
+
+create table member_memberships (
+  id            uuid primary key default gen_random_uuid(),
+  member_id     uuid references members(id) on delete cascade not null,
+  tier          text not null check (tier in ('regular', 'silver', 'gold')),
+  monthly_fee   integer not null check (monthly_fee >= 0),
+  started_at    timestamptz not null default now(),
+  expires_at    timestamptz not null,
+  created_at    timestamptz not null default now()
 );
 
 create table bills (
@@ -188,6 +201,7 @@ alter table expenses enable row level security;
 alter table pay_periods enable row level security;
 alter table services enable row level security;
 alter table members enable row level security;
+alter table member_memberships enable row level security;
 alter table service_materials enable row level security;
 
 -- Helper: get requester's staff row
@@ -348,3 +362,5 @@ create policy pay_periods_finance on pay_periods for all using (
 -- customer at the counter is a normal POS action for every staff member) ----
 create policy members_read on members for select using (auth.uid() is not null);
 create policy members_write on members for all using (auth.uid() is not null);
+create policy member_memberships_read on member_memberships for select using (auth.uid() is not null);
+create policy member_memberships_write on member_memberships for all using (auth.uid() is not null) with check (auth.uid() is not null);
