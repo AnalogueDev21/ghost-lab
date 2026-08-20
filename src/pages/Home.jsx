@@ -8,22 +8,30 @@ export default function Home() {
   const [todayBills, setTodayBills] = useState([])
   const [onShiftCount, setOnShiftCount] = useState(0)
   const [branchFilter, setBranchFilter] = useState('all')
+  const [period, setPeriod] = useState('today')
+
+  const periodLabels = { today: 'วันนี้', week: '7 วันล่าสุด', month: 'เดือนนี้', all: 'ทั้งหมด' }
 
   useEffect(() => {
-    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0)
-    supabase
+    const periodStart = new Date()
+    if (period === 'today') periodStart.setHours(0, 0, 0, 0)
+    if (period === 'week') { periodStart.setDate(periodStart.getDate() - 6); periodStart.setHours(0, 0, 0, 0) }
+    if (period === 'month') { periodStart.setDate(1); periodStart.setHours(0, 0, 0, 0) }
+
+    let billsQuery = supabase
       .from('bills')
       .select('*, branches(key,name), staff:staff_id(name_en)')
-      .gte('created_at', todayStart.toISOString())
       .order('created_at', { ascending: false })
-      .then(({ data, error }) => { if (!error) setTodayBills(data || []) })
+      .limit(1000)
+    if (period !== 'all') billsQuery = billsQuery.gte('created_at', periodStart.toISOString())
+    billsQuery.then(({ data, error }) => { if (!error) setTodayBills(data || []) })
 
     supabase
       .from('attendance')
       .select('id', { count: 'exact', head: true })
       .is('clock_out', null)
       .then(({ count }) => setOnShiftCount(count || 0))
-  }, [])
+  }, [period])
 
   const filteredBills = branchFilter === 'all'
     ? todayBills
@@ -61,18 +69,22 @@ export default function Home() {
 
       <BranchFilter value={branchFilter} onChange={setBranchFilter} />
 
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, margin: '0 0 18px' }}>
+        {Object.entries(periodLabels).map(([key, label]) => <button key={key} type="button" onClick={() => setPeriod(key)} className="btn" style={{ background: period === key ? 'rgba(196,30,42,.16)' : 'transparent', borderColor: period === key ? 'var(--blood)' : 'var(--line)', color: period === key ? 'var(--bone)' : 'var(--ghost-gray)', fontSize: 11 }}>{label}</button>)}
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 22 }}>
-        <StatCard label="ยอดวันนี้ · GARAGE" value={`¥${garageTotal.toLocaleString()}`} meta={`${garageBills.length} บิล`} dim={branchFilter === 'chill'} />
-        <StatCard label="ยอดวันนี้ · GHOST CHILL" value={`¥${chillTotal.toLocaleString()}`} meta={`${chillBills.length} บิล`} dim={branchFilter === 'garage'} />
-        <StatCard label="COMMISSION วันนี้" value={`¥${commissionPending.toLocaleString()}`} accent />
+        <StatCard label={`ยอด${periodLabels[period]} · GARAGE`} value={`¥${garageTotal.toLocaleString()}`} meta={`${garageBills.length} บิล`} dim={branchFilter === 'chill'} />
+        <StatCard label={`ยอด${periodLabels[period]} · GHOST CHILL`} value={`¥${chillTotal.toLocaleString()}`} meta={`${chillBills.length} บิล`} dim={branchFilter === 'garage'} />
+        <StatCard label={`COMMISSION ${periodLabels[period]}`} value={`¥${commissionPending.toLocaleString()}`} accent />
         <StatCard label="พนักงานเข้างาน" value={`${onShiftCount} คน`} />
       </div>
 
       {staff?.role === 'owner' && (
         <section style={{ marginBottom: 22 }}>
-          <div className="font-display" style={{ color: 'var(--blood)', fontSize: 12, letterSpacing: 1.2, marginBottom: 10 }}>OWNER OVERVIEW · วันนี้</div>
+          <div className="font-display" style={{ color: 'var(--blood)', fontSize: 12, letterSpacing: 1.2, marginBottom: 10 }}>OWNER OVERVIEW · {periodLabels[period]}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: 14 }}>
-            <StatCard label="รายได้รวมวันนี้" value={`¥${todayRevenue.toLocaleString()}`} meta={`${todayBills.length} บิลจากทุกสาขา`} accent />
+            <StatCard label={`รายได้รวม${periodLabels[period]}`} value={`¥${todayRevenue.toLocaleString()}`} meta={`${todayBills.length} บิลจากทุกสาขา`} accent />
             <StatCard label="รายได้ Garage" value={`¥${garageTotal.toLocaleString()}`} meta={`${garageBills.length} บิล`} />
             <StatCard label="รายได้ Ghost Chill" value={`¥${chillTotal.toLocaleString()}`} meta={`${chillBills.length} บิล`} />
           </div>
@@ -82,10 +94,10 @@ export default function Home() {
       {staff?.role === 'owner' && (
         <section className="panel" style={{ marginBottom: 22 }}>
           <div style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div><div className="font-display" style={{ fontSize: 14, fontWeight: 600 }}>บิลของทีมวันนี้</div><div style={{ color: 'var(--ghost-gray)', fontSize: 11, marginTop: 3 }}>สรุปบิลที่พนักงานทุกคนเปิด แยกจากรายการล่าสุด</div></div>
+            <div><div className="font-display" style={{ fontSize: 14, fontWeight: 600 }}>บิลของทีม · {periodLabels[period]}</div><div style={{ color: 'var(--ghost-gray)', fontSize: 11, marginTop: 3 }}>สรุปบิลที่พนักงานทุกคนเปิด แยกจากรายการล่าสุด</div></div>
             <span style={{ color: 'var(--ghost-gray)', fontSize: 11 }}>{teamSummary.length} คน</span>
           </div>
-          {teamSummary.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12, textAlign: 'center', padding: '16px 0' }}>วันนี้ยังไม่มีบิลจากทีม</div> : teamSummary.map(member => (
+          {teamSummary.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12, textAlign: 'center', padding: '16px 0' }}>ยังไม่มีบิลในช่วงเวลานี้</div> : teamSummary.map(member => (
             <div key={member.id} style={{ alignItems: 'center', borderTop: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', padding: '10px 0' }}>
               <div><strong style={{ fontSize: 13 }}>{member.name}</strong><span style={{ color: 'var(--ghost-gray)', fontSize: 11, marginLeft: 8 }}>{member.bills} บิล</span></div>
               <div style={{ display: 'flex', gap: 20, textAlign: 'right' }}><div><div style={{ color: 'var(--ghost-gray)', fontSize: 9, letterSpacing: .7 }}>COMMISSION</div><strong className="font-mono" style={{ color: '#e5c158', fontSize: 13 }}>¥{member.commission.toLocaleString()}</strong></div><div><div style={{ color: 'var(--ghost-gray)', fontSize: 9, letterSpacing: .7 }}>BILL TOTAL</div><strong className="font-mono" style={{ color: '#84d6a8', fontSize: 14 }}>¥{member.total.toLocaleString()}</strong></div></div>
@@ -95,9 +107,9 @@ export default function Home() {
       )}
 
       <div className="panel">
-        <div className="font-display" style={{ fontSize: 14, fontWeight: 600, marginBottom: 14 }}>ออเดอร์ล่าสุด · Recent Orders</div>
+        <div className="font-display" style={{ fontSize: 14, fontWeight: 600, marginBottom: 14 }}>ออเดอร์ล่าสุด · {periodLabels[period]}</div>
         {filteredBills.length === 0
-          ? <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--ghost-gray)', fontSize: 12 }}>ยังไม่มีออเดอร์วันนี้</div>
+          ? <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--ghost-gray)', fontSize: 12 }}>ยังไม่มีออเดอร์ในช่วงเวลานี้</div>
           : filteredBills.slice(0, 10).map(b => (
             <div key={b.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '11px 0', borderBottom: '1px solid var(--line)' }}>
               <div>
