@@ -10,6 +10,9 @@ export default function Stock() {
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [changes, setChanges] = useState({})
+  const [savingChanges, setSavingChanges] = useState(false)
+  const [saveError, setSaveError] = useState('')
 
   useEffect(() => {
     supabase.from('branches').select('*').then(({ data }) => setBranches(data || []))
@@ -30,6 +33,41 @@ export default function Stock() {
     (acc[i.category] = acc[i.category] || []).push(i)
     return acc
   }, {})
+  const pendingChanges = Object.entries(changes)
+    .map(([id, amount]) => ({ item: items.find(item => item.id === id), amount: Number(amount) }))
+    .filter(({ item, amount }) => item && amount)
+
+  function setItemChange(itemId, amount) {
+    setSaveError('')
+    setChanges(current => ({ ...current, [itemId]: Number(amount) || 0 }))
+  }
+
+  async function saveAllChanges() {
+    if (!pendingChanges.length || savingChanges) return
+    setSavingChanges(true)
+    setSaveError('')
+    try {
+      for (const { item, amount } of pendingChanges) {
+        const { error: updateError } = await supabase.from('stock_items').update({
+          quantity: item.quantity + amount, updated_by: staff?.id, updated_at: new Date().toISOString(),
+        }).eq('id', item.id)
+        if (updateError) throw updateError
+
+        const { error: movementError } = await supabase.from('stock_movements').insert({
+          stock_item_id: item.id, staff_id: staff?.id, change: amount,
+          reason: amount > 0 ? 'ปรับเพิ่มจากหน้าสต๊อก' : 'ปรับลดจากหน้าสต๊อก',
+        })
+        if (movementError) throw movementError
+      }
+      setChanges({})
+      setRefreshKey(key => key + 1)
+    } catch (error) {
+      console.error(error)
+      setSaveError(error.message || 'บันทึกการปรับสต๊อกไม่สำเร็จ')
+    } finally {
+      setSavingChanges(false)
+    }
+  }
 
   return (
     <div>
@@ -38,7 +76,12 @@ export default function Stock() {
           <div className="font-display" style={{ fontSize: 18, fontWeight: 600 }}>สต๊อก & เบิกจ่าย</div>
           <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>จัดการสต็อกวัตถุดิบและสินค้า</div>
         </div>
-        <div onClick={() => setShowAdd(true)} className="btn btn-primary">+ เพิ่มวัตถุดิบ</div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button type="button" onClick={saveAllChanges} disabled={!pendingChanges.length || savingChanges} className="btn" style={{ borderColor: pendingChanges.length ? '#3FB950' : 'var(--line)', color: pendingChanges.length ? '#84d6a8' : 'var(--ghost-gray)', opacity: savingChanges ? .6 : 1 }}>
+            {savingChanges ? 'กำลังบันทึก…' : `✓ บันทึกการปรับสต๊อก${pendingChanges.length ? ` (${pendingChanges.length})` : ''}`}
+          </button>
+          <button type="button" onClick={() => setShowAdd(true)} className="btn btn-primary">+ เพิ่มวัตถุดิบ</button>
+        </div>
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
@@ -53,6 +96,7 @@ export default function Stock() {
           </div>
         ))}
       </div>
+      {saveError && <div style={{ background: 'rgba(196,30,42,.12)', border: '1px solid var(--blood)', borderRadius: 6, color: '#f18b92', fontSize: 12, marginBottom: 14, padding: '10px 12px' }}>⚠ {saveError}</div>}
 
       {loading ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12 }}>กำลังโหลด...</div> : (
         Object.keys(grouped).length === 0 ? (
@@ -69,8 +113,10 @@ export default function Stock() {
               <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr .65fr 1.45fr .65fr', gap: 10, padding: '8px 0', borderTop: '1px solid var(--line)', alignItems: 'center' }}>
                 <div style={{ fontSize: 13, fontWeight: 500 }}>{item.name}</div>
                 <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>{item.branches?.name || '—'}</div>
-                <div className="font-mono" style={{ fontSize: 14, fontWeight: 700, color: item.quantity > 0 ? '#3FB950' : 'var(--blood)' }}>{item.quantity}</div>
-                <StockQuantityControl item={item} staff={staff} onSaved={() => setRefreshKey(key => key + 1)} />
+                <div className="font-mono" style={{ fontSize: 14, fontWeight: 700, color: item.quantity + Number(changes[item.id] || 0) > 0 ? '#3FB950' : 'var(--blood)' }}>
+                  {item.quantity}{Number(changes[item.id] || 0) ? <small style={{ color: Number(changes[item.id]) > 0 ? '#84d6a8' : '#f18b92', fontSize: 10, marginLeft: 5 }}>{Number(changes[item.id]) > 0 ? '+' : ''}{changes[item.id]}</small> : null}
+                </div>
+                <StockQuantityControl item={item} change={changes[item.id] || 0} onChange={setItemChange} />
                 <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>{item.unit || 'ชิ้น'}</div>
               </div>
             ))}
@@ -89,33 +135,13 @@ export default function Stock() {
   )
 }
 
-function StockQuantityControl({ item, staff, onSaved }) {
-  const [change, setChange] = useState(0)
-  const [saving, setSaving] = useState(false)
-
-  function nudge(amount) { setChange(current => Number(current || 0) + amount) }
-
-  async function save() {
-    const amount = parseInt(change, 10)
-    if (!amount) return
-    setSaving(true)
-    const { error: updateError } = await supabase.from('stock_items').update({
-      quantity: item.quantity + amount, updated_by: staff?.id, updated_at: new Date().toISOString(),
-    }).eq('id', item.id)
-    if (updateError) { console.error(updateError); setSaving(false); return }
-    const { error: movementError } = await supabase.from('stock_movements').insert({
-      stock_item_id: item.id, staff_id: staff?.id, change: amount,
-      reason: amount > 0 ? 'ปรับเพิ่มจากหน้าสต๊อก' : 'ปรับลดจากหน้าสต๊อก',
-    })
-    if (movementError) console.error(movementError)
-    setChange(0); setSaving(false); onSaved()
-  }
+function StockQuantityControl({ item, change, onChange }) {
+  function nudge(amount) { onChange(item.id, Number(change || 0) + amount) }
 
   return <div style={{ alignItems: 'center', display: 'flex', gap: 5 }}>
     <button type="button" onClick={() => nudge(-1)} aria-label={`ลด ${item.name}`} style={stepButtonStyle}>−</button>
-    <input className="input font-mono" type="number" value={change || ''} onChange={event => setChange(event.target.value === '' ? '' : Number(event.target.value))} placeholder="0" style={{ minWidth: 0, padding: '7px 6px', textAlign: 'center', width: 62 }} />
+    <input className="input font-mono" type="number" value={change || ''} onChange={event => onChange(item.id, event.target.value === '' ? 0 : Number(event.target.value))} placeholder="0" style={{ minWidth: 0, padding: '7px 6px', textAlign: 'center', width: 62 }} />
     <button type="button" onClick={() => nudge(1)} aria-label={`เพิ่ม ${item.name}`} style={stepButtonStyle}>+</button>
-    <button type="button" onClick={save} disabled={!change || saving} aria-label={`บันทึก ${item.name}`} style={{ ...stepButtonStyle, color: '#84d6a8', opacity: !change || saving ? .4 : 1 }}>✓</button>
   </div>
 }
 
