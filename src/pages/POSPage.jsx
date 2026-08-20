@@ -101,6 +101,8 @@ function NewBillTab({ branch, title, staff }) {
   const [customerResults, setCustomerResults] = useState([])
   const [selectedMember, setSelectedMember] = useState(null)
   const [showAddMember, setShowAddMember] = useState(false)
+  const [availableRewards, setAvailableRewards] = useState([])
+  const [useFreeRepair, setUseFreeRepair] = useState(false)
 
   useEffect(() => {
     supabase.from('services').select('*').eq('branch_id', branch.id).eq('active', true)
@@ -123,6 +125,16 @@ function NewBillTab({ branch, title, staff }) {
     return () => clearTimeout(t)
   }, [customerQuery, branch])
 
+  useEffect(() => {
+    setUseFreeRepair(false)
+    if (!selectedMember) { setAvailableRewards([]); return }
+    supabase.from('member_rewards').select('id').eq('member_id', selectedMember.id).eq('status', 'available').order('created_at')
+      .then(({ data, error }) => {
+        if (error) console.error(error)
+        setAvailableRewards(data || [])
+      })
+  }, [selectedMember])
+
   const categories = ['all', ...new Set(services.map(s => s.category))]
   const visible = activeCat === 'all' ? services : services.filter(s => s.category === activeCat)
   const cartTotal = cart.reduce((a, s) => a + s.price, 0)
@@ -136,7 +148,8 @@ function NewBillTab({ branch, title, staff }) {
   const memberDiscount = selectedMember && memberEnabled
     ? calculateMemberDiscount(selectedMember, cartTotal)
     : { active: false, percentage: 0, amount: 0, total: cartTotal }
-  const displayTotal = selfService ? 0 : memberDiscount.total
+  const freeRepairApplied = Boolean(useFreeRepair && availableRewards[0])
+  const displayTotal = selfService ? 0 : freeRepairApplied ? 0 : memberDiscount.total
   const displayCommission = selfService ? 0 : branch.commission_flat
 
   function addToCart(service) { setCart(c => [...c, service]) }
@@ -182,7 +195,7 @@ function NewBillTab({ branch, title, staff }) {
       vehicle: vehicle || null,
       notes: notes || null,
       subtotal: cartTotal,
-      discount_pct: selfService ? 0 : memberDiscount.percentage,
+      discount_pct: selfService ? 0 : freeRepairApplied ? 100 : memberDiscount.percentage,
       commission: displayCommission,
       total: displayTotal,
       status: 'approved',
@@ -200,8 +213,14 @@ function NewBillTab({ branch, title, staff }) {
         visits: (selectedMember.visits || 0) + 1,
       }).eq('id', selectedMember.id)
     }
+    if (freeRepairApplied) {
+      const { error: rewardError } = await supabase.from('member_rewards').update({
+        status: 'redeemed', redeemed_bill_id: bill.id, redeemed_at: new Date().toISOString(),
+      }).eq('id', availableRewards[0].id).eq('status', 'available')
+      if (rewardError) console.error(rewardError)
+    }
 
-    setCart([]); setPlate(''); setVehicle(''); setNotes(''); setSelectedMember(null); setSelfService(false); setMemberEnabled(false)
+    setCart([]); setPlate(''); setVehicle(''); setNotes(''); setSelectedMember(null); setSelfService(false); setMemberEnabled(false); setUseFreeRepair(false)
     showToast('บันทึกบิลสำเร็จ ✓ ' + billNumber)
     setSubmitting(false)
   }
@@ -286,9 +305,9 @@ function NewBillTab({ branch, title, staff }) {
                 <Link to="/members" style={{ color: 'var(--bone)', fontSize: 10, textDecoration: 'underline' }}>จัดการรายชื่อ Members ↗</Link>
               </div>
               {selectedMember ? (
-                <div className="panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px' }}>
-                  <div><div style={{ fontSize: 13, fontWeight: 600 }}>{selectedMember.name}</div><div style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{memberDiscount.plan.label} · {memberDiscount.active ? `หมดอายุ ${formatDate(selectedMember.membership_expires_at)}` : 'สมาชิกหมดอายุ — ไม่ได้รับส่วนลด'}</div></div>
-                  <div onClick={() => setSelectedMember(null)} style={{ color: 'var(--ghost-gray)', cursor: 'pointer', fontSize: 14 }}>✕</div>
+                <div className="panel" style={{ padding: '10px 12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><div><div style={{ fontSize: 13, fontWeight: 600 }}>{selectedMember.name}</div><div style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{memberDiscount.plan.label} · {memberDiscount.active ? `หมดอายุ ${formatDate(selectedMember.membership_expires_at)}` : 'สมาชิกหมดอายุ — ไม่ได้รับส่วนลด'}</div></div><div onClick={() => setSelectedMember(null)} style={{ color: 'var(--ghost-gray)', cursor: 'pointer', fontSize: 14 }}>✕</div></div>
+                  {availableRewards.length > 0 && <label style={{ alignItems: 'center', color: '#e5c158', cursor: 'pointer', display: 'flex', fontSize: 11, gap: 7, marginTop: 10 }}><input type="checkbox" checked={useFreeRepair} onChange={event => setUseFreeRepair(event.target.checked)} /> ใช้คูปองซ่อมฟรี 1 ครั้ง ({availableRewards.length} ใบ)</label>}
                 </div>
               ) : (
                 <div style={{ position: 'relative' }}>
@@ -336,6 +355,7 @@ function NewBillTab({ branch, title, staff }) {
               <div className="font-mono" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: memberDiscount.percentage ? '#84d6a8' : 'var(--ghost-gray)', marginBottom: 6 }}>
                 <span>MEMBER DISCOUNT {memberDiscount.percentage ? `(${memberDiscount.percentage}%)` : ''}</span><span>−¥{memberDiscount.amount.toLocaleString()}</span>
               </div>
+              {freeRepairApplied && <div className="font-mono" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#e5c158', marginBottom: 6 }}><span>FREE REPAIR COUPON</span><span>−¥{memberDiscount.total.toLocaleString()}</span></div>}
             </>
           )}
           <div className="font-mono" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 700, marginBottom: 14 }}>
