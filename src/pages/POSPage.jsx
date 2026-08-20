@@ -87,6 +87,7 @@ function TabButton({ active, onClick, children }) {
 function NewBillTab({ branch, title, staff }) {
   const [services, setServices] = useState([])
   const [activeCat, setActiveCat] = useState('all')
+  const [serviceSearch, setServiceSearch] = useState('')
   const [cart, setCart] = useState([])
   const [plate, setPlate] = useState('')
   const [vehicle, setVehicle] = useState('')
@@ -136,7 +137,11 @@ function NewBillTab({ branch, title, staff }) {
   }, [selectedMember])
 
   const categories = ['all', ...new Set(services.map(s => s.category))]
-  const visible = activeCat === 'all' ? services : services.filter(s => s.category === activeCat)
+  const visible = (activeCat === 'all' ? services : services.filter(s => s.category === activeCat))
+    .filter(service => {
+      const query = serviceSearch.trim().toLowerCase()
+      return !query || service.name.toLowerCase().includes(query) || service.category.toLowerCase().includes(query)
+    })
   const cartTotal = cart.reduce((a, s) => a + s.price, 0)
   const cartLines = Object.values(cart.reduce((lines, service) => {
     const existing = lines[service.id]
@@ -231,6 +236,14 @@ function NewBillTab({ branch, title, staff }) {
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 16, alignItems: 'start' }}>
         <div>
+          <div style={{ alignItems: 'center', display: 'flex', gap: 8, marginBottom: 12 }}>
+            <div style={{ alignItems: 'center', background: 'rgba(255,255,255,.035)', border: '1px solid var(--line)', borderRadius: 6, display: 'flex', flex: 1, padding: '0 10px' }}>
+              <span style={{ color: 'var(--ghost-gray)', fontSize: 16 }}>⌕</span>
+              <input className="input" value={serviceSearch} onChange={event => setServiceSearch(event.target.value)} placeholder="ค้นหาบริการ เช่น Tire, Repair, Bumper..." style={{ background: 'transparent', border: 0, padding: '10px 8px' }} />
+              {serviceSearch && <button type="button" onClick={() => setServiceSearch('')} aria-label="ล้างคำค้น" style={{ background: 'transparent', border: 0, color: 'var(--ghost-gray)', cursor: 'pointer', fontSize: 17 }}>×</button>}
+            </div>
+            <span style={{ color: 'var(--ghost-gray)', fontSize: 11, whiteSpace: 'nowrap' }}>{visible.length} รายการ</span>
+          </div>
           <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
             {categories.map(cat => (
               <div key={cat} onClick={() => setActiveCat(cat)} className="btn" style={{
@@ -255,6 +268,9 @@ function NewBillTab({ branch, title, staff }) {
               <div style={{ gridColumn: '1/-1', color: 'var(--ghost-gray)', fontSize: 12 }}>
                 ยังไม่มีบริการในสาขานี้ — เพิ่มได้ที่แท็บ "Services"
               </div>
+            )}
+            {services.length > 0 && visible.length === 0 && (
+              <div style={{ color: 'var(--ghost-gray)', fontSize: 12, gridColumn: '1/-1', padding: '20px 0', textAlign: 'center' }}>ไม่พบบริการที่ค้นหา</div>
             )}
           </div>
         </div>
