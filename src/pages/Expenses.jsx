@@ -204,8 +204,11 @@ function AddExpenseModal({ branches, staff, onClose, onSaved }) {
         </div>
         <div style={{ marginBottom: 10 }}>
           <label style={{ fontSize: 11, color: 'var(--ghost-gray)', display: 'block', marginBottom: 6 }}>รายละเอียด</label>
-          <input className="input" list="material-options" value={description} onChange={e => setDescription(e.target.value)} placeholder="เลือกหรือพิมพ์รายการ" />
-          <datalist id="material-options">{MATERIAL_OPTIONS.map(material => <option value={material} key={material} />)}</datalist>
+          <input className="input" value={description} onChange={e => setDescription(e.target.value)} placeholder="เลือกวัสดุด้านล่าง หรือพิมพ์รายการเอง" />
+          <div style={{ color: 'var(--ghost-gray)', fontSize: 10, letterSpacing: .7, margin: '12px 0 7px', textTransform: 'uppercase' }}>วัสดุที่ใช้บ่อย</div>
+          <div style={{ display: 'grid', gap: 6, gridTemplateColumns: 'repeat(2, 1fr)' }}>
+            {MATERIAL_OPTIONS.map(material => <button type="button" key={material} onClick={() => setDescription(material)} style={{ background: description === material ? 'rgba(196,30,42,.18)' : 'rgba(255,255,255,.035)', border: `1px solid ${description === material ? 'var(--blood)' : 'var(--line)'}`, borderRadius: 6, color: description === material ? 'var(--bone)' : 'var(--ghost-gray)', cursor: 'pointer', font: '12px inherit', padding: '8px 10px', textAlign: 'left', transition: 'all .15s' }}>⌁ {material}</button>)}
+          </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
           <div>
