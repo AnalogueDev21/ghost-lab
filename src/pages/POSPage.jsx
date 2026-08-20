@@ -126,6 +126,13 @@ function NewBillTab({ branch, title, staff }) {
   const categories = ['all', ...new Set(services.map(s => s.category))]
   const visible = activeCat === 'all' ? services : services.filter(s => s.category === activeCat)
   const cartTotal = cart.reduce((a, s) => a + s.price, 0)
+  const cartLines = Object.values(cart.reduce((lines, service) => {
+    const existing = lines[service.id]
+    lines[service.id] = existing
+      ? { ...existing, quantity: existing.quantity + 1, lineTotal: existing.lineTotal + service.price }
+      : { ...service, quantity: 1, lineTotal: service.price }
+    return lines
+  }, {}))
   const memberDiscount = selectedMember && memberEnabled
     ? calculateMemberDiscount(selectedMember, cartTotal)
     : { active: false, percentage: 0, amount: 0, total: cartTotal }
@@ -134,6 +141,12 @@ function NewBillTab({ branch, title, staff }) {
 
   function addToCart(service) { setCart(c => [...c, service]) }
   function removeFromCart(idx) { setCart(c => c.filter((_, i) => i !== idx)) }
+  function removeOneFromCart(serviceId) {
+    setCart(current => {
+      const index = current.findIndex(service => service.id === serviceId)
+      return index === -1 ? current : current.filter((_, itemIndex) => itemIndex !== index)
+    })
+  }
   function showToast(msg) { setToast(msg); setTimeout(() => setToast(''), 1800) }
 
   function pickMember(m) {
@@ -237,10 +250,16 @@ function NewBillTab({ branch, title, staff }) {
           <div style={{ minHeight: 60, borderBottom: '1px dashed var(--line)', paddingBottom: 10, marginBottom: 10 }}>
             {cart.length === 0
               ? <div style={{ color: 'var(--ghost-gray)', fontSize: 11, textAlign: 'center', padding: '16px 0' }}>// คลิกบริการเพื่อเพิ่ม</div>
-              : cart.map((s, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, padding: '6px 0' }}>
-                  <span>{s.name}</span>
-                  <span>¥{s.price.toLocaleString()} <span onClick={() => removeFromCart(i)} style={{ color: 'var(--ghost-gray)', cursor: 'pointer', marginLeft: 8 }}>✕</span></span>
+              : cartLines.map(line => (
+                <div key={line.id} style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between', fontSize: 12, gap: 10, padding: '7px 0' }}>
+                  <div style={{ minWidth: 0 }}><div style={{ fontWeight: 600 }}>{line.name}</div><div style={{ color: 'var(--ghost-gray)', fontSize: 10 }}>¥{line.price.toLocaleString()} / ชิ้น</div></div>
+                  <div style={{ alignItems: 'center', display: 'flex', gap: 7, whiteSpace: 'nowrap' }}>
+                    <button type="button" onClick={() => removeOneFromCart(line.id)} aria-label={`ลดจำนวน ${line.name}`} style={{ background: 'transparent', border: '1px solid var(--line)', borderRadius: 4, color: 'var(--bone)', cursor: 'pointer', height: 22, width: 22 }}>−</button>
+                    <span className="font-mono" style={{ minWidth: 21, textAlign: 'center' }}>×{line.quantity}</span>
+                    <button type="button" onClick={() => addToCart(line)} aria-label={`เพิ่มจำนวน ${line.name}`} style={{ background: 'transparent', border: '1px solid var(--line)', borderRadius: 4, color: 'var(--bone)', cursor: 'pointer', height: 22, width: 22 }}>+</button>
+                    <strong className="font-mono" style={{ minWidth: 60, textAlign: 'right' }}>¥{line.lineTotal.toLocaleString()}</strong>
+                    <span onClick={() => setCart(current => current.filter(service => service.id !== line.id))} style={{ color: 'var(--ghost-gray)', cursor: 'pointer', fontSize: 14 }}>✕</span>
+                  </div>
                 </div>
               ))
             }
