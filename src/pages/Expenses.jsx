@@ -73,6 +73,13 @@ export default function Expenses() {
     setRefreshKey(k => k + 1)
   }
 
+  async function markPending(id) {
+    if (!window.confirm('ยกเลิกสถานะจ่ายแล้ว? รายการนี้จะไม่ถูกหักจากเงินกลาง')) return
+    const { error } = await supabase.from('expenses').update({ status: 'pending', paid_at: null }).eq('id', id)
+    if (error) { console.error(error); return }
+    setRefreshKey(k => k + 1)
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
@@ -158,7 +165,7 @@ export default function Expenses() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div className="font-mono" style={{ fontSize: 14, fontWeight: 600 }}>¥{e.amount.toLocaleString()}</div>
                 {e.status === 'paid'
-                  ? <span style={{ fontSize: 10, padding: '3px 10px', borderRadius: 10, color: '#3FB950', border: '1px solid #3FB950' }}>✓ จ่ายแล้ว</span>
+                  ? <><span style={{ fontSize: 10, padding: '3px 10px', borderRadius: 10, color: '#3FB950', border: '1px solid #3FB950' }}>✓ จ่ายแล้ว</span>{canMarkPaid && <button type="button" onClick={() => markPending(e.id)} className="btn" style={{ color: '#f18b92', fontSize: 10, padding: '4px 7px' }}>ยกเลิกจ่าย</button>}</>
                   : canMarkPaid
                     ? <div onClick={() => markPaid(e.id)} className="btn btn-secondary" style={{ padding: '5px 10px', fontSize: 11 }}>มาร์คจ่ายแล้ว</div>
                     : <span style={{ fontSize: 10, padding: '3px 10px', borderRadius: 10, color: 'var(--ghost-gray)', border: '1px solid var(--line)' }}>ค้างชำระ</span>
@@ -258,7 +265,7 @@ function AddExpenseModal({ branches, staff, onClose, onSaved }) {
         </div>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <div onClick={onClose} className="btn btn-secondary">ยกเลิก</div>
-          <div onClick={save} className="btn btn-primary" style={{ opacity: saving ? 0.6 : 1 }}>{saving ? 'กำลังบันทึก...' : 'บันทึกและหักเงินกลาง'}</div>
+          <div onClick={save} className="btn btn-primary" style={{ opacity: saving ? 0.6 : 1 }}>{saving ? 'กำลังบันทึก...' : 'บันทึกเป็นค้างชำระ'}</div>
         </div>
       </div>
     </div>
