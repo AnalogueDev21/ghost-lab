@@ -77,7 +77,7 @@ export default function Stock() {
           <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>จัดการสต็อกวัตถุดิบและสินค้า</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" onClick={saveAllChanges} disabled={!pendingChanges.length || savingChanges} className="btn" style={{ borderColor: pendingChanges.length ? '#3FB950' : 'var(--line)', color: pendingChanges.length ? '#84d6a8' : 'var(--ghost-gray)', opacity: savingChanges ? .6 : 1 }}>
+          <button type="button" onClick={saveAllChanges} disabled={!pendingChanges.length || savingChanges} className="btn" style={{ background: pendingChanges.length ? 'rgba(63,185,80,.12)' : 'rgba(255,255,255,.02)', borderColor: pendingChanges.length ? '#3FB950' : 'var(--line)', color: pendingChanges.length ? '#84d6a8' : 'var(--ghost-gray)', opacity: savingChanges ? .6 : 1 }}>
             {savingChanges ? 'กำลังบันทึก…' : `✓ บันทึกการปรับสต๊อก${pendingChanges.length ? ` (${pendingChanges.length})` : ''}`}
           </button>
           <button type="button" onClick={() => setShowAdd(true)} className="btn btn-primary">+ เพิ่มวัตถุดิบ</button>
