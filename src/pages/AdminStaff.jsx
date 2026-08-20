@@ -19,7 +19,7 @@ export default function AdminStaff() {
 
   async function load() {
     setLoading(true)
-    const { data, error } = await supabase.from('staff').select('*').order('name_en')
+    const { data, error } = await supabase.from('staff').select('*').eq('active', true).order('name_en')
     if (error) console.error(error)
     setStaffList(data || [])
     setLoading(false)
@@ -60,7 +60,16 @@ export default function AdminStaff() {
     const { error } = await supabase.from('staff').delete().eq('id', target.id)
     if (error) {
       console.error(error)
-      alert(`ลบไม่สำเร็จ: ${error.message}\n\nถ้ามีประวัติบิลหรือรายการเงินอยู่ ให้ปิดสถานะแทนเพื่อเก็บประวัติ`)
+      // A staff record with attendance/bills is intentionally kept as an audit
+      // record. Deactivate it so it disappears from Login and this active list.
+      const { error: deactivateError } = await supabase.from('staff').update({ active: false }).eq('id', target.id)
+      if (deactivateError) {
+        console.error(deactivateError)
+        alert(`ลบหรือปิดบัญชีไม่สำเร็จ: ${deactivateError.message}`)
+        return
+      }
+      setStaffList(list => list.filter(item => item.id !== target.id))
+      alert(`ปิดบัญชี “${target.name_en}” แล้ว — เก็บประวัติการเข้างานและบิลเดิมไว้เรียบร้อย`)
       return
     }
     setStaffList(list => list.filter(item => item.id !== target.id))
