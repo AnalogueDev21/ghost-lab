@@ -94,7 +94,7 @@ export default function Expenses() {
           <div className="font-display" style={{ fontSize: 18, fontWeight: 600 }}>ค่าใช้จ่าย</div>
           <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>บันทึกและติดตามค่าใช้จ่ายทุกสาขา</div>
         </div>
-        {isOwner && <div style={{ display: 'flex', gap: 8 }}><div onClick={() => setShowAdjust(true)} className="btn btn-secondary">± ปรับยอดเงินกลาง</div><div onClick={() => setShowAdd(true)} className="btn btn-primary">+ ซื้อ/เบิกเงินกลาง</div></div>}
+        <div style={{ display: 'flex', gap: 8 }}>{isOwner && <div onClick={() => setShowAdjust(true)} className="btn btn-secondary">± ปรับยอดเงินกลาง</div>}<div onClick={() => setShowAdd(true)} className="btn btn-primary">+ เพิ่มค่าใช้จ่าย</div></div>
       </div>
 
       {isOwner && (
@@ -223,13 +223,16 @@ function AddExpenseModal({ branches, staff, onClose, onSaved }) {
   const [category, setCategory] = useState('วัตถุดิบ')
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
-  const [branchId, setBranchId] = useState(branches[0]?.id || '')
+  const availableBranches = staff?.role === 'owner' || staff?.role === 'god'
+    ? branches
+    : branches.filter(branch => branch.id === staff?.primary_branch)
+  const [branchId, setBranchId] = useState(staff?.primary_branch || branches[0]?.id || '')
   const [saving, setSaving] = useState(false)
 
   async function save() {
     if (!description.trim() || !amount) return
     setSaving(true)
-    const { error } = await supabase.rpc('record_cash_purchase', {
+    const { error } = await supabase.rpc('record_pending_expense', {
       p_branch_id: branchId || null,
       p_category: category,
       p_description: description.trim(),
@@ -244,7 +247,7 @@ function AddExpenseModal({ branches, staff, onClose, onSaved }) {
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
       <div className="panel" style={{ width: '100%', maxWidth: 420, background: 'var(--static)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div className="font-display" style={{ fontSize: 16, fontWeight: 600 }}>ซื้อ/เบิกเงินกลาง</div>
+          <div className="font-display" style={{ fontSize: 16, fontWeight: 600 }}>เพิ่มค่าใช้จ่าย</div>
           <div onClick={onClose} style={{ cursor: 'pointer', color: 'var(--ghost-gray)', fontSize: 18 }}>✕</div>
         </div>
         <div style={{ marginBottom: 10 }}>
@@ -268,7 +271,7 @@ function AddExpenseModal({ branches, staff, onClose, onSaved }) {
         <div style={{ marginBottom: 18 }}>
           <label style={{ fontSize: 11, color: 'var(--ghost-gray)', display: 'block', marginBottom: 6 }}>สาขา</label>
           <select className="input" value={branchId} onChange={e => setBranchId(e.target.value)}>
-            {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+            {availableBranches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
           </select>
         </div>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
