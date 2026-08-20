@@ -17,6 +17,8 @@ export default function Home() {
   const [branchFilter, setBranchFilter] = useState('all')
   const [period, setPeriod] = useState('today')
   const [selectedDate, setSelectedDate] = useState(localDateValue)
+  const [openAttendance, setOpenAttendance] = useState(null)
+  const [attendanceSaving, setAttendanceSaving] = useState(false)
 
   const periodLabels = { today: 'วันนี้', week: '7 วันล่าสุด', month: 'เดือนนี้', all: 'ทั้งหมด' }
   const selectedDateLabel = new Date(`${selectedDate}T00:00:00`).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -52,6 +54,47 @@ export default function Home() {
       .then(({ count }) => setOnShiftCount(count || 0))
   }, [period, selectedDate])
 
+  useEffect(() => {
+    if (!staff?.id) return
+    supabase
+      .from('attendance')
+      .select('*')
+      .eq('staff_id', staff.id)
+      .is('clock_out', null)
+      .order('clock_in', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (error) console.error(error)
+        setOpenAttendance(data || null)
+      })
+  }, [staff?.id])
+
+  async function toggleAttendance() {
+    if (!staff?.id || attendanceSaving) return
+    if (!openAttendance && !staff.primary_branch) return alert('ยังไม่ได้กำหนดสาขาหลักให้พนักงานคนนี้')
+    setAttendanceSaving(true)
+    const { data, error } = openAttendance
+      ? await supabase.from('attendance').update({ clock_out: new Date().toISOString() }).eq('id', openAttendance.id)
+      : await supabase.from('attendance').insert({ staff_id: staff.id, branch_id: staff.primary_branch }).select().single()
+
+    if (error) {
+      console.error(error)
+      alert(`บันทึกเวลาไม่สำเร็จ: ${error.message}`)
+      setAttendanceSaving(false)
+      return
+    }
+
+    if (openAttendance) {
+      setOpenAttendance(null)
+      setOnShiftCount(count => Math.max(0, count - 1))
+    } else {
+      setOpenAttendance(data)
+      setOnShiftCount(count => count + 1)
+    }
+    setAttendanceSaving(false)
+  }
+
   const filteredBills = branchFilter === 'all'
     ? todayBills
     : todayBills.filter(b => b.branches?.key === branchFilter)
@@ -83,6 +126,14 @@ export default function Home() {
           <div className="font-display" style={{ fontSize: 24, fontWeight: 600 }}>
             สวัสดี, {staff?.name_en} 👋
           </div>
+        </div>
+        <div style={{ alignItems: 'flex-end', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <span style={{ color: openAttendance ? '#7ee2a5' : 'var(--ghost-gray)', fontSize: 11, fontWeight: 600, letterSpacing: .7 }}>
+            {openAttendance ? '● ออนไลน์ · เข้างานแล้ว' : '○ ออฟไลน์ · ยังไม่เข้างาน'}
+          </span>
+          <button type="button" onClick={toggleAttendance} className={openAttendance ? 'btn' : 'btn btn-primary'} style={{ borderColor: openAttendance ? 'rgba(255,255,255,.22)' : undefined, fontSize: 12, minWidth: 125, opacity: attendanceSaving ? .6 : 1 }}>
+            {attendanceSaving ? 'กำลังบันทึก...' : openAttendance ? '◼ เลิกงาน' : '● เข้างาน'}
+          </button>
         </div>
       </div>
 
