@@ -10,6 +10,7 @@ function StaffAvatar({ staff, large = false }) {
 
 export default function Login() {
   const [staffList, setStaffList] = useState([])
+  const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(null)
   const [step, setStep] = useState('profile')
   const [pin, setPin] = useState('')
@@ -24,7 +25,7 @@ export default function Login() {
     if (session && staff && !loading) navigate('/')
   }, [session, staff, loading, navigate])
   useEffect(() => {
-    supabase.from('staff').select('id, name_en, name_th, role').eq('active', true).then(({ data, error: fetchError }) => {
+    supabase.from('staff').select('id, name_en, name_th, role').eq('active', true).order('name_en').then(({ data, error: fetchError }) => {
       if (fetchError) { console.error(fetchError); return }
       setStaffList(data || [])
     })
@@ -36,6 +37,11 @@ export default function Login() {
     setError('')
     setStep('pin')
   }
+
+  const searchText = search.trim().toLowerCase()
+  const visibleStaff = staffList.filter(member => !searchText
+    || member.name_en?.toLowerCase().includes(searchText)
+    || member.name_th?.toLowerCase().includes(searchText))
 
   function changeProfile() {
     if (isSubmitting) return
@@ -82,8 +88,16 @@ export default function Login() {
               <h1>เลือกโปรไฟล์ของคุณ</h1>
               <p>เลือกชื่อก่อน แล้วจึงใส่ PIN เพื่อเข้าสู่ระบบ</p>
             </div>
+            <div className="staff-picker__toolbar">
+              <div className="staff-search">
+                <span aria-hidden="true">⌕</span>
+                <input value={search} onChange={event => setSearch(event.target.value)} placeholder="ค้นหาชื่อพนักงาน..." aria-label="ค้นหาพนักงาน" autoComplete="off" />
+                {search && <button type="button" onClick={() => setSearch('')} aria-label="ล้างคำค้น">×</button>}
+              </div>
+              <span>{visibleStaff.length}/{staffList.length} คน</span>
+            </div>
             <div className="staff-picker" role="list" aria-label="รายชื่อพนักงาน">
-              {staffList.map(staff => (
+              {visibleStaff.map(staff => (
                 <button key={staff.id} type="button" className="staff-card" onClick={() => chooseProfile(staff)} role="listitem">
                   <StaffAvatar staff={staff} />
                   <span className="staff-card__details"><strong>{staff.name_en}</strong>{staff.name_th && <small>{staff.name_th}</small>}</span>
@@ -91,6 +105,7 @@ export default function Login() {
                 </button>
               ))}
               {staffList.length === 0 && <div className="staff-picker__empty">ยังไม่มีพนักงานในระบบ — เพิ่มผ่าน Supabase dashboard ก่อน</div>}
+              {staffList.length > 0 && visibleStaff.length === 0 && <div className="staff-picker__empty">ไม่พบชื่อที่ค้นหา</div>}
             </div>
           </div>
         ) : (

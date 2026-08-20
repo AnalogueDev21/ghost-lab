@@ -5,18 +5,18 @@
 .login-brand__dot { color: var(--blood); }
 .login-brand__subtitle { color: var(--ghost-gray); font-size: 11px; letter-spacing: 6px; margin-top: 8px; }
 .login-card { background: linear-gradient(145deg, rgba(41, 43, 46, .98), rgba(25, 27, 29, .98)); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 58px rgba(0, 0, 0, .28); padding: 28px; }
-.login-card__header { margin-bottom: 22px; text-align: center; }
+.login-card__header { margin-bottom: 18px; text-align: center; }
 .login-card__eyebrow, .selected-profile__label { color: var(--blood); display: block; font-size: 10px; font-weight: 700; letter-spacing: 1.7px; text-transform: uppercase; }
 .login-card h1 { font-size: 23px; line-height: 1.3; margin-top: 6px; }
 .login-card__header p { color: var(--ghost-gray); font-size: 13px; margin-top: 7px; }
-.staff-picker { display: grid; gap: 10px; }
-.staff-card { align-items: center; appearance: none; background: rgba(255, 255, 255, .035); border: 1px solid var(--line); border-radius: 11px; color: var(--bone); cursor: pointer; display: flex; font: inherit; gap: 13px; padding: 12px; text-align: left; transition: background .16s ease, border-color .16s ease, transform .16s ease; width: 100%; }
+.staff-picker__toolbar { align-items: center; display: flex; gap: 10px; justify-content: space-between; margin-bottom: 11px; }.staff-picker__toolbar > span { color: var(--ghost-gray); font-size: 11px; white-space: nowrap; }.staff-search { align-items: center; background: rgba(0,0,0,.14); border: 1px solid var(--line); border-radius: 8px; display: flex; flex: 1; padding: 0 9px; }.staff-search > span { color: var(--ghost-gray); font-size: 17px; }.staff-search input { background: transparent; border: 0; color: var(--bone); font: 12px inherit; min-width: 0; outline: 0; padding: 9px 7px; width: 100%; }.staff-search button { background: transparent; border: 0; color: var(--ghost-gray); cursor: pointer; font-size: 18px; line-height: 1; padding: 2px; }
+.staff-picker { display: grid; gap: 9px; grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: min(52vh, 500px); overflow-y: auto; padding-right: 4px; scrollbar-color: rgba(196,30,42,.55) transparent; }
+.staff-card { align-items: center; appearance: none; background: rgba(255, 255, 255, .035); border: 1px solid var(--line); border-radius: 10px; color: var(--bone); cursor: pointer; display: flex; font: inherit; gap: 10px; min-width: 0; padding: 10px; text-align: left; transition: background .16s ease, border-color .16s ease, transform .16s ease; width: 100%; }
 .staff-card:hover, .staff-card:focus-visible { background: linear-gradient(90deg, rgba(196, 30, 42, .17), rgba(255, 255, 255, .04)); border-color: rgba(196, 30, 42, .7); outline: none; transform: translateX(3px); }
-.staff-avatar { align-items: center; background: linear-gradient(135deg, var(--blood), var(--ember)); border: 1px solid rgba(255, 255, 255, .16); border-radius: 50%; display: flex; flex: 0 0 auto; font-family: Inter, 'Noto Sans Thai', sans-serif; font-size: 12px; font-weight: 700; height: 42px; justify-content: center; letter-spacing: .4px; width: 42px; }
+.staff-avatar { align-items: center; background: linear-gradient(135deg, var(--blood), var(--ember)); border: 1px solid rgba(255, 255, 255, .16); border-radius: 50%; display: flex; flex: 0 0 auto; font-family: Inter, 'Noto Sans Thai', sans-serif; font-size: 11px; font-weight: 700; height: 38px; justify-content: center; letter-spacing: .4px; width: 38px; }
 .staff-avatar--large { font-size: 15px; height: 58px; width: 58px; }
 .staff-card__details { display: grid; gap: 1px; }
-.staff-card__details strong { font-size: 15px; font-weight: 600; }
-.staff-card__details small { color: var(--ghost-gray); font-size: 12px; }
+.staff-card__details { min-width: 0; }.staff-card__details strong { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.staff-card__details small { color: var(--ghost-gray); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .staff-card__arrow { color: var(--ghost-gray); font-size: 18px; margin-left: auto; transition: color .16s ease, transform .16s ease; }
 .staff-card:hover .staff-card__arrow { color: var(--bone); transform: translateX(2px); }
 .staff-picker__empty { color: var(--ghost-gray); font-size: 12px; padding: 18px 8px; text-align: center; }
@@ -41,4 +41,4 @@
 .pin-panel__status { color: var(--ghost-gray); font-size: 11px; margin-top: 13px; text-align: center; }
 .login-footer { color: var(--ghost-gray); font-size: 13px; margin-top: 18px; text-align: center; }
 .login-footer a { color: var(--bone); font-weight: 700; text-decoration: none; }
-@media (max-width: 480px) { .login-page { padding: 24px 16px; }.login-card { border-radius: 14px; padding: 24px 18px; }.login-card--pin { padding: 18px 18px 24px; }.login-brand__name { font-size: 30px; }.login-card h1 { font-size: 21px; } }
+@media (max-width: 480px) { .login-page { padding: 24px 16px; }.login-card { border-radius: 14px; padding: 24px 18px; }.login-card--pin { padding: 18px 18px 24px; }.login-brand__name { font-size: 30px; }.login-card h1 { font-size: 21px; }.staff-picker { grid-template-columns: 1fr; max-height: 48vh; } }
