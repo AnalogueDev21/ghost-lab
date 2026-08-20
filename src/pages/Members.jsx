@@ -125,16 +125,17 @@ export default function Members() {
           <div className="members-list__header">
             <span>สมาชิก</span><span>สาขา</span><span>สถานะสะสม</span><span>ยอดใช้จ่าย</span><span>รางวัล</span><span aria-label="จัดการ" />
           </div>
-          {loading ? <LoadingRows /> : filtered.map(member => (
-            <article className="member-row" key={member.id}>
+          {loading ? <LoadingRows /> : filtered.map(member => {
+            const hasUnlimitedRepair = member.tier === 'gold' && isMembershipActive(member)
+            return <article className="member-row" key={member.id}>
               <div className="member-identity"><Avatar name={member.name} /><div><strong>{member.name}</strong><small>{member.phone || 'ไม่ระบุเบอร์'}{member.plate_or_note && ` · ${member.plate_or_note}`}</small></div></div>
               <div className="member-branch">{member.branches?.name || 'ไม่ระบุสาขา'}</div>
               <div className="member-loyalty"><div><span className={`tier ${TIER_CLASS[member.tier] || 'tier--regular'}`}>{getMembershipPlan(member.tier).label}</span><b className={isMembershipActive(member) ? 'member-active' : 'member-expired'}>{isMembershipActive(member) ? 'ACTIVE' : 'หมดอายุ'}</b></div><small>ถึง {formatDate(member.membership_expires_at)}</small></div>
               <strong className="member-spend">{formatAmount(member.total_spent)}</strong>
-              <div className="member-reward"><b>{couponCounts[member.id] || 0}</b><span>ซ่อมฟรี</span></div>
+              <div className={`member-reward ${hasUnlimitedRepair ? 'member-reward--gold' : ''}`} title={hasUnlimitedRepair ? 'Gold Member: ซ่อมฟรีไม่จำกัดตลอดอายุสมาชิก' : undefined}><b>{hasUnlimitedRepair ? '∞' : (couponCounts[member.id] || 0)}</b><span>{hasUnlimitedRepair ? 'ซ่อมฟรีตลอดสมาชิก' : 'ซ่อมฟรี'}</span></div>
               <div className="member-actions"><button type="button" onClick={() => setEditingMember(member)}>แก้ไข</button><button type="button" className="member-actions__delete" onClick={() => deleteMember(member)} aria-label={`ลบ ${member.name}`}>×</button></div>
             </article>
-          ))}
+          })}
           {!loading && filtered.length === 0 && <EmptyState hasSearch={Boolean(search || branchFilter !== 'all')} onAdd={() => setEditingMember({})} />}
         </div>
       </div>
