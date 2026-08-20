@@ -212,7 +212,12 @@ function NewBillTab({ branch, title, staff }) {
 
     const items = cart.map(s => ({ bill_id: bill.id, service_id: s.id, name_snapshot: s.name, price_snapshot: s.price }))
     const { error: itemsError } = await supabase.from('bill_items').insert(items)
-    if (itemsError) console.error(itemsError)
+    if (itemsError) {
+      console.error(itemsError)
+      showToast(`บันทึกเลขบิล ${billNumber} แล้ว แต่บันทึกรายการบริการไม่สำเร็จ: ${itemsError.message}`)
+      setSubmitting(false)
+      return
+    }
 
     if (selectedMember) {
       await supabase.from('members').update({
@@ -478,21 +483,59 @@ function AddMemberModal({ branch, initialQuery, onClose, onCreated }) {
 function BillsHistoryTab({ branch }) {
   const [bills, setBills] = useState([])
   const [loading, setLoading] = useState(true)
+  const [itemsLoadError, setItemsLoadError] = useState('')
   const [expandedBillId, setExpandedBillId] = useState(null)
 
   useEffect(() => {
-    supabase.from('bills').select('*, staff:staff_id(name_en), items:bill_items(name_snapshot,price_snapshot)').eq('branch_id', branch.id)
-      .order('created_at', { ascending: false }).limit(100)
-      .then(({ data, error }) => {
-        if (error) console.error(error)
-        setBills(data || [])
-        setLoading(false)
-      })
+    let active = true
+
+    async function loadBills() {
+      setLoading(true)
+      setItemsLoadError('')
+      const { data: billRows, error: billsError } = await supabase
+        .from('bills')
+        .select('*, staff:staff_id(name_en)')
+        .eq('branch_id', branch.id)
+        .order('created_at', { ascending: false })
+        .limit(100)
+
+      if (billsError) console.error(billsError)
+      const safeBills = billRows || []
+      const billIds = safeBills.map(bill => bill.id)
+      let itemsByBill = {}
+
+      // Query bill_items directly instead of relying on PostgREST's embedded
+      // relationship, which can leave the line-item list empty in some projects.
+      if (billIds.length) {
+        const { data: itemRows, error: itemError } = await supabase
+          .from('bill_items')
+          .select('bill_id, name_snapshot, price_snapshot')
+          .in('bill_id', billIds)
+
+        if (itemError) {
+          console.error(itemError)
+          if (active) setItemsLoadError(itemError.message)
+        } else {
+          itemsByBill = (itemRows || []).reduce((result, item) => {
+            result[item.bill_id] = [...(result[item.bill_id] || []), item]
+            return result
+          }, {})
+        }
+      }
+
+      if (!active) return
+      setBills(safeBills.map(bill => ({ ...bill, items: itemsByBill[bill.id] || [] })))
+      setLoading(false)
+    }
+
+    loadBills()
+    return () => { active = false }
   }, [branch])
 
   return (
     <div className="panel">
       <div className="font-display" style={{ fontSize: 14, fontWeight: 600, marginBottom: 14 }}>ประวัติบิล · Bills</div>
+      {itemsLoadError && <div style={{ background: 'rgba(196,30,42,.1)', border: '1px solid rgba(196,30,42,.35)', color: '#ff9ea5', fontSize: 11, marginBottom: 12, padding: '9px 10px' }}>ดึงรายการในบิลไม่สำเร็จ: {itemsLoadError}</div>}
       {loading ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12 }}>กำลังโหลด...</div>
         : bills.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12, textAlign: 'center', padding: '24px 0' }}>ยังไม่มีบิล</div>
         : bills.map(b => <BillHistoryRow key={b.id} bill={b} expanded={expandedBillId === b.id} onToggle={() => setExpandedBillId(current => current === b.id ? null : b.id)} />)
