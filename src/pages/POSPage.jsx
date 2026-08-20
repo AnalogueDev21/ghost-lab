@@ -4,6 +4,23 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { calculateMemberDiscount, formatDate, getMembershipPlan, nextMonthlyExpiry } from '../lib/membership'
 
+const BILL_NOTE_SNAPSHOT_PREFIX = '[ghost-lab-bill]'
+
+function makeBillNotes(note, cart) {
+  const snapshot = cart.map(service => ({ name_snapshot: service.name, price_snapshot: service.price }))
+  return BILL_NOTE_SNAPSHOT_PREFIX + JSON.stringify({ note: note.trim() || null, items: snapshot })
+}
+
+function readBillNotes(value) {
+  if (!value?.startsWith(BILL_NOTE_SNAPSHOT_PREFIX)) return { note: value || '', items: [] }
+  try {
+    const parsed = JSON.parse(value.slice(BILL_NOTE_SNAPSHOT_PREFIX.length))
+    return { note: parsed.note || '', items: Array.isArray(parsed.items) ? parsed.items : [] }
+  } catch {
+    return { note: '', items: [] }
+  }
+}
+
 // Reusable branch page. Pass branchKey="garage" or branchKey="chill".
 // Matches the Xkate pattern: one page per branch with 3 tabs —
 // New Bill (POS), Bills (history), Services (catalog management).
@@ -200,7 +217,9 @@ function NewBillTab({ branch, title, staff }) {
       member_id: selectedMember?.id || null,
       plate: plate || null,
       vehicle: vehicle || null,
-      notes: notes || null,
+      // Keep a snapshot in the bill itself as a reliable history fallback.
+      // bill_items remains the source for stock/reward automation.
+      notes: makeBillNotes(notes, cart),
       subtotal: cartTotal,
       discount_pct: selfService ? 0 : freeRepairApplied ? 100 : memberDiscount.percentage,
       commission: displayCommission,
@@ -558,7 +577,9 @@ function BillsHistoryTab({ branch, staff, onBillDeleted }) {
 }
 
 function BillHistoryRow({ bill, expanded, onToggle, canDelete, onDelete }) {
-  const groupedItems = Object.values((bill.items || []).reduce((items, item) => {
+  const noteSnapshot = readBillNotes(bill.notes)
+  const lineItems = (bill.items || []).length ? bill.items : noteSnapshot.items
+  const groupedItems = Object.values(lineItems.reduce((items, item) => {
     const current = items[item.name_snapshot] || { name: item.name_snapshot, quantity: 0, total: 0 }
     items[item.name_snapshot] = { ...current, quantity: current.quantity + 1, total: current.total + Number(item.price_snapshot || 0) }
     return items
@@ -573,7 +594,7 @@ function BillHistoryRow({ bill, expanded, onToggle, canDelete, onDelete }) {
         {canDelete && <button type="button" onClick={event => { event.stopPropagation(); onDelete() }} title="ยกเลิกบิลของฉัน" style={{ background: 'transparent', border: '1px solid rgba(196,30,42,.55)', borderRadius: 5, color: '#f18b92', cursor: 'pointer', fontSize: 11, padding: '4px 7px' }}>ลบบิล</button>}
       </div>
     </div>
-    {expanded && <div style={{ background: 'rgba(255,255,255,.025)', borderTop: '1px solid var(--line)', margin: '0 -8px', padding: '12px 14px' }}><div style={{ color: 'var(--ghost-gray)', fontSize: 10, letterSpacing: .8, marginBottom: 7 }}>รายการที่ทำ</div>{groupedItems.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 11 }}>ไม่มีรายละเอียดรายการในบิลนี้</div> : groupedItems.map(item => <div key={item.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}><span>{item.name} <span style={{ color: 'var(--ghost-gray)' }}>×{item.quantity}</span></span><span className="font-mono">¥{item.total.toLocaleString()}</span></div>)}<div style={{ borderTop: '1px dashed var(--line)', display: 'grid', gap: 4, gridTemplateColumns: '1fr auto', marginTop: 9, paddingTop: 9 }}><span style={{ color: 'var(--ghost-gray)' }}>Subtotal</span><span className="font-mono">¥{Number(bill.subtotal || 0).toLocaleString()}</span>{discountAmount > 0 && <><span style={{ color: '#84d6a8' }}>ส่วนลด {bill.discount_pct ? `(${bill.discount_pct}%)` : ''}</span><span className="font-mono" style={{ color: '#84d6a8' }}>−¥{discountAmount.toLocaleString()}</span></>}<span style={{ color: 'var(--ghost-gray)' }}>Commission</span><span className="font-mono" style={{ color: '#e5c158' }}>¥{Number(bill.commission || 0).toLocaleString()}</span><strong>TOTAL</strong><strong className="font-mono" style={{ color: 'var(--blood)' }}>¥{Number(bill.total || 0).toLocaleString()}</strong></div>{bill.notes && <div style={{ color: 'var(--ghost-gray)', fontSize: 11, marginTop: 10 }}>หมายเหตุ: {bill.notes}</div>}</div>}
+    {expanded && <div style={{ background: 'rgba(255,255,255,.025)', borderTop: '1px solid var(--line)', margin: '0 -8px', padding: '12px 14px' }}><div style={{ color: 'var(--ghost-gray)', fontSize: 10, letterSpacing: .8, marginBottom: 7 }}>รายการที่ทำ</div>{groupedItems.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 11 }}>ไม่มีรายละเอียดรายการในบิลนี้</div> : groupedItems.map(item => <div key={item.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}><span>{item.name} <span style={{ color: 'var(--ghost-gray)' }}>×{item.quantity}</span></span><span className="font-mono">¥{item.total.toLocaleString()}</span></div>)}<div style={{ borderTop: '1px dashed var(--line)', display: 'grid', gap: 4, gridTemplateColumns: '1fr auto', marginTop: 9, paddingTop: 9 }}><span style={{ color: 'var(--ghost-gray)' }}>Subtotal</span><span className="font-mono">¥{Number(bill.subtotal || 0).toLocaleString()}</span>{discountAmount > 0 && <><span style={{ color: '#84d6a8' }}>ส่วนลด {bill.discount_pct ? `(${bill.discount_pct}%)` : ''}</span><span className="font-mono" style={{ color: '#84d6a8' }}>−¥{discountAmount.toLocaleString()}</span></>}<span style={{ color: 'var(--ghost-gray)' }}>Commission</span><span className="font-mono" style={{ color: '#e5c158' }}>¥{Number(bill.commission || 0).toLocaleString()}</span><strong>TOTAL</strong><strong className="font-mono" style={{ color: 'var(--blood)' }}>¥{Number(bill.total || 0).toLocaleString()}</strong></div>{noteSnapshot.note && <div style={{ color: 'var(--ghost-gray)', fontSize: 11, marginTop: 10 }}>หมายเหตุ: {noteSnapshot.note}</div>}</div>}
   </div>
 }
 
