@@ -80,6 +80,13 @@ export default function Expenses() {
     setRefreshKey(k => k + 1)
   }
 
+  async function deleteExpense(expense) {
+    if (!window.confirm(`ลบค่าใช้จ่าย “${expense.description}” จำนวน ¥${Number(expense.amount).toLocaleString()} ?\n\nหากรายการนี้จ่ายแล้ว ยอดเงินกลางจะถูกคืนให้ด้วย`)) return
+    const { error } = await supabase.rpc('delete_cash_expense', { target_expense_id: expense.id })
+    if (error) { console.error(error); alert(`ลบไม่สำเร็จ: ${error.message}`); return }
+    setRefreshKey(k => k + 1)
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
@@ -170,6 +177,7 @@ export default function Expenses() {
                     ? <div onClick={() => markPaid(e.id)} className="btn btn-secondary" style={{ padding: '5px 10px', fontSize: 11 }}>มาร์คจ่ายแล้ว</div>
                     : <span style={{ fontSize: 10, padding: '3px 10px', borderRadius: 10, color: 'var(--ghost-gray)', border: '1px solid var(--line)' }}>ค้างชำระ</span>
                 }
+                {isOwner && <button type="button" onClick={() => deleteExpense(e)} title="ลบค่าใช้จ่าย" style={{ background: 'transparent', border: '1px solid rgba(196,30,42,.55)', borderRadius: 5, color: '#f18b92', cursor: 'pointer', fontSize: 13, padding: '4px 8px' }}>🗑</button>}
               </div>
             </div>
           ))
