@@ -80,6 +80,8 @@ create table member_memberships (
   member_id     uuid references members(id) on delete cascade not null,
   tier          text not null check (tier in ('regular', 'silver', 'gold')),
   monthly_fee   integer not null check (monthly_fee >= 0),
+  months        integer not null default 1 check (months > 0),
+  total_paid    integer not null default 0 check (total_paid >= 0),
   started_at    timestamptz not null default now(),
   expires_at    timestamptz not null,
   created_at    timestamptz not null default now()

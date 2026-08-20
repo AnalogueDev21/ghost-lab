@@ -414,7 +414,7 @@ function AddMemberModal({ branch, initialQuery, onClose, onCreated }) {
     if (error) { console.error(error); return }
     await supabase.from('member_memberships').insert({
       member_id: data.id, tier: plan.key, monthly_fee: plan.monthlyFee,
-      started_at: startsAt, expires_at: expiresAt,
+      months: 1, total_paid: plan.monthlyFee, started_at: startsAt, expires_at: expiresAt,
     })
     onCreated(data)
   }

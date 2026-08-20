@@ -58,3 +58,16 @@ export function nextMonthlyExpiry(currentExpiry) {
   next.setMonth(next.getMonth() + 1)
   return next.toISOString()
 }
+
+export function addMembershipMonths(startDate, months) {
+  const base = new Date(startDate)
+  const expiry = new Date(base)
+  expiry.setMonth(expiry.getMonth() + Math.max(1, Number(months) || 1))
+  return expiry.toISOString()
+}
+
+export function toDateInput(value = new Date()) {
+  const date = new Date(value)
+  const offset = date.getTimezoneOffset() * 60000
+  return new Date(date.getTime() - offset).toISOString().slice(0, 10)
+}
