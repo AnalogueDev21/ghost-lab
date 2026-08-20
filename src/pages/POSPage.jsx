@@ -440,7 +440,7 @@ function ServicesTab({ branch }) {
 
   async function load() {
     setLoading(true)
-    const { data, error } = await supabase.from('services').select('*').eq('branch_id', branch.id).order('category')
+    const { data, error } = await supabase.from('services').select('*').eq('branch_id', branch.id).eq('active', true).order('category')
     if (error) console.error(error)
     setServices(data || [])
     setLoading(false)
