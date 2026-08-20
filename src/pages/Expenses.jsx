@@ -10,6 +10,7 @@ export default function Expenses() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
+  const [showAdjust, setShowAdjust] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [cashLedger, setCashLedger] = useState([])
   const isOwner = staff?.role === 'owner'
@@ -54,6 +55,9 @@ export default function Expenses() {
   const pendingCount = expenses.filter(e => e.status === 'pending').length
   const centralCash = cashLedger.reduce((sum, entry) => sum + entry.amount, 0)
   const purchaseTotal = Math.abs(cashLedger.filter(entry => entry.entry_type === 'purchase').reduce((sum, entry) => sum + entry.amount, 0))
+  const billIncome = cashLedger.filter(entry => entry.entry_type === 'bill_income').reduce((sum, entry) => sum + entry.amount, 0)
+  const membershipIncome = cashLedger.filter(entry => entry.entry_type === 'membership_income').reduce((sum, entry) => sum + entry.amount, 0)
+  const manualAdjustments = cashLedger.filter(entry => entry.entry_type === 'manual_adjustment').reduce((sum, entry) => sum + entry.amount, 0)
 
   async function markPaid(id) {
     const { error } = await supabase.from('expenses').update({ status: 'paid', paid_at: new Date().toISOString() }).eq('id', id)
@@ -68,23 +72,17 @@ export default function Expenses() {
           <div className="font-display" style={{ fontSize: 18, fontWeight: 600 }}>ค่าใช้จ่าย</div>
           <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>บันทึกและติดตามค่าใช้จ่ายทุกสาขา</div>
         </div>
-        {isOwner && <div onClick={() => setShowAdd(true)} className="btn btn-primary">+ ซื้อ/เบิกเงินกลาง</div>}
+        {isOwner && <div style={{ display: 'flex', gap: 8 }}><div onClick={() => setShowAdjust(true)} className="btn btn-secondary">± ปรับยอดเงินกลาง</div><div onClick={() => setShowAdd(true)} className="btn btn-primary">+ ซื้อ/เบิกเงินกลาง</div></div>}
       </div>
 
       {isOwner && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 18 }}>
-          <div className="panel">
-            <div style={{ fontSize: 11, color: 'var(--ghost-gray)', textTransform: 'uppercase', marginBottom: 8 }}>เงินกลางคงเหลือ</div>
-            <div className="font-mono" style={{ fontSize: 24, fontWeight: 700, color: centralCash < 0 ? 'var(--blood)' : 'var(--bone)' }}>¥{centralCash.toLocaleString()}</div>
-          </div>
-          <div className="panel">
-            <div style={{ fontSize: 11, color: 'var(--ghost-gray)', textTransform: 'uppercase', marginBottom: 8 }}>ยอดเริ่มต้น</div>
-            <div className="font-mono" style={{ fontSize: 24, fontWeight: 700 }}>¥{(cashLedger.find(entry => entry.entry_type === 'opening_balance')?.amount || 0).toLocaleString()}</div>
-          </div>
-          <div className="panel">
-            <div style={{ fontSize: 11, color: 'var(--ghost-gray)', textTransform: 'uppercase', marginBottom: 8 }}>ซื้อ/เบิกไปแล้ว</div>
-            <div className="font-mono" style={{ fontSize: 24, fontWeight: 700, color: 'var(--blood)' }}>¥{purchaseTotal.toLocaleString()}</div>
-          </div>
+          <FinanceCard label="เงินกลางคงเหลือ" value={centralCash} accent={centralCash < 0 ? 'negative' : 'neutral'} />
+          <FinanceCard label="รายรับจากบิล" value={billIncome} accent="positive" />
+          <FinanceCard label="ค่าสมาชิก" value={membershipIncome} accent="positive" />
+          <FinanceCard label="ซื้อ / ค่าใช้จ่าย" value={purchaseTotal} accent="negative" prefix="−" />
+          <FinanceCard label="ปรับยอดโดย Owner" value={manualAdjustments} accent={manualAdjustments < 0 ? 'negative' : 'positive'} signed />
+          <FinanceCard label="ยอดเริ่มต้น" value={cashLedger.find(entry => entry.entry_type === 'opening_balance')?.amount || 0} accent="neutral" />
         </div>
       )}
 
@@ -150,8 +148,15 @@ export default function Expenses() {
           onSaved={() => { setShowAdd(false); setRefreshKey(k => k + 1) }}
         />
       )}
+      {showAdjust && <CashAdjustmentModal onClose={() => setShowAdjust(false)} onSaved={() => { setShowAdjust(false); setRefreshKey(k => k + 1) }} />}
     </div>
   )
+}
+
+function FinanceCard({ label, value, accent, prefix = '', signed = false }) {
+  const color = accent === 'negative' ? 'var(--blood)' : accent === 'positive' ? '#84d6a8' : 'var(--bone)'
+  const rendered = signed && value > 0 ? `+${value.toLocaleString()}` : `${prefix}${value.toLocaleString()}`
+  return <div className="panel"><div style={{ fontSize: 11, color: 'var(--ghost-gray)', textTransform: 'uppercase', marginBottom: 8 }}>{label}</div><div className="font-mono" style={{ fontSize: 22, fontWeight: 700, color }}>¥{rendered}</div></div>
 }
 
 function FilterBtn({ active, onClick, children }) {
@@ -222,4 +227,23 @@ function AddExpenseModal({ branches, staff, onClose, onSaved }) {
       </div>
     </div>
   )
+}
+
+function CashAdjustmentModal({ onClose, onSaved }) {
+  const [amount, setAmount] = useState('')
+  const [description, setDescription] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  async function save() {
+    const value = parseInt(amount, 10)
+    if (!value || !description.trim()) return setError('กรอกรายละเอียดและยอดเงิน (ใช้เครื่องหมาย - เพื่อลดยอด)')
+    setSaving(true); setError('')
+    const { error: rpcError } = await supabase.rpc('record_cash_adjustment', { p_amount: value, p_description: description.trim() })
+    setSaving(false)
+    if (rpcError) return setError(rpcError.message)
+    onSaved()
+  }
+
+  return <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}><div className="panel" style={{ width: '100%', maxWidth: 420, background: 'var(--static)' }}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}><div className="font-display" style={{ fontSize: 16, fontWeight: 600 }}>ปรับยอดเงินกลาง</div><div onClick={onClose} style={{ cursor: 'pointer', color: 'var(--ghost-gray)', fontSize: 18 }}>✕</div></div><p style={{ color: 'var(--ghost-gray)', fontSize: 11, margin: '0 0 12px' }}>ใส่เลขบวกเพื่อเพิ่มเงิน และเลขลบเพื่อลดเงิน ทุกครั้งจะเก็บประวัติไว้</p><div style={{ marginBottom: 10 }}><label style={{ fontSize: 11, color: 'var(--ghost-gray)', display: 'block', marginBottom: 6 }}>รายละเอียด</label><input className="input" value={description} onChange={event => setDescription(event.target.value)} placeholder="เช่น เติมเงินกลางจาก Owner" /></div><div style={{ marginBottom: 18 }}><label style={{ fontSize: 11, color: 'var(--ghost-gray)', display: 'block', marginBottom: 6 }}>ยอดปรับ (¥)</label><input className="input" type="number" value={amount} onChange={event => setAmount(event.target.value)} placeholder="50000 หรือ -50000" /></div>{error && <p style={{ color: '#f18b92', fontSize: 12 }}>{error}</p>}<div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}><div onClick={onClose} className="btn btn-secondary">ยกเลิก</div><div onClick={save} className="btn btn-primary" style={{ opacity: saving ? 0.6 : 1 }}>{saving ? 'กำลังบันทึก...' : 'บันทึกการปรับยอด'}</div></div></div></div>
 }
