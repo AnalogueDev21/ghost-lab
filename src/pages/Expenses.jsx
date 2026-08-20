@@ -84,7 +84,7 @@ export default function Expenses() {
           <FinanceCard label="ค่าสมาชิก" value={membershipIncome} accent="positive" />
           <FinanceCard label="ซื้อ / ค่าใช้จ่าย" value={purchaseTotal} accent="negative" prefix="−" />
           <FinanceCard label="ปรับยอดโดย Owner" value={manualAdjustments} accent={manualAdjustments < 0 ? 'negative' : 'positive'} signed />
-          <FinanceCard label="ยอดเริ่มต้น" value={cashLedger.find(entry => entry.entry_type === 'opening_balance')?.amount || 0} accent="neutral" />
+          <FinanceCard label="จำนวนรายการการเงิน" value={cashLedger.length} accent="neutral" count />
         </div>
       )}
 
@@ -155,10 +155,10 @@ export default function Expenses() {
   )
 }
 
-function FinanceCard({ label, value, accent, prefix = '', signed = false }) {
+function FinanceCard({ label, value, accent, prefix = '', signed = false, count = false }) {
   const color = accent === 'negative' ? 'var(--blood)' : accent === 'positive' ? '#84d6a8' : 'var(--bone)'
   const rendered = signed && value > 0 ? `+${value.toLocaleString()}` : `${prefix}${value.toLocaleString()}`
-  return <div className="panel"><div style={{ fontSize: 11, color: 'var(--ghost-gray)', textTransform: 'uppercase', marginBottom: 8 }}>{label}</div><div className="font-mono" style={{ fontSize: 22, fontWeight: 700, color }}>¥{rendered}</div></div>
+  return <div className="panel"><div style={{ fontSize: 11, color: 'var(--ghost-gray)', textTransform: 'uppercase', marginBottom: 8 }}>{label}</div><div className="font-mono" style={{ fontSize: 22, fontWeight: 700, color }}>{count ? rendered : `¥${rendered}`}</div></div>
 }
 
 function FilterBtn({ active, onClick, children }) {

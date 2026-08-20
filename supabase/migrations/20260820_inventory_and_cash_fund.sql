@@ -46,8 +46,8 @@ after insert on bill_items
 for each row execute function public.deduct_service_materials_from_stock();
 
 -- One ledger is used for the shared operational cash. Positive numbers add
--- money; purchases are recorded as negative numbers. The opening balance is
--- seeded once at ¥500,000.
+-- money; purchases are recorded as negative numbers. The owner adds any
+-- starting cash later through the cash-adjustment control.
 create table if not exists cash_ledger (
   id          uuid primary key default gen_random_uuid(),
   entry_type  text not null check (entry_type in ('opening_balance', 'purchase')),
@@ -60,10 +60,6 @@ create table if not exists cash_ledger (
 
 create unique index if not exists cash_ledger_one_opening_balance
 on cash_ledger (entry_type) where entry_type = 'opening_balance';
-
-insert into cash_ledger (entry_type, amount, description)
-values ('opening_balance', 500000, 'ยอดเงินกลางเริ่มต้น')
-on conflict do nothing;
 
 alter table cash_ledger enable row level security;
 
