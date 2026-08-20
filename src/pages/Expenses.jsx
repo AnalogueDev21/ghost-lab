@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
+const MATERIAL_OPTIONS = ['สารเคมี', 'แพงวงจร', 'Steel Alloy', 'สายไฟ', 'Aluminum', 'พลาสติก', 'Iron', 'แผ่นหนัง']
+
 export default function Expenses() {
   const { staff } = useAuth()
   const [expenses, setExpenses] = useState([])
@@ -202,7 +204,8 @@ function AddExpenseModal({ branches, staff, onClose, onSaved }) {
         </div>
         <div style={{ marginBottom: 10 }}>
           <label style={{ fontSize: 11, color: 'var(--ghost-gray)', display: 'block', marginBottom: 6 }}>รายละเอียด</label>
-          <input className="input" value={description} onChange={e => setDescription(e.target.value)} />
+          <input className="input" list="material-options" value={description} onChange={e => setDescription(e.target.value)} placeholder="เลือกหรือพิมพ์รายการ" />
+          <datalist id="material-options">{MATERIAL_OPTIONS.map(material => <option value={material} key={material} />)}</datalist>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
           <div>
