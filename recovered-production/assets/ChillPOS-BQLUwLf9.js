@@ -1,0 +1,1 @@
+import{j as r}from"./index-vaWnYKxf.js";import{P as t}from"./POSPage-CxiIf3bD.js";import"./membership-BI3ZslQk.js";function o(){return r.jsx(t,{branchKey:"chill",title:"GHOST CHILL",leadRole:"chill_manager",restaurantMode:!0})}export{o as default};

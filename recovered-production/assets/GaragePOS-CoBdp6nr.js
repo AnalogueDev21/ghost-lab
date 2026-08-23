@@ -1,0 +1,1 @@
+import{j as a}from"./index-vaWnYKxf.js";import{P as e}from"./POSPage-CxiIf3bD.js";import"./membership-BI3ZslQk.js";function i(){return a.jsx(e,{branchKey:"garage",title:"GARAGE",leadRole:"head_mechanic"})}export{i as default};
