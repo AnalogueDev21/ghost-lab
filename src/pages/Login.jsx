@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { publicSupabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import './Login.css'
 
@@ -29,7 +29,7 @@ export default function Login() {
     // Waiting prevents this public directory request from racing with that
     // cleanup and getting stuck on an empty list after PGRST303.
     if (loading) return
-    supabase.from('staff').select('id, name_en, name_th, role').eq('active', true).order('name_en').then(({ data, error: fetchError }) => {
+    publicSupabase.from('staff').select('id, name_en, name_th, role').eq('active', true).order('name_en').then(({ data, error: fetchError }) => {
       if (fetchError) { console.error(fetchError); return }
       setStaffList(data || [])
     })

@@ -12,3 +12,15 @@ export const supabaseConfigError =
 export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null
+
+// Public pre-login reads must not inherit a stale persisted user JWT. A
+// separate non-persisted client always sends the anon key for public RLS data.
+export const publicSupabase = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+        persistSession: false,
+      },
+    })
+  : null
