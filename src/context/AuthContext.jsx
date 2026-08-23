@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { toAuthPassword } from '../lib/pin'
 
@@ -15,33 +15,80 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [staff, setStaff] = useState(null)
   const [loading, setLoading] = useState(true)
+  const authRequest = useRef(0)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      if (data.session) loadStaff(data.session.user.id)
-      else setLoading(false)
+    let active = true
+
+    const applySession = async (nextSession) => {
+      const request = ++authRequest.current
+      setLoading(true)
+
+      if (!nextSession) {
+        setSession(null)
+        setStaff(null)
+        setLoading(false)
+        return
+      }
+
+      setSession(nextSession)
+      await loadStaff(nextSession.user.id, request)
+    }
+
+    // getSession() only reads the locally cached token. Refresh it first when it
+    // has expired so the first PostgREST request is not sent with a stale JWT.
+    supabase.auth.getSession().then(async ({ data, error }) => {
+      if (!active) return
+
+      let initialSession = error ? null : data.session
+      if (initialSession?.expires_at && initialSession.expires_at <= Math.floor(Date.now() / 1000)) {
+        const refreshed = await supabase.auth.refreshSession()
+        initialSession = refreshed.error ? null : refreshed.data.session
+      }
+
+      if (active) await applySession(initialSession)
     })
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
       // Set the loading state before exposing a new session.  Without this,
       // a successful sign-in can render a protected route while its staff row
       // is still being fetched, which sends the user back to Login until a refresh.
-      setLoading(true)
-      setSession(newSession)
-      if (newSession) loadStaff(newSession.user.id)
-      else { setStaff(null); setLoading(false) }
+      // Run outside the auth callback. Awaiting another Supabase operation from
+      // inside this callback can contend with the auth client's internal lock.
+      setTimeout(() => {
+        if (active) applySession(newSession)
+      }, 0)
     })
 
-    return () => listener.subscription.unsubscribe()
+    return () => {
+      active = false
+      authRequest.current += 1
+      listener.subscription.unsubscribe()
+    }
   }, [])
 
-  async function loadStaff(authUserId) {
-    const { data, error } = await supabase
+  async function loadStaff(authUserId, request = ++authRequest.current, allowRefresh = true) {
+    let { data, error } = await supabase
       .from('staff')
       .select('*, branches:primary_branch(*)')
       .eq('auth_user_id', authUserId)
       .single()
+
+    if (error?.code === 'PGRST303' && allowRefresh) {
+      const refreshed = await supabase.auth.refreshSession()
+      if (!refreshed.error && refreshed.data.session) {
+        setSession(refreshed.data.session)
+        ;({ data, error } = await supabase
+          .from('staff')
+          .select('*, branches:primary_branch(*)')
+          .eq('auth_user_id', authUserId)
+          .single())
+      } else {
+        await supabase.auth.signOut({ scope: 'local' })
+      }
+    }
+
+    if (request !== authRequest.current) return
     if (error) console.error('[Ghost Lab] Failed to load staff row:', error)
     setStaff(data || null)
     setLoading(false)

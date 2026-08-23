@@ -19,6 +19,9 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState(localDateValue)
   const [openAttendance, setOpenAttendance] = useState(null)
   const [attendanceSaving, setAttendanceSaving] = useState(false)
+  const [payHistory, setPayHistory] = useState([])
+  const [bonuses, setBonuses] = useState({})
+  const [payingStaffId, setPayingStaffId] = useState(null)
   const hasOwnerOverview = staff?.role === 'owner' || staff?.role === 'god'
 
   const periodLabels = { today: 'วันนี้', week: '7 วันล่าสุด', month: 'เดือนนี้', all: 'ทั้งหมด' }
@@ -71,6 +74,48 @@ export default function Home() {
       })
   }, [staff?.id])
 
+  useEffect(() => {
+    if (!hasOwnerOverview) return
+    loadPayHistory()
+  }, [hasOwnerOverview])
+
+  async function loadPayHistory() {
+    const { data, error } = await supabase
+      .from('pay_periods')
+      .select('*, staff:staff_id(name_en)')
+      .eq('status', 'paid')
+      .order('paid_at', { ascending: false })
+      .limit(10)
+    if (error) console.error('[Ghost Lab] Failed to load payroll history:', error)
+    else setPayHistory(data || [])
+  }
+
+  async function recordPayment(member) {
+    if (payingStaffId) return
+    const bonus = Number(bonuses[member.id] || 0)
+    if (!Number.isInteger(bonus) || bonus < 0) return alert('กรุณากรอกโบนัสเป็นจำนวนเต็มตั้งแต่ 0 ขึ้นไป')
+    if (!window.confirm(`ยืนยันจ่ายให้ ${member.name}\nค่าคอมมิชชัน ¥${member.commission.toLocaleString()}${bonus ? `\nโบนัส ¥${bonus.toLocaleString()}` : ''}\nรวม ¥${(member.commission + bonus).toLocaleString()}`)) return
+
+    setPayingStaffId(member.id)
+    const { error } = await supabase.rpc('record_staff_payroll', {
+      p_staff_id: member.id,
+      p_bill_ids: member.billIds,
+      p_bonus: bonus,
+    })
+    setPayingStaffId(null)
+
+    if (error) {
+      console.error('[Ghost Lab] Failed to record payroll:', error)
+      alert(`บันทึกการจ่ายไม่สำเร็จ: ${error.message}`)
+      return
+    }
+
+    setTodayBills(current => current.filter(bill => !member.billIds.includes(bill.id)))
+    setBonuses(current => ({ ...current, [member.id]: '' }))
+    await loadPayHistory()
+    alert(`บันทึกการจ่ายให้ ${member.name} เรียบร้อยแล้ว`)
+  }
+
   async function toggleAttendance() {
     if (!staff?.id || attendanceSaving) return
     if (!openAttendance && !staff.primary_branch) return alert('ยังไม่ได้กำหนดสาขาหลักให้พนักงานคนนี้')
@@ -105,11 +150,12 @@ export default function Home() {
   const garageTotal = garageBills.reduce((a, b) => a + b.total, 0)
   const chillTotal = chillBills.reduce((a, b) => a + b.total, 0)
   const todayRevenue = todayBills.reduce((a, b) => a + b.total, 0)
-  const commissionPending = filteredBills.reduce((a, b) => a + (b.commission || 0), 0)
-  const teamSummary = Object.values(todayBills.reduce((summary, bill) => {
+  const unpaidBills = filteredBills.filter(bill => !bill.pay_period_id)
+  const commissionPending = unpaidBills.reduce((a, b) => a + (b.commission || 0), 0)
+  const teamSummary = Object.values(unpaidBills.reduce((summary, bill) => {
     const key = bill.staff_id || 'unknown'
-    const current = summary[key] || { id: key, name: bill.staff?.name_en || 'ไม่ระบุพนักงาน', bills: 0, total: 0, commission: 0 }
-    summary[key] = { ...current, bills: current.bills + 1, total: current.total + bill.total, commission: current.commission + Number(bill.commission || 0) }
+    const current = summary[key] || { id: key, name: bill.staff?.name_en || 'ไม่ระบุพนักงาน', bills: 0, total: 0, commission: 0, billIds: [] }
+    summary[key] = { ...current, bills: current.bills + 1, total: current.total + bill.total, commission: current.commission + Number(bill.commission || 0), billIds: [...current.billIds, bill.id] }
     return summary
   }, {})).sort((a, b) => b.total - a.total)
 
@@ -172,12 +218,23 @@ export default function Home() {
             <div><div className="font-display" style={{ fontSize: 14, fontWeight: 600 }}>บิลของทีม · {periodLabel}</div><div style={{ color: 'var(--ghost-gray)', fontSize: 11, marginTop: 3 }}>สรุปบิลที่พนักงานทุกคนเปิด แยกจากรายการล่าสุด</div></div>
             <span style={{ color: 'var(--ghost-gray)', fontSize: 11 }}>{teamSummary.length} คน</span>
           </div>
-          {teamSummary.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12, textAlign: 'center', padding: '16px 0' }}>ยังไม่มีบิลในช่วงเวลานี้</div> : teamSummary.map(member => (
-            <div key={member.id} style={{ alignItems: 'center', borderTop: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', padding: '10px 0' }}>
+          {teamSummary.length === 0 ? <div style={{ color: 'var(--ghost-gray)', fontSize: 12, textAlign: 'center', padding: '16px 0' }}>ไม่มีค่าคอมมิชชันค้างจ่ายในช่วงเวลานี้</div> : teamSummary.map(member => {
+            const bonus = Number(bonuses[member.id] || 0)
+            return (
+            <div key={member.id} style={{ alignItems: 'center', borderTop: '1px solid var(--line)', display: 'grid', gap: 14, gridTemplateColumns: 'minmax(150px, 1fr) auto 130px 125px', padding: '12px 0' }}>
               <div><strong style={{ fontSize: 13 }}>{member.name}</strong><span style={{ color: 'var(--ghost-gray)', fontSize: 11, marginLeft: 8 }}>{member.bills} บิล</span></div>
-              <div style={{ display: 'flex', gap: 20, textAlign: 'right' }}><div><div style={{ color: 'var(--ghost-gray)', fontSize: 9, letterSpacing: .7 }}>COMMISSION</div><strong className="font-mono" style={{ color: '#e5c158', fontSize: 13 }}>¥{member.commission.toLocaleString()}</strong></div><div><div style={{ color: 'var(--ghost-gray)', fontSize: 9, letterSpacing: .7 }}>BILL TOTAL</div><strong className="font-mono" style={{ color: '#84d6a8', fontSize: 14 }}>¥{member.total.toLocaleString()}</strong></div></div>
+              <div style={{ textAlign: 'right' }}><div style={{ color: 'var(--ghost-gray)', fontSize: 9, letterSpacing: .7 }}>ค่าคอมมิชชัน</div><strong className="font-mono" style={{ color: '#e5c158', fontSize: 13 }}>¥{member.commission.toLocaleString()}</strong></div>
+              <label style={{ display: 'grid', gap: 4 }}><span style={{ color: 'var(--ghost-gray)', fontSize: 9, letterSpacing: .7 }}>โบนัส</span><input type="number" min="0" step="1" value={bonuses[member.id] ?? ''} onChange={event => setBonuses(current => ({ ...current, [member.id]: event.target.value }))} placeholder="0" style={{ background: 'rgba(255,255,255,.04)', border: '1px solid var(--line)', borderRadius: 5, color: 'var(--bone)', fontFamily: 'inherit', padding: '8px 10px', width: '100%' }} /></label>
+              <button type="button" onClick={() => recordPayment(member)} disabled={Boolean(payingStaffId)} className="btn btn-primary" style={{ opacity: payingStaffId ? .6 : 1 }}>{payingStaffId === member.id ? 'กำลังบันทึก...' : `บันทึกจ่าย ¥${(member.commission + bonus).toLocaleString()}`}</button>
             </div>
-          ))}
+          )})}
+        </section>
+      )}
+
+      {hasOwnerOverview && payHistory.length > 0 && (
+        <section className="panel" style={{ marginBottom: 22 }}>
+          <div className="font-display" style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>ประวัติการจ่ายล่าสุด</div>
+          {payHistory.map(payment => <div key={payment.id} style={{ alignItems: 'center', borderTop: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', padding: '10px 0' }}><div><strong style={{ fontSize: 12 }}>{payment.staff?.name_en}</strong><span style={{ color: 'var(--ghost-gray)', fontSize: 10, marginLeft: 8 }}>{payment.bill_count || 0} บิล · โบนัส ¥{Number(payment.bonus || 0).toLocaleString()}</span></div><div style={{ textAlign: 'right' }}><strong className="font-mono" style={{ color: '#84d6a8', fontSize: 13 }}>¥{Number(payment.amount || 0).toLocaleString()}</strong><div style={{ color: 'var(--ghost-gray)', fontSize: 9 }}>{payment.paid_at ? new Date(payment.paid_at).toLocaleString('th-TH') : ''}</div></div></div>)}
         </section>
       )}
 
