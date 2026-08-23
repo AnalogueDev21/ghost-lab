@@ -25,15 +25,13 @@ export default function Login() {
     if (session && staff && !loading) navigate('/')
   }, [session, staff, loading, navigate])
   useEffect(() => {
-    // AuthProvider may need to refresh or clear an expired cached JWT first.
-    // Waiting prevents this public directory request from racing with that
-    // cleanup and getting stuck on an empty list after PGRST303.
-    if (loading) return
+    // This uses the isolated anonymous client, so it can load immediately even
+    // while AuthProvider is refreshing or clearing an expired user session.
     publicSupabase.from('staff').select('id, name_en, name_th, role').eq('active', true).order('name_en').then(({ data, error: fetchError }) => {
       if (fetchError) { console.error(fetchError); return }
       setStaffList(data || [])
     })
-  }, [loading])
+  }, [])
 
   function chooseProfile(staff) {
     setSelected(staff)
