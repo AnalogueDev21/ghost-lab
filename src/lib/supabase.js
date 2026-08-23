@@ -21,6 +21,7 @@ export const publicSupabase = isSupabaseConfigured
         autoRefreshToken: false,
         detectSessionInUrl: false,
         persistSession: false,
+        storageKey: 'ghostlab-public-anon',
       },
     })
   : null
