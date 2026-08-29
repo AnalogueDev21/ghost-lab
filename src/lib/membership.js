@@ -4,21 +4,21 @@ export const MEMBERSHIP_PLANS = {
     label: 'Regular',
     monthlyFee: 30000,
     discounts: { 50000: 5, 100000: 7 },
-    description: 'ส่วนลดพื้นฐานสำหรับลูกค้าประจำ',
+    description: 'ส่วนลดพื้นฐาน · ฟรี Engine / Full Repair Kit',
   },
   silver: {
     key: 'silver',
     label: 'Silver',
     monthlyFee: 80000,
     discounts: { 50000: 5, 100000: 10 },
-    description: 'สิทธิประโยชน์เพิ่มสำหรับงานมูลค่าสูง',
+    description: 'สิทธิประโยชน์เพิ่ม · ฟรี Engine / Full Repair Kit',
   },
   gold: {
     key: 'gold',
     label: 'Gold',
     monthlyFee: 100000,
     discounts: { 50000: 5, 100000: 10 },
-    description: 'สิทธิประโยชน์สูงสุด พร้อมส่วนลดเต็มขั้น',
+    description: 'สิทธิประโยชน์สูงสุด · ฟรี Engine / Full Repair Kit',
   },
 }
 

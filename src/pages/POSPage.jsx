@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { calculateMemberDiscount, formatDate, getMembershipPlan, nextMonthlyExpiry } from '../lib/membership'
 
 const BILL_NOTE_SNAPSHOT_PREFIX = '[ghost-lab-bill]'
+const MEMBER_FREE_REPAIR_SERVICES = new Set(['engine repair kit', 'full repair kit'])
 
 function makeBillNotes(note, cart) {
   const snapshot = cart.map(service => ({ name_snapshot: service.name, price_snapshot: service.price }))
@@ -167,13 +168,21 @@ function NewBillTab({ branch, title, staff }) {
       : { ...service, quantity: 1, lineTotal: service.price }
     return lines
   }, {}))
-  const memberDiscount = selectedMember && memberEnabled
+  const memberStatus = selectedMember && memberEnabled
     ? calculateMemberDiscount(selectedMember, cartTotal)
     : { active: false, percentage: 0, amount: 0, total: cartTotal }
-  const goldUnlimitedFreeRepair = Boolean(selectedMember && memberDiscount.active && memberDiscount.plan.key === 'gold')
+  const memberFreeRepairAmount = memberStatus.active
+    ? cart.reduce((total, service) => total + (
+      MEMBER_FREE_REPAIR_SERVICES.has(String(service.name || '').trim().toLowerCase()) ? service.price : 0
+    ), 0)
+    : 0
+  const memberDiscountSubtotal = Math.max(0, cartTotal - memberFreeRepairAmount)
+  const memberDiscount = selectedMember && memberEnabled
+    ? calculateMemberDiscount(selectedMember, memberDiscountSubtotal)
+    : { active: false, percentage: 0, amount: 0, total: memberDiscountSubtotal }
+  const memberFreeRepairApplied = memberFreeRepairAmount > 0
   const couponFreeRepairApplied = Boolean(useFreeRepair && availableRewards[0])
-  const freeRepairApplied = goldUnlimitedFreeRepair || couponFreeRepairApplied
-  const displayTotal = selfService ? 0 : freeRepairApplied ? 0 : memberDiscount.total
+  const displayTotal = selfService || couponFreeRepairApplied ? 0 : memberDiscount.total
   const displayCommission = selfService ? 0 : branch.commission_flat
 
   function addToCart(service) { setCart(c => [...c, service]) }
@@ -221,7 +230,7 @@ function NewBillTab({ branch, title, staff }) {
       // bill_items remains the source for stock/reward automation.
       notes: makeBillNotes(notes, cart),
       subtotal: cartTotal,
-      discount_pct: selfService ? 0 : freeRepairApplied ? 100 : memberDiscount.percentage,
+      discount_pct: selfService ? 0 : couponFreeRepairApplied ? 100 : memberDiscount.percentage,
       commission: displayCommission,
       total: displayTotal,
       status: 'approved',
@@ -349,7 +358,8 @@ function NewBillTab({ branch, title, staff }) {
               {selectedMember ? (
                 <div className="panel" style={{ padding: '10px 12px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><div><div style={{ fontSize: 13, fontWeight: 600 }}>{selectedMember.name}</div><div style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{memberDiscount.plan.label} · {memberDiscount.active ? `หมดอายุ ${formatDate(selectedMember.membership_expires_at)}` : 'สมาชิกหมดอายุ — ไม่ได้รับส่วนลด'}</div></div><div onClick={() => setSelectedMember(null)} style={{ color: 'var(--ghost-gray)', cursor: 'pointer', fontSize: 14 }}>✕</div></div>
-                  {goldUnlimitedFreeRepair ? <div style={{ color: '#e5c158', fontSize: 11, fontWeight: 600, marginTop: 10 }}>✦ GOLD: ซ่อมฟรีไม่จำกัด ตลอดอายุสมาชิก</div> : availableRewards.length > 0 && <label style={{ alignItems: 'center', color: '#e5c158', cursor: 'pointer', display: 'flex', fontSize: 11, gap: 7, marginTop: 10 }}><input type="checkbox" checked={useFreeRepair} onChange={event => setUseFreeRepair(event.target.checked)} /> ใช้คูปองซ่อมฟรี 1 ครั้ง ({availableRewards.length} ใบ)</label>}
+                  {memberDiscount.active && <div style={{ color: '#e5c158', fontSize: 11, fontWeight: 600, marginTop: 10 }}>✦ MEMBER: Engine Repair Kit และ Full Repair Kit ฟรี</div>}
+                  {availableRewards.length > 0 && <label style={{ alignItems: 'center', color: '#e5c158', cursor: 'pointer', display: 'flex', fontSize: 11, gap: 7, marginTop: 10 }}><input type="checkbox" checked={useFreeRepair} onChange={event => setUseFreeRepair(event.target.checked)} /> ใช้คูปองซ่อมฟรี 1 ครั้ง ({availableRewards.length} ใบ)</label>}
                 </div>
               ) : (
                 <div style={{ position: 'relative' }}>
@@ -397,7 +407,8 @@ function NewBillTab({ branch, title, staff }) {
               <div className="font-mono" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: memberDiscount.percentage ? '#84d6a8' : 'var(--ghost-gray)', marginBottom: 6 }}>
                 <span>MEMBER DISCOUNT {memberDiscount.percentage ? `(${memberDiscount.percentage}%)` : ''}</span><span>−¥{memberDiscount.amount.toLocaleString()}</span>
               </div>
-              {freeRepairApplied && <div className="font-mono" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#e5c158', marginBottom: 6 }}><span>{goldUnlimitedFreeRepair ? 'GOLD FREE REPAIR' : 'FREE REPAIR COUPON'}</span><span>−¥{memberDiscount.total.toLocaleString()}</span></div>}
+              {memberFreeRepairApplied && <div className="font-mono" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#e5c158', marginBottom: 6 }}><span>MEMBER FREE REPAIR KITS</span><span>−¥{memberFreeRepairAmount.toLocaleString()}</span></div>}
+              {couponFreeRepairApplied && <div className="font-mono" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#e5c158', marginBottom: 6 }}><span>FREE REPAIR COUPON</span><span>−¥{memberDiscount.total.toLocaleString()}</span></div>}
             </>
           )}
           <div className="font-mono" style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 700, marginBottom: 14 }}>
