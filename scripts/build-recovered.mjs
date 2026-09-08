@@ -67,6 +67,9 @@ for (const file of (await listFiles(versionedRoot)).filter(file => /\.(js|css)$/
       .replaceAll('Ghost Chill Kitchen', 'SABINAGISA Kitchen')
       .replaceAll('GHOST CHILL', 'SABINAGISA')
       .replaceAll('Ghost Chill', 'SABINAGISA')
+      // Branch names come from Supabase in finance filters; normalize the
+      // legacy chill branch label at render-data boundaries as well.
+      .replaceAll('h(n),!g&&n[0]&&d(n[0].key)', 'h(n.map(o=>o.key==="chill"?{...o,name:"SABINAGISA"}:o)),!g&&n[0]&&d(n[0].key)')
   }
   // Vite's dynamic preload map uses assets/foo; relative module imports stay local.
   await writeFile(file, content.replaceAll('assets/', `assets/${release}/`))
