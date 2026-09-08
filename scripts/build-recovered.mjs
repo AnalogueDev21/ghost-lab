@@ -56,7 +56,7 @@ await cp(path.join(sourceRoot, 'assets'), path.join(outputRoot, 'assets'), { rec
 // with changed files that still have the original recovered hash filenames.
 const assetFiles = (await listFiles(path.join(sourceRoot, 'assets'))).sort()
 const digest = createHash('sha256')
-digest.update('release-transform-20260908-ceo-fix-2')
+digest.update('release-transform-20260908-safe-3')
 for (const file of assetFiles) digest.update(path.relative(sourceRoot, file)).update(await readFile(file))
 const release = digest.digest('hex').slice(0, 16)
 const versionedRoot = path.join(outputRoot, 'assets', release)
@@ -68,12 +68,6 @@ for (const file of (await listFiles(versionedRoot)).filter(file => /\.(js|css)$/
       .replaceAll('Ghost Chill Kitchen', 'SABINAGISA Kitchen')
       .replaceAll('GHOST CHILL', 'SABINAGISA')
       .replaceAll('Ghost Chill', 'SABINAGISA')
-      // Branch names come from Supabase in finance filters; normalize the
-      // legacy chill branch label at render-data boundaries as well.
-      .replaceAll('h(n),!g&&n[0]&&d(n[0].key)', 'h(n.map(o=>o.key==="chill"?{...o,name:"SABINAGISA"}:o)),!g&&n[0]&&d(n[0].key)')
-      .replaceAll('c(r),!m&&r[0]&&S(r[0].key)', 'c(r.map(s=>s.key==="chill"?{...s,name:"SABINAGISA"}:s)),!m&&r[0]&&S(r[0].key)')
-      .replaceAll('u(r||[]),k(!1)', 'u((r||[]).map(s=>s.branches&&s.branches.key==="chill"?{...s,branches:{...s.branches,name:"SABINAGISA"}}:s)),k(!1)')
-      .replaceAll('g(a||[])),b()', 'g((a||[]).map(s=>s.key==="chill"?{...s,name:"SABINAGISA"}:s)),b()')
   }
   // Vite's dynamic preload map uses assets/foo; relative module imports stay local.
   await writeFile(file, content.replaceAll('assets/', `assets/${release}/`))
