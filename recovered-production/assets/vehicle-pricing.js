@@ -47,6 +47,10 @@ export function priceService(service, vehicleClass = 'standard', branchKey = 'ga
     }
     // Repair kits retain the existing shared tariff; active members deduct it in both classes.
   }
+  if (branchKey === 'chill' && price === 0) {
+    price = null;
+    pricingError = 'กรุณาตั้งราคาใน Services ก่อนขาย';
+  }
   if (!validPrice(price)) {
     price = null;
     pricingError ||= 'ยังไม่มีราคาที่ถูกต้อง';

@@ -13,6 +13,7 @@ const chillMenuVisuals = new Map([
 const obsoleteChillServices = new Set(["iced matcha", "ramen ghost special"]);
 const chillMenuImage = service => chillMenuVisuals.get(normalizeServiceName(service.name));
 const visibleService = (service, branchKey) => branchKey !== "chill" || !obsoleteChillServices.has(normalizeServiceName(service.name));
+const sabinagisaMenu = [{ name: "SABI UNAGI", category: "Main" }, { name: "SABI NAGI HIGHBALL", category: "Water" }, { name: "SABI YORU UME", category: "Dessert" }, { name: "WHIPPED FETA & TOAST", category: "Main" }, { name: "GRAPEFRUIT HONEY SODA", category: "Water" }, { name: "BEER-BATTERED FISH BITES", category: "Dessert" }];
 function ye(n, a = "\u0E17\u0E33\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E44\u0E21\u0E48\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48") {
   const p = String((n == null ? void 0 : n.message) || "").toLowerCase();
   return (n == null ? void 0 : n.code) === "23505" || p.includes("duplicate") ? "\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E35\u0E40\u0E1F\u0E23\u0E0A\u0E01\u0E48\u0E2D\u0E19\u0E17\u0E33\u0E0B\u0E49\u0E33" : (n == null ? void 0 : n.code) === "42501" || p.includes("permission") || p.includes("policy") ? "\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E19\u0E35\u0E49\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E17\u0E18\u0E34\u0E4C\u0E17\u0E33\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E1C\u0E39\u0E49\u0E08\u0E31\u0E14\u0E01\u0E32\u0E23" : p.includes("jwt") || p.includes("session") ? "\u0E40\u0E0B\u0E2A\u0E0A\u0E31\u0E19\u0E2B\u0E21\u0E14\u0E2D\u0E32\u0E22\u0E38 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E2D\u0E2D\u0E01\u0E41\u0E25\u0E49\u0E27\u0E40\u0E02\u0E49\u0E32\u0E2A\u0E39\u0E48\u0E23\u0E30\u0E1A\u0E1A\u0E43\u0E2B\u0E21\u0E48" : p.includes("fetch") || p.includes("network") ? "\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E10\u0E32\u0E19\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E23\u0E27\u0E08\u0E2D\u0E34\u0E19\u0E40\u0E17\u0E2D\u0E23\u0E4C\u0E40\u0E19\u0E47\u0E15\u0E41\u0E25\u0E49\u0E27\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48" : p.includes("stock") || p.includes("quantity") ? "\u0E2A\u0E15\u0E4A\u0E2D\u0E01\u0E44\u0E21\u0E48\u0E40\u0E1E\u0E35\u0E22\u0E07\u0E1E\u0E2D\u0E2B\u0E23\u0E37\u0E2D\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E2A\u0E15\u0E4A\u0E2D\u0E01\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E2A\u0E15\u0E4A\u0E2D\u0E01" : p.includes("bill not found") ? "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E1A\u0E34\u0E25\u0E19\u0E35\u0E49 \u0E2D\u0E32\u0E08\u0E16\u0E39\u0E01\u0E41\u0E01\u0E49\u0E44\u0E02\u0E2B\u0E23\u0E37\u0E2D\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27" : a;
@@ -1663,6 +1664,18 @@ function Re({
     }
     p(c => [...c, s]);
   }
+  async function createSABINAGISAMenu() {
+    if (n.key !== "chill") return;
+    const { data: existing, error: loadError } = await x.from("services").select("id,name").eq("branch_id", n.id).eq("active", true);
+    if (loadError) return console.error(loadError);
+    const existingNames = new Set((existing || []).map(service => normalizeServiceName(service.name)));
+    await x.from("services").update({ active: false }).eq("branch_id", n.id).in("name", ["Iced Matcha", "Ramen Ghost Special"]);
+    const missing = sabinagisaMenu.filter(item => !existingNames.has(normalizeServiceName(item.name)));
+    if (!missing.length) return;
+    const { data: created, error } = await x.from("services").insert(missing.map(item => ({ branch_id: n.id, name: item.name, category: item.category, price: 0, active: true }))).select();
+    if (error) return console.error(error);
+    p(items => [...items.filter(item => visibleService(item, n.key)), ...(created || [])]);
+  }
   async function m(s, r, c) {
     p(S => S.map(f => f.id === s ? {
       ...f,
@@ -1717,6 +1730,11 @@ function Re({
           },
           children: [a.length, " services available", n.key === "garage" ? " · รายการที่ตรงแค็ตตาล็อกใช้ราคาจากไฟล์ (งานบำรุงรักษาใช้ราคาอู่) · รายการอื่นใช้ราคาเดิมสำหรับ Standard" : ""]
         })]
+      }), n.key === "chill" && e.jsx("div", {
+        className: "btn btn-secondary",
+        onClick: createSABINAGISAMenu,
+        title: "สร้างเมนู SABINAGISA ทั้ง 6 รายการ (ราคาเริ่มต้น 0 ต้องตั้งเอง)",
+        children: "+ สร้างเมนู SABINAGISA"
       }), e.jsx("div", {
         onClick: u,
         className: "btn btn-primary",
