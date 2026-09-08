@@ -1779,12 +1779,12 @@ function Re({
           style: {
             display: "grid",
             gridTemplateColumns: serviceGridColumns,
-            gap: 10,
-            padding: "6px 0",
+          gap: 6,
+          padding: "3px 0",
             alignItems: "center"
           },
           children: [n.key === "chill" && e.jsx("div", {
-            style: { alignItems: "center", background: "#090a0c", border: "1px solid var(--line)", borderRadius: 6, display: "flex", height: 48, justifyContent: "center", overflow: "hidden" },
+            style: { alignItems: "center", background: "#090a0c", border: "1px solid var(--line)", borderRadius: 6, display: "flex", height: 36, justifyContent: "center", overflow: "hidden" },
             children: chillMenuImage(s) ? e.jsx("img", {
               src: chillMenuImage(s),
               alt: "",
