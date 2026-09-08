@@ -1735,10 +1735,10 @@ function Re({
         onClick: createSABINAGISAMenu,
         title: "สร้างเมนู SABINAGISA ทั้ง 6 รายการ (ราคาเริ่มต้น 0 ต้องตั้งเอง)",
         children: "+ สร้างเมนู SABINAGISA"
-      }), n.key === "garage" && e.jsx("div", {
+      }), e.jsx("div", {
         onClick: u,
         className: "btn btn-primary",
-        children: "+ ADD SERVICE"
+        children: n.key === "chill" ? "+ เพิ่มเมนู SABINAGISA" : "+ ADD SERVICE"
       })]
     }), v ? e.jsx("div", {
       style: {
