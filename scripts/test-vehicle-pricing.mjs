@@ -132,7 +132,7 @@ test('discount threshold applies after free kits, and Chill is not repriced', ()
   assert.equal(chill.button('Super Car'), undefined);
   assert.equal(pricing.repairKitDiscount(services, true, 'chill'), 0);
 });
-test('all six SABINAGISA images render inside sale cards, while old menu cards are hidden', async () => {
+test('SABINAGISA uses only custom image URLs, while old menu cards are hidden', async () => {
   const chill = harness('chill');
   const text = flatten(chill.tree());
   for (const label of chillMenuServices.map(item => item.name)) assert.ok(text.includes(label), label);
@@ -140,8 +140,7 @@ test('all six SABINAGISA images render inside sale cards, while old menu cards a
   assert.equal(text.includes('Iced Matcha'), false);
   assert.equal(text.includes('Ramen Ghost Special'), false);
   const images = nodes(chill.tree(), node => node.type === 'img').map(node => node.props.src).filter(src => src.includes('sabinagisa'));
-  assert.deepEqual(images, ['/assets/sabinagisa-unagi.png', '/assets/sabinagisa-nagi-highball.png', '/assets/sabinagisa-yoru-ume.png', '/assets/sabinagisa-whipped-feta-toast.png', '/assets/sabinagisa-grapefruit-honey-soda.png', '/assets/sabinagisa-fish-bites.png']);
-  for (const src of images) await access(new URL(`../recovered-production${src}`, import.meta.url));
+  assert.deepEqual(images, []);
   assert.equal(nodes(harness('garage').tree(), node => node.type === 'img' && node.props.src?.includes('sabinagisa')).length, 0);
 });
 test('Super Car hides unavailable services and removes them from an existing cart', () => {
