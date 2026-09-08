@@ -235,7 +235,7 @@ function Le({
     X = (b === "all" ? g : g.filter(t => t.category === b)).filter(t => {
       const d = j.trim().toLowerCase();
       return !d || t.name.toLowerCase().includes(d) || t.category.toLowerCase().includes(d);
-    }).map(t => priceService(t, vehicleClass, n.key)),
+    }).map(t => priceService(t, vehicleClass, n.key)).filter(t => vehicleClass !== "supercar" || !t.pricingError),
     W = u.reduce((t, d) => t + (d.price ?? 0), 0),
     ve = Object.values(u.reduce((t, d) => {
       const _ = t[d.id];
@@ -289,6 +289,18 @@ function Le({
   }
   function je() {
     ne(t => (t && (P(null), G(""), D([])), !t));
+  }
+  function selectVehicleClass(nextClass) {
+    if (nextClass === vehicleClass || f) return;
+    if (nextClass === "supercar") {
+      const unavailable = cartSelection.filter(item => priceService(g.find(service => service.id === item.id) || item, nextClass, n.key).pricingError);
+      if (unavailable.length) {
+        const unavailableIds = new Set(unavailable.map(item => item.id));
+        m(items => items.filter(item => !unavailableIds.has(item.id)));
+        V(`นำรายการที่ไม่มีราคา Super Car ออกจากตะกร้าแล้ว ${unavailable.length} ชิ้น`);
+      }
+    }
+    setVehicleClass(nextClass);
   }
   async function Se() {
     if (u.length === 0 || !p || z.current) return;
@@ -368,7 +380,7 @@ function Le({
           className: `btn ${vehicleClass === key ? "btn-primary" : "btn-secondary"}`,
           "aria-pressed": vehicleClass === key,
           disabled: f,
-          onClick: () => setVehicleClass(key),
+          onClick: () => selectVehicleClass(key),
           children: label
         }, key))]
       }), e.jsx("p", {

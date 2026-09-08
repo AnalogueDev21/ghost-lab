@@ -19,9 +19,11 @@ Embedded HTML scripts are not executed. Regenerate with
   `Upgraded Cables` is NOT assumed to be `Short Shifter`; `Stiffer Sway Bars` is NOT
   automatically matched to `Heavy Duty Sway Bars`.
 - Unmatched services keep their existing Standard prices. Their Super Car prices
-  are unavailable, not zero or an inferred multiplier. The seven catalog entries
-  marked not-for-sale are not newly priced or added; their existing Standard
-  behavior is preserved and Super Car selection is blocked.
+  are unavailable, not zero or an inferred multiplier, so they are hidden while
+  Super Car is selected. Switching an existing bill to Super Car also removes any
+  unavailable cart lines and reports the number removed. The seven catalog entries
+  marked not-for-sale are not newly priced or added; their Standard behavior is
+  preserved and they are hidden from Super Car.
 - The two repair kits are not in the supplied catalog. They retain the existing
   shared tariff. Active Regular/Silver/Gold members get both kits free in either
   vehicle class, with ordinary membership discounts calculated on the remainder.

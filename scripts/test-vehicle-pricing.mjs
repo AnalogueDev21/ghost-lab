@@ -128,13 +128,13 @@ test('discount threshold applies after free kits, and Chill is not repriced', ()
   assert.equal(chill.button('Super Car'), undefined);
   assert.equal(pricing.repairKitDiscount(services, true, 'chill'), 0);
 });
-test('unknown-price cart blocks both button and submit handler without database writes', async () => {
+test('Super Car hides unavailable services and removes them from an existing cart', () => {
   const app = harness(); app.add('unknown'); app.select('supercar');
-  assert.equal(app.total(), 'TOTALยังคำนวณไม่ได้');
+  assert.equal(app.total(), 'TOTAL¥0');
+  assert.equal(nodes(app.tree(), node => node.props?.role === 'button' && flatten(node).includes('Custom Dashboard')).length, 0);
   assert.equal(app.button('▸ SUBMIT BILL').props.disabled, true);
-  await app.button('▸ SUBMIT BILL').props.onClick(); assert.equal(app.writes.length, 0);
-  app.select('standard'); assert.equal(app.total(), 'TOTAL¥5,000');
-  assert.equal(app.button('▸ SUBMIT BILL').props.disabled, false);
+  assert.equal(app.state[3].length, 0);
+  assert.equal(app.writes.length, 0);
 });
 test('actual submit freezes class and prices into bill and item snapshots, then resets class', async () => {
   const app = harness(); app.setMember(member('gold')); app.select('supercar'); app.add('fluid'); app.add('engine');
