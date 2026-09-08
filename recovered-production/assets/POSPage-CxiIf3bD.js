@@ -11,7 +11,7 @@ const chillMenuVisuals = new Map([
   ["BEER-BATTERED FISH BITES", "/assets/sabinagisa-fish-bites.png"]
 ].map(([name, image]) => [normalizeServiceName(name), image]));
 const obsoleteChillServices = new Set(["iced matcha", "ramen ghost special"]);
-const chillMenuImage = service => service.image_url || chillMenuVisuals.get(normalizeServiceName(service.name));
+const chillMenuImage = service => service.image_url || "";
 const visibleService = (service, branchKey) => branchKey !== "chill" || !obsoleteChillServices.has(normalizeServiceName(service.name));
 const sabinagisaMenu = [{ name: "SABI UNAGI", category: "Main" }, { name: "SABI NAGI HIGHBALL", category: "Water" }, { name: "SABI YORU UME", category: "Dessert" }, { name: "WHIPPED FETA & TOAST", category: "Main" }, { name: "GRAPEFRUIT HONEY SODA", category: "Water" }, { name: "BEER-BATTERED FISH BITES", category: "Dessert" }];
 function ye(n, a = "\u0E17\u0E33\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E44\u0E21\u0E48\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48") {
