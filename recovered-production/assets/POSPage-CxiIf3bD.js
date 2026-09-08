@@ -1791,7 +1791,7 @@ function Re({
               loading: "lazy",
               style: { height: "100%", objectFit: "contain", width: "100%" }
             }) : e.jsx("span", { style: { color: "var(--ghost-gray)", fontSize: 9 }, children: "NO IMAGE" })
-          }), e.jsx("input", {
+          }), e.jsxs("div", { style: { display: "grid", gap: 4 }, children: [e.jsx("input", {
             className: "input",
             value: s.name,
           onChange: r => m(s.id, "name", r.target.value),
@@ -1803,7 +1803,7 @@ function Re({
             disabled: n.key !== "chill",
             onChange: r => n.key === "chill" && m(s.id, "image_url", r.target.value),
             onBlur: r => n.key === "chill" && l(s.id, "image_url", r.target.value)
-          }), e.jsx("input", {
+          })] }), e.jsx("input", {
             className: "input",
             value: s.category,
             onChange: r => m(s.id, "category", r.target.value),
