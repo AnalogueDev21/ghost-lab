@@ -1,5 +1,5 @@
 -- CEO can operate every part of the assigned branch, but never another branch.
-create or replace function public.can_access_branch(target_branch uuid)
+create or replace function public.can_access_branch(target_branch_id uuid)
 returns boolean
 language sql
 stable
@@ -13,7 +13,7 @@ as $$
       and (
         s.role::text in ('owner', 'god')
         or s.role::text <> 'ceo'
-        or s.primary_branch = target_branch
+        or s.primary_branch = target_branch_id
       )
   );
 $$;
