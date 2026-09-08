@@ -79,7 +79,7 @@ for (const file of (await listFiles(versionedRoot)).filter(file => /\.(js|css)$/
   await writeFile(file, content.replaceAll('assets/', `assets/${release}/`))
 }
 const index = await readFile(path.join(outputRoot, 'index.html'), 'utf8')
-await writeFile(path.join(outputRoot, 'index.html'), index.replaceAll('/assets/', `/assets/${release}/`))
+await writeFile(path.join(outputRoot, 'index.html'), index.replaceAll('/assets/', `/assets/${release}/`).replaceAll('.js"', `.js?v=${release}"`).replaceAll('.css"', `.css?v=${release}"`))
 await verifyAssetReferences(outputRoot)
 
 console.log(`Built recovered Ghost Lab production UI (${release}) with all referenced assets present.`)
