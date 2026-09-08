@@ -56,6 +56,7 @@ await cp(path.join(sourceRoot, 'assets'), path.join(outputRoot, 'assets'), { rec
 // with changed files that still have the original recovered hash filenames.
 const assetFiles = (await listFiles(path.join(sourceRoot, 'assets'))).sort()
 const digest = createHash('sha256')
+digest.update('release-transform-20260908-ceo-fix')
 for (const file of assetFiles) digest.update(path.relative(sourceRoot, file)).update(await readFile(file))
 const release = digest.digest('hex').slice(0, 16)
 const versionedRoot = path.join(outputRoot, 'assets', release)
@@ -67,9 +68,6 @@ for (const file of (await listFiles(versionedRoot)).filter(file => /\.(js|css)$/
       .replaceAll('Ghost Chill Kitchen', 'SABINAGISA Kitchen')
       .replaceAll('GHOST CHILL', 'SABINAGISA')
       .replaceAll('Ghost Chill', 'SABINAGISA')
-      .replaceAll('OWNER:"owner",HEAD_MECHANIC', 'OWNER:"owner",CEO:"ceo",HEAD_MECHANIC')
-      .replaceAll('[I.OWNER]="Owner"', '[I.OWNER]="Owner",[I.CEO]="CEO · ผู้บริหารสาขา"')
-      .replaceAll('I.OWNER,I.CHILL_MANAGER,I.CHILL_STAFF', 'I.OWNER,I.CEO,I.CHILL_MANAGER,I.CHILL_STAFF')
       .replaceAll('.map(i=>t.jsx("option",{value:i,children:T[i]},i))', '.filter(i=>{const k=(m.find(s=>s.id===e.primary_branch)||{}).key;return !k||["owner","god","stock_keeper","accountant"].includes(i)||(k==="chill"?["ceo","chill_manager","chill_staff"].includes(i):["head_mechanic","mechanic","mechanic_trainee"].includes(i))}).map(i=>t.jsx("option",{value:i,children:T[i]},i))')
       // Branch names come from Supabase in finance filters; normalize the
       // legacy chill branch label at render-data boundaries as well.
