@@ -56,7 +56,7 @@ await cp(path.join(sourceRoot, 'assets'), path.join(outputRoot, 'assets'), { rec
 // with changed files that still have the original recovered hash filenames.
 const assetFiles = (await listFiles(path.join(sourceRoot, 'assets'))).sort()
 const digest = createHash('sha256')
-digest.update('release-transform-20260908-safe-3')
+digest.update('release-transform-20260908-safe-4')
 for (const file of assetFiles) digest.update(path.relative(sourceRoot, file)).update(await readFile(file))
 const release = digest.digest('hex').slice(0, 16)
 const versionedRoot = path.join(outputRoot, 'assets', release)
@@ -73,7 +73,7 @@ for (const file of (await listFiles(versionedRoot)).filter(file => /\.(js|css)$/
   await writeFile(file, content.replaceAll('assets/', `assets/${release}/`))
 }
 const index = await readFile(path.join(outputRoot, 'index.html'), 'utf8')
-await writeFile(path.join(outputRoot, 'index.html'), index.replaceAll('/assets/', `/assets/${release}/`).replaceAll('.js"', `.js?v=${release}"`).replaceAll('.css"', `.css?v=${release}"`))
+await writeFile(path.join(outputRoot, 'index.html'), index.replaceAll('/assets/', `/assets/${release}/`))
 await verifyAssetReferences(outputRoot)
 
 console.log(`Built recovered Ghost Lab production UI (${release}) with all referenced assets present.`)
