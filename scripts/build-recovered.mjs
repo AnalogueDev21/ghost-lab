@@ -56,7 +56,7 @@ await cp(path.join(sourceRoot, 'assets'), path.join(outputRoot, 'assets'), { rec
 // with changed files that still have the original recovered hash filenames.
 const assetFiles = (await listFiles(path.join(sourceRoot, 'assets'))).sort()
 const digest = createHash('sha256')
-digest.update('release-transform-20260908-safe-4')
+digest.update('release-transform-20260908-ceo-final-5')
 for (const file of assetFiles) digest.update(path.relative(sourceRoot, file)).update(await readFile(file))
 const release = digest.digest('hex').slice(0, 16)
 const versionedRoot = path.join(outputRoot, 'assets', release)
