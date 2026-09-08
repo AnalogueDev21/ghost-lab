@@ -2,6 +2,22 @@ import { u as _e, r as i, s as x, j as e, L as Ce } from "./index-vaWnYKxf.js";
 import { c as he, f as we, g as ke, n as Ne } from "./membership-BI3ZslQk.js";
 import { priceService, priceLabel, repairKitDiscount, vehicleLabels, catalogEntry, catalogVersion } from "./vehicle-pricing.js";
 const ee = "[ghost-lab-bill]";
+const chillSetOne = [{
+  name: "SABI UNAGI",
+  japanese: "うな重",
+  type: "Main",
+  image: "/assets/sabinagisa-unagi.png"
+}, {
+  name: "SABI NAGI HIGHBALL",
+  japanese: "凪",
+  type: "Water",
+  image: "/assets/sabinagisa-nagi-highball.png"
+}, {
+  name: "SABI YORU UME",
+  japanese: "夜梅",
+  type: "Dessert",
+  image: "/assets/sabinagisa-yoru-ume.png"
+}];
 function ye(n, a = "\u0E17\u0E33\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E44\u0E21\u0E48\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48") {
   const p = String((n == null ? void 0 : n.message) || "").toLowerCase();
   return (n == null ? void 0 : n.code) === "23505" || p.includes("duplicate") ? "\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E35\u0E40\u0E1F\u0E23\u0E0A\u0E01\u0E48\u0E2D\u0E19\u0E17\u0E33\u0E0B\u0E49\u0E33" : (n == null ? void 0 : n.code) === "42501" || p.includes("permission") || p.includes("policy") ? "\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E19\u0E35\u0E49\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E17\u0E18\u0E34\u0E4C\u0E17\u0E33\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E1C\u0E39\u0E49\u0E08\u0E31\u0E14\u0E01\u0E32\u0E23" : p.includes("jwt") || p.includes("session") ? "\u0E40\u0E0B\u0E2A\u0E0A\u0E31\u0E19\u0E2B\u0E21\u0E14\u0E2D\u0E32\u0E22\u0E38 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E2D\u0E2D\u0E01\u0E41\u0E25\u0E49\u0E27\u0E40\u0E02\u0E49\u0E32\u0E2A\u0E39\u0E48\u0E23\u0E30\u0E1A\u0E1A\u0E43\u0E2B\u0E21\u0E48" : p.includes("fetch") || p.includes("network") ? "\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E10\u0E32\u0E19\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E23\u0E27\u0E08\u0E2D\u0E34\u0E19\u0E40\u0E17\u0E2D\u0E23\u0E4C\u0E40\u0E19\u0E47\u0E15\u0E41\u0E25\u0E49\u0E27\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48" : p.includes("stock") || p.includes("quantity") ? "\u0E2A\u0E15\u0E4A\u0E2D\u0E01\u0E44\u0E21\u0E48\u0E40\u0E1E\u0E35\u0E22\u0E07\u0E1E\u0E2D\u0E2B\u0E23\u0E37\u0E2D\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E2A\u0E15\u0E4A\u0E2D\u0E01\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E2A\u0E15\u0E4A\u0E2D\u0E01" : p.includes("bill not found") ? "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E1A\u0E34\u0E25\u0E19\u0E35\u0E49 \u0E2D\u0E32\u0E08\u0E16\u0E39\u0E01\u0E41\u0E01\u0E49\u0E44\u0E02\u0E2B\u0E23\u0E37\u0E2D\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27" : a;
@@ -89,7 +105,7 @@ function $e({
             fontSize: 20,
             fontWeight: 600
           },
-          children: h.name
+          children: v ? "SABINAGISA" : h.name
         }), e.jsxs("div", {
           style: {
             fontSize: 12,
@@ -386,6 +402,27 @@ function Le({
       }), e.jsx("p", {
         style: { color: "var(--ghost-gray)", fontSize: 12, margin: "10px 0 0" },
         children: "Member ที่ยังไม่หมดอายุ: Engine Repair Kit และ Full Repair Kit ฟรีทั้ง Standard และ Super Car · อะไหล่อื่นคิดตามประเภทที่เลือก"
+      })]
+    }), v && e.jsxs("section", {
+      className: "panel",
+      style: { marginBottom: 16, overflow: "hidden", padding: 0 },
+      children: [e.jsxs("header", {
+        style: { alignItems: "end", display: "flex", justifyContent: "space-between", padding: "18px 20px 12px" },
+        children: [e.jsxs("div", {
+          children: [e.jsx("div", { className: "font-display", style: { color: "var(--blood)", fontSize: 11, letterSpacing: 2 }, children: "SABINAGISA" }), e.jsx("h2", { style: { fontSize: 22, margin: "3px 0 0" }, children: "Menu · Set 1" })]
+        }), e.jsx("span", { style: { color: "var(--ghost-gray)", fontSize: 12 }, children: "錆と凪" })]
+      }), e.jsx("div", {
+        style: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 1, background: "var(--line)" },
+        children: chillSetOne.map(item => e.jsxs("article", {
+          style: { background: "var(--static)", minWidth: 0, paddingBottom: 14 },
+          children: [e.jsx("div", {
+            style: { alignItems: "center", background: "radial-gradient(circle at 50% 55%,rgba(196,30,42,.14),transparent 68%),#090a0c", display: "flex", height: 190, justifyContent: "center", overflow: "hidden" },
+            children: e.jsx("img", { src: item.image, alt: "", loading: "eager", style: { height: "100%", objectFit: "contain", width: "100%" } })
+          }), e.jsxs("div", {
+            style: { padding: "13px 15px 0" },
+            children: [e.jsx("div", { style: { color: "var(--ghost-gray)", fontSize: 10, letterSpacing: 1.3, textTransform: "uppercase" }, children: item.type }), e.jsxs("div", { style: { fontSize: 14, fontWeight: 700, marginTop: 4 }, children: [item.name, " — ", item.japanese] })]
+          })]
+        }, item.name))
       })]
     }), e.jsxs("div", {
       className: "pos-layout",
@@ -1419,7 +1456,7 @@ function Ie({
     m.stopPropagation();
     const l = (h.vehicleClass ? `<caption>${vehicleLabels[h.vehicleClass]}</caption>` : "") + y.map(s => `<tr><td>${s.name} \xD7${s.quantity}</td><td>\xA5${s.total.toLocaleString()}</td></tr>`).join(""),
       o = window.open("", "_blank", "width=420,height=700");
-    o == null || o.document.write(`<html><head><title>${n.bill_number}</title><style>body{font-family:Arial,sans-serif;width:72mm;margin:8mm auto;color:#111}h2,p{text-align:center;margin:4px}table{width:100%;border-collapse:collapse;margin:14px 0}td{padding:5px 0;border-bottom:1px dashed #aaa}td:last-child{text-align:right}.total{font-size:20px;font-weight:bold;text-align:right}@media print{button{display:none}}</style></head><body><h2>GHOST ${n.order_type ? "CHILL" : "LAB"}</h2><p>${n.bill_number}</p><p>${new Date(n.created_at).toLocaleString("th-TH")}</p><table>${l}</table><div class="total">TOTAL \xA5${Number(n.total || 0).toLocaleString()}</div><p>${n.payment_method === "transfer" ? "\u0E40\u0E07\u0E34\u0E19\u0E42\u0E2D\u0E19" : "\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E14"}${n.change_due ? ` \xB7 \u0E40\u0E07\u0E34\u0E19\u0E17\u0E2D\u0E19 \xA5${Number(n.change_due).toLocaleString()}` : ""}</p><button onclick="print()">\u0E1E\u0E34\u0E21\u0E1E\u0E4C\u0E43\u0E1A\u0E40\u0E2A\u0E23\u0E47\u0E08</button></body></html>`), o == null || o.document.close();
+    o == null || o.document.write(`<html><head><title>${n.bill_number}</title><style>body{font-family:Arial,sans-serif;width:72mm;margin:8mm auto;color:#111}h2,p{text-align:center;margin:4px}table{width:100%;border-collapse:collapse;margin:14px 0}td{padding:5px 0;border-bottom:1px dashed #aaa}td:last-child{text-align:right}.total{font-size:20px;font-weight:bold;text-align:right}@media print{button{display:none}}</style></head><body><h2>${n.order_type ? "SABINAGISA" : "GHOST LAB"}</h2><p>${n.bill_number}</p><p>${new Date(n.created_at).toLocaleString("th-TH")}</p><table>${l}</table><div class="total">TOTAL \xA5${Number(n.total || 0).toLocaleString()}</div><p>${n.payment_method === "transfer" ? "\u0E40\u0E07\u0E34\u0E19\u0E42\u0E2D\u0E19" : "\u0E40\u0E07\u0E34\u0E19\u0E2A\u0E14"}${n.change_due ? ` \xB7 \u0E40\u0E07\u0E34\u0E19\u0E17\u0E2D\u0E19 \xA5${Number(n.change_due).toLocaleString()}` : ""}</p><button onclick="print()">\u0E1E\u0E34\u0E21\u0E1E\u0E4C\u0E43\u0E1A\u0E40\u0E2A\u0E23\u0E47\u0E08</button></body></html>`), o == null || o.document.close();
   }
   return e.jsxs("div", {
     style: {

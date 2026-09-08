@@ -61,7 +61,13 @@ const release = digest.digest('hex').slice(0, 16)
 const versionedRoot = path.join(outputRoot, 'assets', release)
 await cp(path.join(sourceRoot, 'assets'), versionedRoot, { recursive: true })
 for (const file of (await listFiles(versionedRoot)).filter(file => /\.(js|css)$/.test(file))) {
-  const content = await readFile(file, 'utf8')
+  let content = await readFile(file, 'utf8')
+  if (file.endsWith('.js')) {
+    content = content
+      .replaceAll('Ghost Chill Kitchen', 'SABINAGISA Kitchen')
+      .replaceAll('GHOST CHILL', 'SABINAGISA')
+      .replaceAll('Ghost Chill', 'SABINAGISA')
+  }
   // Vite's dynamic preload map uses assets/foo; relative module imports stay local.
   await writeFile(file, content.replaceAll('assets/', `assets/${release}/`))
 }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { transform } from 'esbuild';
 import * as pricing from '../recovered-production/assets/vehicle-pricing.js';
@@ -127,6 +127,15 @@ test('discount threshold applies after free kits, and Chill is not repriced', ()
   const chill = harness('chill'); chill.add('fluid'); assert.equal(chill.total(), 'TOTAL¥4,000');
   assert.equal(chill.button('Super Car'), undefined);
   assert.equal(pricing.repairKitDiscount(services, true, 'chill'), 0);
+});
+test('SABINAGISA Set 1 and all three supplied images appear only in Chill', async () => {
+  const chill = harness('chill');
+  const text = flatten(chill.tree());
+  for (const label of ['SABINAGISA', 'Menu · Set 1', 'SABI UNAGI — うな重', 'SABI NAGI HIGHBALL — 凪', 'SABI YORU UME — 夜梅']) assert.ok(text.includes(label), label);
+  const images = nodes(chill.tree(), node => node.type === 'img').map(node => node.props.src).filter(src => src.includes('sabinagisa'));
+  assert.deepEqual(images, ['/assets/sabinagisa-unagi.png', '/assets/sabinagisa-nagi-highball.png', '/assets/sabinagisa-yoru-ume.png']);
+  for (const src of images) await access(new URL(`../recovered-production${src}`, import.meta.url));
+  assert.equal(flatten(harness('garage').tree()).includes('Menu · Set 1'), false);
 });
 test('Super Car hides unavailable services and removes them from an existing cart', () => {
   const app = harness(); app.add('unknown'); app.select('supercar');

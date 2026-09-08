@@ -41,7 +41,7 @@ export default function App() {
 
           <Route path="/chill" element={
             <ProtectedRoute allow={[ROLES.OWNER, ROLES.CHILL_MANAGER, ROLES.CHILL_STAFF]} permission="chill_access">
-              <Layout title="Ghost Chill" sub="Food & Drink Operations"><ChillPOS /></Layout>
+              <Layout title="SABINAGISA" sub="Food & Drink Operations"><ChillPOS /></Layout>
             </ProtectedRoute>
           } />
 
