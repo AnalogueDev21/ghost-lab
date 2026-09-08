@@ -76,6 +76,7 @@ for (const file of (await listFiles(versionedRoot)).filter(file => /\.(js|css)$/
       .replaceAll('h(n),!g&&n[0]&&d(n[0].key)', 'h(n.map(o=>o.key==="chill"?{...o,name:"SABINAGISA"}:o)),!g&&n[0]&&d(n[0].key)')
       .replaceAll('c(r),!m&&r[0]&&S(r[0].key)', 'c(r.map(s=>s.key==="chill"?{...s,name:"SABINAGISA"}:s)),!m&&r[0]&&S(r[0].key)')
       .replaceAll('u(r||[]),k(!1)', 'u((r||[]).map(s=>s.branches&&s.branches.key==="chill"?{...s,branches:{...s.branches,name:"SABINAGISA"}}:s)),k(!1)')
+      .replaceAll('g(a||[])),b()', 'g((a||[]).map(s=>s.key==="chill"?{...s,name:"SABINAGISA"}:s)),b()')
   }
   // Vite's dynamic preload map uses assets/foo; relative module imports stay local.
   await writeFile(file, content.replaceAll('assets/', `assets/${release}/`))
