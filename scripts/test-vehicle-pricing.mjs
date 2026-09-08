@@ -17,6 +17,10 @@ const services = [
   { id: 'filter', name: 'Sport : Drop-In Filter', price: 35000, category: 'N/A (Standard)' },
   { id: 'unknown', name: 'Custom Dashboard', price: 5000, category: 'Interior' },
 ];
+const chillMenuServices = [
+  ['SABI UNAGI', 'Main'], ['SABI NAGI HIGHBALL', 'Water'], ['SABI YORU UME', 'Dessert'],
+  ['WHIPPED FETA & TOAST', 'Main'], ['GRAPEFRUIT HONEY SODA', 'Water'], ['BEER-BATTERED FISH BITES', 'Dessert'],
+].map(([name, category], index) => ({ id: `menu-${index}`, name, category, price: 1000 + index * 100 }));
 const flatten = node => node == null || typeof node === 'boolean' ? '' : Array.isArray(node) ? node.map(flatten).join('') : typeof node === 'object' ? flatten(node.props?.children) : String(node);
 function nodes(root, predicate) {
   const found = [];
@@ -66,7 +70,7 @@ function harness(branchKey = 'garage') {
   });
   let tree;
   const render = () => { cursor = 0; tree = module.exports.Le({ branch: { id: 'branch-test', key: branchKey, commission_flat: 3000 }, title: 'LOCAL TEST', staff: { id: 'staff-test' }, restaurantMode: branchKey === 'chill' }); return tree; };
-  render(); state[0] = services; render();
+  render(); state[0] = branchKey === 'chill' ? [...services, ...chillMenuServices, { id: 'old-1', name: 'Iced Matcha', category: 'Drinks', price: 700 }, { id: 'old-2', name: 'Ramen Ghost Special', category: 'Food', price: 1800 }] : services; render();
   const button = label => nodes(tree, node => node.type === 'button' && flatten(node) === label)[0];
   const add = id => { nodes(tree, node => node.props?.role === 'button' && flatten(node).includes(services.find(s => s.id === id).name))[0].props.onClick(); render(); };
   const select = key => { button(pricing.vehicleLabels[key]).props.onClick(); render(); };
@@ -128,14 +132,17 @@ test('discount threshold applies after free kits, and Chill is not repriced', ()
   assert.equal(chill.button('Super Car'), undefined);
   assert.equal(pricing.repairKitDiscount(services, true, 'chill'), 0);
 });
-test('SABINAGISA Set 1 and all three supplied images appear only in Chill', async () => {
+test('all six SABINAGISA images render inside sale cards, while old menu cards are hidden', async () => {
   const chill = harness('chill');
   const text = flatten(chill.tree());
-  for (const label of ['SABINAGISA', 'Menu · Set 1', 'SABI UNAGI — うな重', 'SABI NAGI HIGHBALL — 凪', 'SABI YORU UME — 夜梅']) assert.ok(text.includes(label), label);
+  for (const label of chillMenuServices.map(item => item.name)) assert.ok(text.includes(label), label);
+  assert.equal(text.includes('Menu · Set 1'), false);
+  assert.equal(text.includes('Iced Matcha'), false);
+  assert.equal(text.includes('Ramen Ghost Special'), false);
   const images = nodes(chill.tree(), node => node.type === 'img').map(node => node.props.src).filter(src => src.includes('sabinagisa'));
-  assert.deepEqual(images, ['/assets/sabinagisa-unagi.png', '/assets/sabinagisa-nagi-highball.png', '/assets/sabinagisa-yoru-ume.png']);
+  assert.deepEqual(images, ['/assets/sabinagisa-unagi.png', '/assets/sabinagisa-nagi-highball.png', '/assets/sabinagisa-yoru-ume.png', '/assets/sabinagisa-whipped-feta-toast.png', '/assets/sabinagisa-grapefruit-honey-soda.png', '/assets/sabinagisa-fish-bites.png']);
   for (const src of images) await access(new URL(`../recovered-production${src}`, import.meta.url));
-  assert.equal(flatten(harness('garage').tree()).includes('Menu · Set 1'), false);
+  assert.equal(nodes(harness('garage').tree(), node => node.type === 'img' && node.props.src?.includes('sabinagisa')).length, 0);
 });
 test('Super Car hides unavailable services and removes them from an existing cart', () => {
   const app = harness(); app.add('unknown'); app.select('supercar');

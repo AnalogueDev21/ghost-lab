@@ -1,23 +1,18 @@
 import { u as _e, r as i, s as x, j as e, L as Ce } from "./index-vaWnYKxf.js";
 import { c as he, f as we, g as ke, n as Ne } from "./membership-BI3ZslQk.js";
-import { priceService, priceLabel, repairKitDiscount, vehicleLabels, catalogEntry, catalogVersion } from "./vehicle-pricing.js";
+import { priceService, priceLabel, repairKitDiscount, vehicleLabels, catalogEntry, catalogVersion, normalizeServiceName } from "./vehicle-pricing.js";
 const ee = "[ghost-lab-bill]";
-const chillSetOne = [{
-  name: "SABI UNAGI",
-  japanese: "うな重",
-  type: "Main",
-  image: "/assets/sabinagisa-unagi.png"
-}, {
-  name: "SABI NAGI HIGHBALL",
-  japanese: "凪",
-  type: "Water",
-  image: "/assets/sabinagisa-nagi-highball.png"
-}, {
-  name: "SABI YORU UME",
-  japanese: "夜梅",
-  type: "Dessert",
-  image: "/assets/sabinagisa-yoru-ume.png"
-}];
+const chillMenuVisuals = new Map([
+  ["SABI UNAGI", "/assets/sabinagisa-unagi.png"],
+  ["SABI NAGI HIGHBALL", "/assets/sabinagisa-nagi-highball.png"],
+  ["SABI YORU UME", "/assets/sabinagisa-yoru-ume.png"],
+  ["WHIPPED FETA & TOAST", "/assets/sabinagisa-whipped-feta-toast.png"],
+  ["GRAPEFRUIT HONEY SODA", "/assets/sabinagisa-grapefruit-honey-soda.png"],
+  ["BEER-BATTERED FISH BITES", "/assets/sabinagisa-fish-bites.png"]
+].map(([name, image]) => [normalizeServiceName(name), image]));
+const obsoleteChillServices = new Set(["iced matcha", "ramen ghost special"]);
+const chillMenuImage = service => chillMenuVisuals.get(normalizeServiceName(service.name));
+const visibleService = (service, branchKey) => branchKey !== "chill" || !obsoleteChillServices.has(normalizeServiceName(service.name));
 function ye(n, a = "\u0E17\u0E33\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E44\u0E21\u0E48\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48") {
   const p = String((n == null ? void 0 : n.message) || "").toLowerCase();
   return (n == null ? void 0 : n.code) === "23505" || p.includes("duplicate") ? "\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23\u0E19\u0E35\u0E49\u0E16\u0E39\u0E01\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E23\u0E35\u0E40\u0E1F\u0E23\u0E0A\u0E01\u0E48\u0E2D\u0E19\u0E17\u0E33\u0E0B\u0E49\u0E33" : (n == null ? void 0 : n.code) === "42501" || p.includes("permission") || p.includes("policy") ? "\u0E1A\u0E31\u0E0D\u0E0A\u0E35\u0E19\u0E35\u0E49\u0E44\u0E21\u0E48\u0E21\u0E35\u0E2A\u0E34\u0E17\u0E18\u0E34\u0E4C\u0E17\u0E33\u0E23\u0E32\u0E22\u0E01\u0E32\u0E23 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D\u0E1C\u0E39\u0E49\u0E08\u0E31\u0E14\u0E01\u0E32\u0E23" : p.includes("jwt") || p.includes("session") ? "\u0E40\u0E0B\u0E2A\u0E0A\u0E31\u0E19\u0E2B\u0E21\u0E14\u0E2D\u0E32\u0E22\u0E38 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E2D\u0E2D\u0E01\u0E41\u0E25\u0E49\u0E27\u0E40\u0E02\u0E49\u0E32\u0E2A\u0E39\u0E48\u0E23\u0E30\u0E1A\u0E1A\u0E43\u0E2B\u0E21\u0E48" : p.includes("fetch") || p.includes("network") ? "\u0E40\u0E0A\u0E37\u0E48\u0E2D\u0E21\u0E15\u0E48\u0E2D\u0E10\u0E32\u0E19\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E44\u0E21\u0E48\u0E44\u0E14\u0E49 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E23\u0E27\u0E08\u0E2D\u0E34\u0E19\u0E40\u0E17\u0E2D\u0E23\u0E4C\u0E40\u0E19\u0E47\u0E15\u0E41\u0E25\u0E49\u0E27\u0E25\u0E2D\u0E07\u0E43\u0E2B\u0E21\u0E48" : p.includes("stock") || p.includes("quantity") ? "\u0E2A\u0E15\u0E4A\u0E2D\u0E01\u0E44\u0E21\u0E48\u0E40\u0E1E\u0E35\u0E22\u0E07\u0E1E\u0E2D\u0E2B\u0E23\u0E37\u0E2D\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E2A\u0E15\u0E4A\u0E2D\u0E01\u0E44\u0E21\u0E48\u0E16\u0E39\u0E01\u0E15\u0E49\u0E2D\u0E07 \u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E23\u0E27\u0E08\u0E2A\u0E2D\u0E1A\u0E2A\u0E15\u0E4A\u0E2D\u0E01" : p.includes("bill not found") ? "\u0E44\u0E21\u0E48\u0E1E\u0E1A\u0E1A\u0E34\u0E25\u0E19\u0E35\u0E49 \u0E2D\u0E32\u0E08\u0E16\u0E39\u0E01\u0E41\u0E01\u0E49\u0E44\u0E02\u0E2B\u0E23\u0E37\u0E2D\u0E22\u0E01\u0E40\u0E25\u0E34\u0E01\u0E44\u0E1B\u0E41\u0E25\u0E49\u0E27" : a;
@@ -79,12 +74,9 @@ function $e({
       head: true
     }).eq("branch_id", h.id).then(({
       count: s
-    }) => u(s || 0)), x.from("services").select("id", {
-      count: "exact",
-      head: true
-    }).eq("branch_id", h.id).eq("active", true).then(({
-      count: s
-    }) => l(s || 0)));
+    }) => u(s || 0)), x.from("services").select("id,name").eq("branch_id", h.id).eq("active", true).then(({
+      data: s
+    }) => l((s || []).filter(service => visibleService(service, n)).length)));
   }, [h, y]), h ? e.jsxs("div", {
     children: [e.jsxs("div", {
       className: "panel pos-hero",
@@ -207,7 +199,7 @@ function Le({
       data: t,
       error: d
     }) => {
-      d && console.error(d), h(t || []);
+      d && console.error(d), h((t || []).filter(service => visibleService(service, n.key)));
     });
   }, [n]), i.useEffect(() => {
     if (!T.trim()) {
@@ -248,7 +240,7 @@ function Le({
     };
   }, [u.length]);
   const xe = ["all", ...new Set(g.map(t => t.category))],
-    X = (b === "all" ? g : g.filter(t => t.category === b)).filter(t => {
+    X = (b === "all" ? g : g.filter(t => t.category === b)).filter(t => visibleService(t, n.key)).filter(t => {
       const d = j.trim().toLowerCase();
       return !d || t.name.toLowerCase().includes(d) || t.category.toLowerCase().includes(d);
     }).map(t => priceService(t, vehicleClass, n.key)).filter(t => vehicleClass !== "supercar" || !t.pricingError),
@@ -403,27 +395,6 @@ function Le({
         style: { color: "var(--ghost-gray)", fontSize: 12, margin: "10px 0 0" },
         children: "Member ที่ยังไม่หมดอายุ: Engine Repair Kit และ Full Repair Kit ฟรีทั้ง Standard และ Super Car · อะไหล่อื่นคิดตามประเภทที่เลือก"
       })]
-    }), v && e.jsxs("section", {
-      className: "panel",
-      style: { marginBottom: 16, overflow: "hidden", padding: 0 },
-      children: [e.jsxs("header", {
-        style: { alignItems: "end", display: "flex", justifyContent: "space-between", padding: "18px 20px 12px" },
-        children: [e.jsxs("div", {
-          children: [e.jsx("div", { className: "font-display", style: { color: "var(--blood)", fontSize: 11, letterSpacing: 2 }, children: "SABINAGISA" }), e.jsx("h2", { style: { fontSize: 22, margin: "3px 0 0" }, children: "Menu · Set 1" })]
-        }), e.jsx("span", { style: { color: "var(--ghost-gray)", fontSize: 12 }, children: "錆と凪" })]
-      }), e.jsx("div", {
-        style: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 1, background: "var(--line)" },
-        children: chillSetOne.map(item => e.jsxs("article", {
-          style: { background: "var(--static)", minWidth: 0, paddingBottom: 14 },
-          children: [e.jsx("div", {
-            style: { alignItems: "center", background: "radial-gradient(circle at 50% 55%,rgba(196,30,42,.14),transparent 68%),#090a0c", display: "flex", height: 190, justifyContent: "center", overflow: "hidden" },
-            children: e.jsx("img", { src: item.image, alt: "", loading: "eager", style: { height: "100%", objectFit: "contain", width: "100%" } })
-          }), e.jsxs("div", {
-            style: { padding: "13px 15px 0" },
-            children: [e.jsx("div", { style: { color: "var(--ghost-gray)", fontSize: 10, letterSpacing: 1.3, textTransform: "uppercase" }, children: item.type }), e.jsxs("div", { style: { fontSize: 14, fontWeight: 700, marginTop: 4 }, children: [item.name, " — ", item.japanese] })]
-          })]
-        }, item.name))
-      })]
     }), e.jsxs("div", {
       className: "pos-layout",
       style: {
@@ -522,9 +493,26 @@ function Le({
             className: "panel",
             style: {
               cursor: t.pricingError ? "not-allowed" : "pointer",
-              opacity: t.pricingError ? 0.55 : 1
+              opacity: t.pricingError ? 0.55 : 1,
+              overflow: "hidden"
             },
-            children: [e.jsx("div", {
+            children: [v && chillMenuImage(t) && e.jsx("div", {
+              style: {
+                alignItems: "center",
+                background: "radial-gradient(circle at 50% 60%,rgba(196,30,42,.14),transparent 68%),#090a0c",
+                display: "flex",
+                height: 170,
+                justifyContent: "center",
+                margin: "-16px -16px 12px",
+                overflow: "hidden"
+              },
+              children: e.jsx("img", {
+                src: chillMenuImage(t),
+                alt: t.name,
+                loading: "lazy",
+                style: { height: "100%", objectFit: "contain", width: "100%" }
+              })
+            }), e.jsx("div", {
               style: {
                 fontSize: 9,
                 color: "var(--ghost-gray)",
@@ -1647,10 +1635,11 @@ function Re({
       data: s,
       error: r
     } = await x.from("services").select("*").eq("branch_id", n.id).eq("active", true).order("category");
-    if (r && console.error(r), p(s || []), g(false), s && s.length) {
+    const visibleServices = (s || []).filter(service => visibleService(service, n.key));
+    if (r && console.error(r), p(visibleServices), g(false), visibleServices.length) {
       const {
           data: c
-        } = await x.from("service_materials").select("service_id").in("service_id", s.map(f => f.id)),
+        } = await x.from("service_materials").select("service_id").in("service_id", visibleServices.map(f => f.id)),
         S = {};
       (c || []).forEach(f => {
         S[f.service_id] = (S[f.service_id] || 0) + 1;
@@ -1702,6 +1691,7 @@ function Re({
     }
     p(c => c.filter(S => S.id !== s));
   }
+  const serviceGridColumns = n.key === "chill" ? "64px 2fr 1.3fr 1fr 1fr 1fr auto" : "2fr 1.3fr 1fr 1fr 1fr auto";
   return e.jsxs("div", {
     className: "panel",
     children: [e.jsxs("div", {
@@ -1742,7 +1732,7 @@ function Re({
       children: [e.jsxs("div", {
         style: {
           display: "grid",
-          gridTemplateColumns: "2fr 1.3fr 1fr 1fr 1fr auto",
+          gridTemplateColumns: serviceGridColumns,
           gap: 10,
           padding: "0 0 10px",
           fontSize: 10,
@@ -1750,7 +1740,9 @@ function Re({
           textTransform: "uppercase",
           letterSpacing: 1
         },
-        children: [e.jsx("div", {
+        children: [n.key === "chill" && e.jsx("div", {
+          children: "Image"
+        }), e.jsx("div", {
           children: "Name"
         }), e.jsx("div", {
           children: "Category"
@@ -1768,12 +1760,20 @@ function Re({
         children: [e.jsxs("div", {
           style: {
             display: "grid",
-            gridTemplateColumns: "2fr 1.3fr 1fr 1fr 1fr auto",
+            gridTemplateColumns: serviceGridColumns,
             gap: 10,
             padding: "6px 0",
             alignItems: "center"
           },
-          children: [e.jsx("input", {
+          children: [n.key === "chill" && e.jsx("div", {
+            style: { alignItems: "center", background: "#090a0c", border: "1px solid var(--line)", borderRadius: 6, display: "flex", height: 48, justifyContent: "center", overflow: "hidden" },
+            children: chillMenuImage(s) ? e.jsx("img", {
+              src: chillMenuImage(s),
+              alt: "",
+              loading: "lazy",
+              style: { height: "100%", objectFit: "contain", width: "100%" }
+            }) : e.jsx("span", { style: { color: "var(--ghost-gray)", fontSize: 9 }, children: "NO IMAGE" })
+          }), e.jsx("input", {
             className: "input",
             value: s.name,
             onChange: r => m(s.id, "name", r.target.value),
