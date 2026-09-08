@@ -1,0 +1,1736 @@
+{
+  "schema_version": 1,
+  "source": {
+    "filename": "catalog_lite.html",
+    "sha256": "02a51074e3fb078822e62d9c4a579ae3a323a16fda8b45482e6e0709f6e13eaa",
+    "byte_length": 105912,
+    "title": "Parts Catalog — Premium Customs (Lite)",
+    "header": "🔧 PREMIUM CUSTOMS — Parts Catalog (Lite) รายการอะไหล่แต่งทั้งหมด พร้อมราคา Standard / Super Car และดีเทลการติดตั้ง | v2.6",
+    "footer": "Premium Customs — Parts Catalog Lite v2.7 | อะไหล่ทั้งหมด 41 รายการ | พร้อมระบบคำนวณวัตถุดิบคราฟ",
+    "declared_footer_count": 41,
+    "extraction": "Static text extraction; embedded scripts are never evaluated."
+  },
+  "currency": "JPY",
+  "name_matching": "Case-insensitive with collapsed whitespace and optional leading Sport:. No punctuation or fuzzy substitutions.",
+  "counts": {
+    "categories": 5,
+    "items": 48,
+    "priced_items": 41,
+    "not_for_sale_items": 7,
+    "maintenance_items": 7,
+    "packages": 3,
+    "informational_sums": 1
+  },
+  "categories": [
+    {
+      "id": "engine_na",
+      "name": "หมวดเครื่องยนต์ NA (Naturally Aspirated)",
+      "declared_count": 12,
+      "item_ids": [
+        "engine_na:drop-in-filter",
+        "engine_na:4-2-1-header",
+        "engine_na:cat-back-system",
+        "engine_na:lightweight-battery",
+        "engine_na:high-flow-fuel-pump",
+        "engine_na:iridium-spark-plugs",
+        "engine_na:port-matched-manifold",
+        "engine_na:balanced-crankshaft",
+        "engine_na:fast-road-cams",
+        "engine_na:stiff-valve-springs",
+        "engine_na:thick-radiator",
+        "engine_na:reflashed-ecu"
+      ],
+      "price_headers": [
+        "Standard",
+        "Super Car"
+      ]
+    },
+    {
+      "id": "engine_turbo",
+      "name": "หมวดเครื่องยนต์ Turbo",
+      "declared_count": 11,
+      "item_ids": [
+        "engine_turbo:cast-iron-turbo-manifold",
+        "engine_turbo:2-5-inch-turbo-back",
+        "engine_turbo:bolt-on-upgrade-turbo-bpu",
+        "engine_turbo:upgraded-intercooler",
+        "engine_turbo:cast-aluminum-plenum",
+        "engine_turbo:550cc-injectors",
+        "engine_turbo:high-flow-pod-filter",
+        "engine_turbo:mls-head-gasket-studs",
+        "engine_turbo:turbo-spec-cams",
+        "engine_turbo:upgraded-valve-springs",
+        "engine_turbo:boost-controller-remap"
+      ],
+      "price_headers": [
+        "Standard",
+        "Super Car"
+      ]
+    },
+    {
+      "id": "handling_drivetrain",
+      "name": "หมวดช่วงล่าง & ระบบขับเคลื่อน",
+      "declared_count": 8,
+      "item_ids": [
+        "handling_drivetrain:1-5-way-lsd",
+        "handling_drivetrain:heavy-duty-clutch",
+        "handling_drivetrain:short-shifter",
+        "handling_drivetrain:lowering-springs",
+        "handling_drivetrain:heavy-duty-sway-bars",
+        "handling_drivetrain:slotted-rotors",
+        "handling_drivetrain:street-brake-pads",
+        "handling_drivetrain:street-camber-arms"
+      ],
+      "price_headers": [
+        "Standard",
+        "Super Car"
+      ]
+    },
+    {
+      "id": "tires",
+      "name": "หมวดยาง (Tires)",
+      "declared_count": 10,
+      "item_ids": [
+        "tires:comfort-tire",
+        "tires:sport-tire",
+        "tires:drift-tire",
+        "tires:semi-slick-tires",
+        "tires:drag-tire",
+        "tires:slick-tires-m",
+        "tires:snow-tire",
+        "tires:offroad-tire",
+        "tires:slick-tire-h",
+        "tires:slick-tire-s"
+      ],
+      "price_headers": [
+        "Standard",
+        "Super Car"
+      ]
+    },
+    {
+      "id": "maintenance",
+      "name": "หมวดบริการบำรุงรักษา (Maintenance)",
+      "declared_count": 7,
+      "item_ids": [
+        "maintenance:engine-oil",
+        "maintenance:gearbox-oil",
+        "maintenance:spark-plugs",
+        "maintenance:coolant",
+        "maintenance:intake-filter",
+        "maintenance:brake-pads",
+        "maintenance:brake-fluid"
+      ],
+      "price_headers": [
+        "Standard (ค่าใส่ / อู่)",
+        "Super Car (ค่าใส่ / อู่)"
+      ]
+    }
+  ],
+  "items": [
+    {
+      "id": "engine_na:drop-in-filter",
+      "category_id": "engine_na",
+      "source_name": "Drop-In Filter",
+      "name": "Drop-In Filter",
+      "normalized_name": "drop-in filter",
+      "aliases": [
+        "Drop-In Filter",
+        "Sport: Drop-In Filter"
+      ],
+      "description": "กรองอากาศแบบเปลี่ยนแทนของเดิม",
+      "source_row_number": 1,
+      "prices": {
+        "standard": {
+          "raw": "35,000 Yen",
+          "status": "priced",
+          "price": 35000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "70,000 Yen",
+          "status": "priced",
+          "price": 70000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_na:4-2-1-header",
+      "category_id": "engine_na",
+      "source_name": "Sport: 4-2-1 Header",
+      "name": "4-2-1 Header",
+      "normalized_name": "4-2-1 header",
+      "aliases": [
+        "Sport: 4-2-1 Header",
+        "4-2-1 Header"
+      ],
+      "description": "เฮดเดอร์แต่ง",
+      "source_row_number": 2,
+      "prices": {
+        "standard": {
+          "raw": "35,000 Yen",
+          "status": "priced",
+          "price": 35000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "70,000 Yen",
+          "status": "priced",
+          "price": 70000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_na:cat-back-system",
+      "category_id": "engine_na",
+      "source_name": "Cat-Back System",
+      "name": "Cat-Back System",
+      "normalized_name": "cat-back system",
+      "aliases": [
+        "Cat-Back System",
+        "Sport: Cat-Back System"
+      ],
+      "description": "ท่อไอเสียชุดหลังแคท",
+      "source_row_number": 3,
+      "prices": {
+        "standard": {
+          "raw": "35,000 Yen",
+          "status": "priced",
+          "price": 35000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "70,000 Yen",
+          "status": "priced",
+          "price": 70000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_na:lightweight-battery",
+      "category_id": "engine_na",
+      "source_name": "Lightweight Battery",
+      "name": "Lightweight Battery",
+      "normalized_name": "lightweight battery",
+      "aliases": [
+        "Lightweight Battery",
+        "Sport: Lightweight Battery"
+      ],
+      "description": "แบตเตอรี่น้ำหนักเบา",
+      "source_row_number": 4,
+      "prices": {
+        "standard": {
+          "raw": "35,000 Yen",
+          "status": "priced",
+          "price": 35000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "70,000 Yen",
+          "status": "priced",
+          "price": 70000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_na:high-flow-fuel-pump",
+      "category_id": "engine_na",
+      "source_name": "High Flow Fuel Pump",
+      "name": "High Flow Fuel Pump",
+      "normalized_name": "high flow fuel pump",
+      "aliases": [
+        "High Flow Fuel Pump",
+        "Sport: High Flow Fuel Pump"
+      ],
+      "description": "ปั๊มติ๊กแรงดันสูง",
+      "source_row_number": 5,
+      "prices": {
+        "standard": {
+          "raw": "35,000 Yen",
+          "status": "priced",
+          "price": 35000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "70,000 Yen",
+          "status": "priced",
+          "price": 70000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_na:iridium-spark-plugs",
+      "category_id": "engine_na",
+      "source_name": "Iridium Spark Plugs",
+      "name": "Iridium Spark Plugs",
+      "normalized_name": "iridium spark plugs",
+      "aliases": [
+        "Iridium Spark Plugs",
+        "Sport: Iridium Spark Plugs"
+      ],
+      "description": "หัวเทียนอิริเดียม",
+      "source_row_number": 6,
+      "prices": {
+        "standard": {
+          "raw": "35,000 Yen",
+          "status": "priced",
+          "price": 35000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "70,000 Yen",
+          "status": "priced",
+          "price": 70000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_na:port-matched-manifold",
+      "category_id": "engine_na",
+      "source_name": "Port Matched Manifold",
+      "name": "Port Matched Manifold",
+      "normalized_name": "port matched manifold",
+      "aliases": [
+        "Port Matched Manifold",
+        "Sport: Port Matched Manifold"
+      ],
+      "description": "ขยายพอร์ตท่อไอดี",
+      "source_row_number": 7,
+      "prices": {
+        "standard": {
+          "raw": "35,000 Yen",
+          "status": "priced",
+          "price": 35000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "70,000 Yen",
+          "status": "priced",
+          "price": 70000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_na:balanced-crankshaft",
+      "category_id": "engine_na",
+      "source_name": "Sport: Balanced Crankshaft",
+      "name": "Balanced Crankshaft",
+      "normalized_name": "balanced crankshaft",
+      "aliases": [
+        "Sport: Balanced Crankshaft",
+        "Balanced Crankshaft"
+      ],
+      "description": "ข้อเหวี่ยงบาลานซ์สปอร์ต",
+      "source_row_number": 8,
+      "prices": {
+        "standard": {
+          "raw": "35,000 Yen",
+          "status": "priced",
+          "price": 35000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "70,000 Yen",
+          "status": "priced",
+          "price": 70000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_na:fast-road-cams",
+      "category_id": "engine_na",
+      "source_name": "Fast Road Cams",
+      "name": "Fast Road Cams",
+      "normalized_name": "fast road cams",
+      "aliases": [
+        "Fast Road Cams",
+        "Sport: Fast Road Cams"
+      ],
+      "description": "แคมชาฟต์ถนนสายสปอร์ต",
+      "source_row_number": 9,
+      "prices": {
+        "standard": {
+          "raw": "35,000 Yen",
+          "status": "priced",
+          "price": 35000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "70,000 Yen",
+          "status": "priced",
+          "price": 70000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_na:stiff-valve-springs",
+      "category_id": "engine_na",
+      "source_name": "Stiff Valve Springs",
+      "name": "Stiff Valve Springs",
+      "normalized_name": "stiff valve springs",
+      "aliases": [
+        "Stiff Valve Springs",
+        "Sport: Stiff Valve Springs"
+      ],
+      "description": "สปริงวาล์วแต่งเพิ่มความแข็ง",
+      "source_row_number": 10,
+      "prices": {
+        "standard": {
+          "raw": "35,000 Yen",
+          "status": "priced",
+          "price": 35000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "70,000 Yen",
+          "status": "priced",
+          "price": 70000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_na:thick-radiator",
+      "category_id": "engine_na",
+      "source_name": "Thick Radiator",
+      "name": "Thick Radiator",
+      "normalized_name": "thick radiator",
+      "aliases": [
+        "Thick Radiator",
+        "Sport: Thick Radiator"
+      ],
+      "description": "หม้อน้ำอลูมิเนียมหนาพิเศษ",
+      "source_row_number": 11,
+      "prices": {
+        "standard": {
+          "raw": "35,000 Yen",
+          "status": "priced",
+          "price": 35000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "70,000 Yen",
+          "status": "priced",
+          "price": 70000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_na:reflashed-ecu",
+      "category_id": "engine_na",
+      "source_name": "Reflashed ECU",
+      "name": "Reflashed ECU",
+      "normalized_name": "reflashed ecu",
+      "aliases": [
+        "Reflashed ECU",
+        "Sport: Reflashed ECU"
+      ],
+      "description": "จูนกล่อง ECU เดิม",
+      "source_row_number": 12,
+      "prices": {
+        "standard": {
+          "raw": "35,000 Yen",
+          "status": "priced",
+          "price": 35000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "70,000 Yen",
+          "status": "priced",
+          "price": 70000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_turbo:cast-iron-turbo-manifold",
+      "category_id": "engine_turbo",
+      "source_name": "Cast Iron Turbo Manifold",
+      "name": "Cast Iron Turbo Manifold",
+      "normalized_name": "cast iron turbo manifold",
+      "aliases": [
+        "Cast Iron Turbo Manifold",
+        "Sport: Cast Iron Turbo Manifold"
+      ],
+      "description": "เฮดเดอร์เทอร์โบเหล็กหล่อ",
+      "source_row_number": 1,
+      "prices": {
+        "standard": {
+          "raw": "47,500 Yen",
+          "status": "priced",
+          "price": 47500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "95,000 Yen",
+          "status": "priced",
+          "price": 95000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_turbo:2-5-inch-turbo-back",
+      "category_id": "engine_turbo",
+      "source_name": "2.5-Inch Turbo-Back",
+      "name": "2.5-Inch Turbo-Back",
+      "normalized_name": "2.5-inch turbo-back",
+      "aliases": [
+        "2.5-Inch Turbo-Back",
+        "Sport: 2.5-Inch Turbo-Back"
+      ],
+      "description": "ท่อไอเสียสเปคเทอร์โบ 2.5 นิ้ว",
+      "source_row_number": 2,
+      "prices": {
+        "standard": {
+          "raw": "47,500 Yen",
+          "status": "priced",
+          "price": 47500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "95,000 Yen",
+          "status": "priced",
+          "price": 95000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_turbo:bolt-on-upgrade-turbo-bpu",
+      "category_id": "engine_turbo",
+      "source_name": "Bolt-On Upgrade Turbo (BPU)",
+      "name": "Bolt-On Upgrade Turbo (BPU)",
+      "normalized_name": "bolt-on upgrade turbo (bpu)",
+      "aliases": [
+        "Bolt-On Upgrade Turbo (BPU)"
+      ],
+      "description": "เทอร์โบอัปเกรดตรงรุ่น",
+      "source_row_number": 3,
+      "prices": {
+        "standard": {
+          "raw": "47,500 Yen",
+          "status": "priced",
+          "price": 47500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "95,000 Yen",
+          "status": "priced",
+          "price": 95000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_turbo:upgraded-intercooler",
+      "category_id": "engine_turbo",
+      "source_name": "Upgraded Intercooler",
+      "name": "Upgraded Intercooler",
+      "normalized_name": "upgraded intercooler",
+      "aliases": [
+        "Upgraded Intercooler",
+        "Sport: Upgraded Intercooler"
+      ],
+      "description": "อินเตอร์คูลเลอร์ระบายความร้อนไอดี",
+      "source_row_number": 4,
+      "prices": {
+        "standard": {
+          "raw": "47,500 Yen",
+          "status": "priced",
+          "price": 47500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "95,000 Yen",
+          "status": "priced",
+          "price": 95000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_turbo:cast-aluminum-plenum",
+      "category_id": "engine_turbo",
+      "source_name": "Cast Aluminum Plenum",
+      "name": "Cast Aluminum Plenum",
+      "normalized_name": "cast aluminum plenum",
+      "aliases": [
+        "Cast Aluminum Plenum",
+        "Sport: Cast Aluminum Plenum"
+      ],
+      "description": "ห้องไอดีอลูมิเนียมหล่อ",
+      "source_row_number": 5,
+      "prices": {
+        "standard": {
+          "raw": "47,500 Yen",
+          "status": "priced",
+          "price": 47500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "95,000 Yen",
+          "status": "priced",
+          "price": 95000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_turbo:550cc-injectors",
+      "category_id": "engine_turbo",
+      "source_name": "550cc Injectors",
+      "name": "550cc Injectors",
+      "normalized_name": "550cc injectors",
+      "aliases": [
+        "550cc Injectors",
+        "Sport: 550cc Injectors"
+      ],
+      "description": "หัวฉีดขนาด 550cc",
+      "source_row_number": 6,
+      "prices": {
+        "standard": {
+          "raw": "47,500 Yen",
+          "status": "priced",
+          "price": 47500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "95,000 Yen",
+          "status": "priced",
+          "price": 95000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_turbo:high-flow-pod-filter",
+      "category_id": "engine_turbo",
+      "source_name": "High-Flow Pod Filter",
+      "name": "High-Flow Pod Filter",
+      "normalized_name": "high-flow pod filter",
+      "aliases": [
+        "High-Flow Pod Filter",
+        "Sport: High-Flow Pod Filter"
+      ],
+      "description": "กรองเปลือยท่อดูดสด",
+      "source_row_number": 7,
+      "prices": {
+        "standard": {
+          "raw": "47,500 Yen",
+          "status": "priced",
+          "price": 47500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "95,000 Yen",
+          "status": "priced",
+          "price": 95000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_turbo:mls-head-gasket-studs",
+      "category_id": "engine_turbo",
+      "source_name": "MLS Head Gasket & Studs",
+      "name": "MLS Head Gasket & Studs",
+      "normalized_name": "mls head gasket & studs",
+      "aliases": [
+        "MLS Head Gasket & Studs",
+        "Sport: MLS Head Gasket & Studs"
+      ],
+      "description": "ปะเก็นฝาสูบหลายชั้น & น็อตฝาสูบแข็งแรงพิเศษ",
+      "source_row_number": 8,
+      "prices": {
+        "standard": {
+          "raw": "47,500 Yen",
+          "status": "priced",
+          "price": 47500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "95,000 Yen",
+          "status": "priced",
+          "price": 95000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_turbo:turbo-spec-cams",
+      "category_id": "engine_turbo",
+      "source_name": "Turbo Spec Cams",
+      "name": "Turbo Spec Cams",
+      "normalized_name": "turbo spec cams",
+      "aliases": [
+        "Turbo Spec Cams",
+        "Sport: Turbo Spec Cams"
+      ],
+      "description": "แคมชาฟต์องศาสูงสำหรับเทอร์โบ",
+      "source_row_number": 9,
+      "prices": {
+        "standard": {
+          "raw": "47,500 Yen",
+          "status": "priced",
+          "price": 47500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "95,000 Yen",
+          "status": "priced",
+          "price": 95000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_turbo:upgraded-valve-springs",
+      "category_id": "engine_turbo",
+      "source_name": "Upgraded Valve Springs",
+      "name": "Upgraded Valve Springs",
+      "normalized_name": "upgraded valve springs",
+      "aliases": [
+        "Upgraded Valve Springs",
+        "Sport: Upgraded Valve Springs"
+      ],
+      "description": "สปริงวาล์วแต่งทนรอบเครื่องสูง",
+      "source_row_number": 10,
+      "prices": {
+        "standard": {
+          "raw": "47,500 Yen",
+          "status": "priced",
+          "price": 47500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "95,000 Yen",
+          "status": "priced",
+          "price": 95000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "engine_turbo:boost-controller-remap",
+      "category_id": "engine_turbo",
+      "source_name": "Boost Controller & Remap",
+      "name": "Boost Controller & Remap",
+      "normalized_name": "boost controller & remap",
+      "aliases": [
+        "Boost Controller & Remap",
+        "Sport: Boost Controller & Remap"
+      ],
+      "description": "ปรับบูสต์ไฟฟ้าพร้อมปรับจูนกราฟ",
+      "source_row_number": 11,
+      "prices": {
+        "standard": {
+          "raw": "47,500 Yen",
+          "status": "priced",
+          "price": 47500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "95,000 Yen",
+          "status": "priced",
+          "price": 95000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "handling_drivetrain:1-5-way-lsd",
+      "category_id": "handling_drivetrain",
+      "source_name": "Sport: 1.5 Way LSD",
+      "name": "1.5 Way LSD",
+      "normalized_name": "1.5 way lsd",
+      "aliases": [
+        "Sport: 1.5 Way LSD",
+        "1.5 Way LSD"
+      ],
+      "description": "ลิมิเต็ดสลิปแบบ 1.5 Way สปอร์ต",
+      "source_row_number": 1,
+      "prices": {
+        "standard": {
+          "raw": "37,500 Yen",
+          "status": "priced",
+          "price": 37500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "75,000 Yen",
+          "status": "priced",
+          "price": 75000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "handling_drivetrain:heavy-duty-clutch",
+      "category_id": "handling_drivetrain",
+      "source_name": "Heavy Duty Clutch",
+      "name": "Heavy Duty Clutch",
+      "normalized_name": "heavy duty clutch",
+      "aliases": [
+        "Heavy Duty Clutch"
+      ],
+      "description": "คลัตช์ทองแดงทนแรงบิดสูง",
+      "source_row_number": 2,
+      "prices": {
+        "standard": {
+          "raw": "37,500 Yen",
+          "status": "priced",
+          "price": 37500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "75,000 Yen",
+          "status": "priced",
+          "price": 75000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "handling_drivetrain:short-shifter",
+      "category_id": "handling_drivetrain",
+      "source_name": "Short Shifter",
+      "name": "Short Shifter",
+      "normalized_name": "short shifter",
+      "aliases": [
+        "Short Shifter"
+      ],
+      "description": "คันเกียร์ระยะชักสั้น",
+      "source_row_number": 3,
+      "prices": {
+        "standard": {
+          "raw": "37,500 Yen",
+          "status": "priced",
+          "price": 37500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "75,000 Yen",
+          "status": "priced",
+          "price": 75000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "handling_drivetrain:lowering-springs",
+      "category_id": "handling_drivetrain",
+      "source_name": "Lowering Springs",
+      "name": "Lowering Springs",
+      "normalized_name": "lowering springs",
+      "aliases": [
+        "Lowering Springs"
+      ],
+      "description": "สปริงโหลดสปอร์ต",
+      "source_row_number": 4,
+      "prices": {
+        "standard": {
+          "raw": "37,500 Yen",
+          "status": "priced",
+          "price": 37500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "75,000 Yen",
+          "status": "priced",
+          "price": 75000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "handling_drivetrain:heavy-duty-sway-bars",
+      "category_id": "handling_drivetrain",
+      "source_name": "Heavy Duty Sway Bars",
+      "name": "Heavy Duty Sway Bars",
+      "normalized_name": "heavy duty sway bars",
+      "aliases": [
+        "Heavy Duty Sway Bars"
+      ],
+      "description": "เหล็กกันโคลงขยายขนาด",
+      "source_row_number": 5,
+      "prices": {
+        "standard": {
+          "raw": "37,500 Yen",
+          "status": "priced",
+          "price": 37500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "75,000 Yen",
+          "status": "priced",
+          "price": 75000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "handling_drivetrain:slotted-rotors",
+      "category_id": "handling_drivetrain",
+      "source_name": "Slotted Rotors",
+      "name": "Slotted Rotors",
+      "normalized_name": "slotted rotors",
+      "aliases": [
+        "Slotted Rotors"
+      ],
+      "description": "จานเบรกเจาะรูระบายความร้อน",
+      "source_row_number": 6,
+      "prices": {
+        "standard": {
+          "raw": "37,500 Yen",
+          "status": "priced",
+          "price": 37500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "75,000 Yen",
+          "status": "priced",
+          "price": 75000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "handling_drivetrain:street-brake-pads",
+      "category_id": "handling_drivetrain",
+      "source_name": "Street Brake Pads",
+      "name": "Street Brake Pads",
+      "normalized_name": "street brake pads",
+      "aliases": [
+        "Street Brake Pads"
+      ],
+      "description": "ผ้าเบรกเกรดสตรีททนความร้อน",
+      "source_row_number": 7,
+      "prices": {
+        "standard": {
+          "raw": "37,500 Yen",
+          "status": "priced",
+          "price": 37500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "75,000 Yen",
+          "status": "priced",
+          "price": 75000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "handling_drivetrain:street-camber-arms",
+      "category_id": "handling_drivetrain",
+      "source_name": "Street Camber Arms",
+      "name": "Street Camber Arms",
+      "normalized_name": "street camber arms",
+      "aliases": [
+        "Street Camber Arms"
+      ],
+      "description": "ปีกนกปรับมุมแคมเบอร์เกรดสตรีท",
+      "source_row_number": 8,
+      "prices": {
+        "standard": {
+          "raw": "37,500 Yen",
+          "status": "priced",
+          "price": 37500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "75,000 Yen",
+          "status": "priced",
+          "price": 75000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "tires:comfort-tire",
+      "category_id": "tires",
+      "source_name": "Comfort Tire",
+      "name": "Comfort Tire",
+      "normalized_name": "comfort tire",
+      "aliases": [
+        "Comfort Tire"
+      ],
+      "description": "ยางสบาย ลดแรงสะเทือน",
+      "source_row_number": 1,
+      "prices": {
+        "standard": {
+          "raw": "5,000 Yen",
+          "status": "priced",
+          "price": 5000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "10,000 Yen",
+          "status": "priced",
+          "price": 10000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "tires:sport-tire",
+      "category_id": "tires",
+      "source_name": "Sport Tire",
+      "name": "Sport Tire",
+      "normalized_name": "sport tire",
+      "aliases": [
+        "Sport Tire"
+      ],
+      "description": "ยางสปอร์ตทั่วไป",
+      "source_row_number": 2,
+      "prices": {
+        "standard": {
+          "raw": "10,000 Yen",
+          "status": "priced",
+          "price": 10000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "20,000 Yen",
+          "status": "priced",
+          "price": 20000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "tires:drift-tire",
+      "category_id": "tires",
+      "source_name": "Drift Tire",
+      "name": "Drift Tire",
+      "normalized_name": "drift tire",
+      "aliases": [
+        "Drift Tire"
+      ],
+      "description": "ยางดริฟต์",
+      "source_row_number": 3,
+      "prices": {
+        "standard": {
+          "raw": "8,000 Yen",
+          "status": "priced",
+          "price": 8000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "16,000 Yen",
+          "status": "priced",
+          "price": 16000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "tires:semi-slick-tires",
+      "category_id": "tires",
+      "source_name": "Semi-Slick Tires",
+      "name": "Semi-Slick Tires",
+      "normalized_name": "semi-slick tires",
+      "aliases": [
+        "Semi-Slick Tires"
+      ],
+      "description": "ยางกึ่งสลิก",
+      "source_row_number": 4,
+      "prices": {
+        "standard": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "not_for_sale"
+    },
+    {
+      "id": "tires:drag-tire",
+      "category_id": "tires",
+      "source_name": "Drag Tire",
+      "name": "Drag Tire",
+      "normalized_name": "drag tire",
+      "aliases": [
+        "Drag Tire"
+      ],
+      "description": "ยางแดร็กควอเตอร์ไมล์",
+      "source_row_number": 5,
+      "prices": {
+        "standard": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "not_for_sale"
+    },
+    {
+      "id": "tires:slick-tires-m",
+      "category_id": "tires",
+      "source_name": "Slick Tires (M)",
+      "name": "Slick Tires (M)",
+      "normalized_name": "slick tires (m)",
+      "aliases": [
+        "Slick Tires (M)"
+      ],
+      "description": "ยางสลิกคอมปาวด์กลาง",
+      "source_row_number": 6,
+      "prices": {
+        "standard": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "not_for_sale"
+    },
+    {
+      "id": "tires:snow-tire",
+      "category_id": "tires",
+      "source_name": "Snow Tire",
+      "name": "Snow Tire",
+      "normalized_name": "snow tire",
+      "aliases": [
+        "Snow Tire"
+      ],
+      "description": "ยางหิมะ / ถนนลื่น",
+      "source_row_number": 7,
+      "prices": {
+        "standard": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "not_for_sale"
+    },
+    {
+      "id": "tires:offroad-tire",
+      "category_id": "tires",
+      "source_name": "Offroad Tire",
+      "name": "Offroad Tire",
+      "normalized_name": "offroad tire",
+      "aliases": [
+        "Offroad Tire"
+      ],
+      "description": "ยางออฟโรด",
+      "source_row_number": 8,
+      "prices": {
+        "standard": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "not_for_sale"
+    },
+    {
+      "id": "tires:slick-tire-h",
+      "category_id": "tires",
+      "source_name": "Slick Tire (H)",
+      "name": "Slick Tire (H)",
+      "normalized_name": "slick tire (h)",
+      "aliases": [
+        "Slick Tire (H)"
+      ],
+      "description": "ยางสลิกคอมปาวด์แข็ง",
+      "source_row_number": 9,
+      "prices": {
+        "standard": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "not_for_sale"
+    },
+    {
+      "id": "tires:slick-tire-s",
+      "category_id": "tires",
+      "source_name": "Slick Tire (S)",
+      "name": "Slick Tire (S)",
+      "normalized_name": "slick tire (s)",
+      "aliases": [
+        "Slick Tire (S)"
+      ],
+      "description": "ยางสลิกคอมปาวด์นิ่ม",
+      "source_row_number": 10,
+      "prices": {
+        "standard": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "🚫 ห้ามจำหน่าย",
+          "status": "not_for_sale",
+          "price": null,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "catalog_status": "not_for_sale"
+    },
+    {
+      "id": "maintenance:engine-oil",
+      "category_id": "maintenance",
+      "source_name": "Engine Oil",
+      "name": "Engine Oil",
+      "normalized_name": "engine oil",
+      "aliases": [
+        "Engine Oil"
+      ],
+      "description": "น้ำมันเครื่อง",
+      "source_row_number": 1,
+      "prices": {
+        "standard": {
+          "raw": "ใส่: 1,000 | อู่: 4,000",
+          "status": "priced",
+          "price": null,
+          "installation": 1000,
+          "garage": 4000
+        },
+        "supercar": {
+          "raw": "ใส่: 2,000 | อู่: 8,000",
+          "status": "priced",
+          "price": null,
+          "installation": 2000,
+          "garage": 8000
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "maintenance:gearbox-oil",
+      "category_id": "maintenance",
+      "source_name": "Gearbox Oil",
+      "name": "Gearbox Oil",
+      "normalized_name": "gearbox oil",
+      "aliases": [
+        "Gearbox Oil"
+      ],
+      "description": "น้ำมันเกียร์",
+      "source_row_number": 2,
+      "prices": {
+        "standard": {
+          "raw": "ใส่: 1,000 | อู่: 4,000",
+          "status": "priced",
+          "price": null,
+          "installation": 1000,
+          "garage": 4000
+        },
+        "supercar": {
+          "raw": "ใส่: 2,000 | อู่: 8,000",
+          "status": "priced",
+          "price": null,
+          "installation": 2000,
+          "garage": 8000
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "maintenance:spark-plugs",
+      "category_id": "maintenance",
+      "source_name": "Spark Plugs",
+      "name": "Spark Plugs",
+      "normalized_name": "spark plugs",
+      "aliases": [
+        "Spark Plugs"
+      ],
+      "description": "ชุดหัวเทียนบำรุงรักษา",
+      "source_row_number": 3,
+      "prices": {
+        "standard": {
+          "raw": "ใส่: 1,000 | อู่: 4,500",
+          "status": "priced",
+          "price": null,
+          "installation": 1000,
+          "garage": 4500
+        },
+        "supercar": {
+          "raw": "ใส่: 2,000 | อู่: 9,000",
+          "status": "priced",
+          "price": null,
+          "installation": 2000,
+          "garage": 9000
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "maintenance:coolant",
+      "category_id": "maintenance",
+      "source_name": "Coolant",
+      "name": "Coolant",
+      "normalized_name": "coolant",
+      "aliases": [
+        "Coolant"
+      ],
+      "description": "น้ำยาหล่อเย็นระดับพรีเมียม",
+      "source_row_number": 4,
+      "prices": {
+        "standard": {
+          "raw": "ใส่: 1,000 | อู่: 3,500",
+          "status": "priced",
+          "price": null,
+          "installation": 1000,
+          "garage": 3500
+        },
+        "supercar": {
+          "raw": "ใส่: 2,000 | อู่: 7,000",
+          "status": "priced",
+          "price": null,
+          "installation": 2000,
+          "garage": 7000
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "maintenance:intake-filter",
+      "category_id": "maintenance",
+      "source_name": "Intake Filter",
+      "name": "Intake Filter",
+      "normalized_name": "intake filter",
+      "aliases": [
+        "Intake Filter"
+      ],
+      "description": "กรองอากาศไอดีทดแทน",
+      "source_row_number": 5,
+      "prices": {
+        "standard": {
+          "raw": "ใส่: 1,000 | อู่: 4,000",
+          "status": "priced",
+          "price": null,
+          "installation": 1000,
+          "garage": 4000
+        },
+        "supercar": {
+          "raw": "ใส่: 2,000 | อู่: 8,000",
+          "status": "priced",
+          "price": null,
+          "installation": 2000,
+          "garage": 8000
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "maintenance:brake-pads",
+      "category_id": "maintenance",
+      "source_name": "Brake Pads",
+      "name": "Brake Pads",
+      "normalized_name": "brake pads",
+      "aliases": [
+        "Brake Pads"
+      ],
+      "description": "ชุดผ้าเบรกบำรุงรักษาทั่วไป",
+      "source_row_number": 6,
+      "prices": {
+        "standard": {
+          "raw": "ใส่: 1,000 | อู่: 4,500",
+          "status": "priced",
+          "price": null,
+          "installation": 1000,
+          "garage": 4500
+        },
+        "supercar": {
+          "raw": "ใส่: 2,000 | อู่: 9,000",
+          "status": "priced",
+          "price": null,
+          "installation": 2000,
+          "garage": 9000
+        }
+      },
+      "catalog_status": "priced"
+    },
+    {
+      "id": "maintenance:brake-fluid",
+      "category_id": "maintenance",
+      "source_name": "Brake Fluid",
+      "name": "Brake Fluid",
+      "normalized_name": "brake fluid",
+      "aliases": [
+        "Brake Fluid"
+      ],
+      "description": "น้ำมันเบรกประสิทธิภาพสูง",
+      "source_row_number": 7,
+      "prices": {
+        "standard": {
+          "raw": "ใส่: 1,000 | อู่: 4,000",
+          "status": "priced",
+          "price": null,
+          "installation": 1000,
+          "garage": 4000
+        },
+        "supercar": {
+          "raw": "ใส่: 2,000 | อู่: 8,000",
+          "status": "priced",
+          "price": null,
+          "installation": 2000,
+          "garage": 8000
+        }
+      },
+      "catalog_status": "priced"
+    }
+  ],
+  "packages": [
+    {
+      "id": "engine_na:package",
+      "category_id": "engine_na",
+      "kind": "package",
+      "raw": [
+        "📦 ราคาเหมา Standard 420,000 Yen",
+        "🏎️ ราคาเหมา Super Car 840,000 Yen"
+      ],
+      "prices": {
+        "standard": {
+          "raw": "420,000 Yen",
+          "status": "priced",
+          "price": 420000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "840,000 Yen",
+          "status": "priced",
+          "price": 840000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "item_ids": [
+        "engine_na:drop-in-filter",
+        "engine_na:4-2-1-header",
+        "engine_na:cat-back-system",
+        "engine_na:lightweight-battery",
+        "engine_na:high-flow-fuel-pump",
+        "engine_na:iridium-spark-plugs",
+        "engine_na:port-matched-manifold",
+        "engine_na:balanced-crankshaft",
+        "engine_na:fast-road-cams",
+        "engine_na:stiff-valve-springs",
+        "engine_na:thick-radiator",
+        "engine_na:reflashed-ecu"
+      ],
+      "item_price_sums": {
+        "standard": 420000,
+        "supercar": 840000
+      },
+      "matches_item_sums": true
+    },
+    {
+      "id": "engine_turbo:package",
+      "category_id": "engine_turbo",
+      "kind": "package",
+      "raw": [
+        "📦 ราคาเหมา Standard 522,500 Yen",
+        "🏎️ ราคาเหมา Super Car 1,045,000 Yen"
+      ],
+      "prices": {
+        "standard": {
+          "raw": "522,500 Yen",
+          "status": "priced",
+          "price": 522500,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "1,045,000 Yen",
+          "status": "priced",
+          "price": 1045000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "item_ids": [
+        "engine_turbo:cast-iron-turbo-manifold",
+        "engine_turbo:2-5-inch-turbo-back",
+        "engine_turbo:bolt-on-upgrade-turbo-bpu",
+        "engine_turbo:upgraded-intercooler",
+        "engine_turbo:cast-aluminum-plenum",
+        "engine_turbo:550cc-injectors",
+        "engine_turbo:high-flow-pod-filter",
+        "engine_turbo:mls-head-gasket-studs",
+        "engine_turbo:turbo-spec-cams",
+        "engine_turbo:upgraded-valve-springs",
+        "engine_turbo:boost-controller-remap"
+      ],
+      "item_price_sums": {
+        "standard": 522500,
+        "supercar": 1045000
+      },
+      "matches_item_sums": true
+    },
+    {
+      "id": "handling_drivetrain:package",
+      "category_id": "handling_drivetrain",
+      "kind": "package",
+      "raw": [
+        "📦 ราคาเหมา Standard 300,000 Yen",
+        "🏎️ ราคาเหมา Super Car 600,000 Yen"
+      ],
+      "prices": {
+        "standard": {
+          "raw": "300,000 Yen",
+          "status": "priced",
+          "price": 300000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "600,000 Yen",
+          "status": "priced",
+          "price": 600000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "item_ids": [
+        "handling_drivetrain:1-5-way-lsd",
+        "handling_drivetrain:heavy-duty-clutch",
+        "handling_drivetrain:short-shifter",
+        "handling_drivetrain:lowering-springs",
+        "handling_drivetrain:heavy-duty-sway-bars",
+        "handling_drivetrain:slotted-rotors",
+        "handling_drivetrain:street-brake-pads",
+        "handling_drivetrain:street-camber-arms"
+      ],
+      "item_price_sums": {
+        "standard": 300000,
+        "supercar": 600000
+      },
+      "matches_item_sums": true
+    },
+    {
+      "id": "tires:informational_sum",
+      "category_id": "tires",
+      "kind": "informational_sum",
+      "raw": [
+        "📦 ราคารวม (3 ชนิดที่จำหน่าย) Standard 23,000 Yen",
+        "🏎️ ราคารวม (3 ชนิดที่จำหน่าย) Super Car 46,000 Yen"
+      ],
+      "prices": {
+        "standard": {
+          "raw": "23,000 Yen",
+          "status": "priced",
+          "price": 23000,
+          "installation": null,
+          "garage": null
+        },
+        "supercar": {
+          "raw": "46,000 Yen",
+          "status": "priced",
+          "price": 46000,
+          "installation": null,
+          "garage": null
+        }
+      },
+      "item_ids": [
+        "tires:comfort-tire",
+        "tires:sport-tire",
+        "tires:drift-tire"
+      ],
+      "item_price_sums": {
+        "standard": 23000,
+        "supercar": 46000
+      },
+      "matches_item_sums": true
+    }
+  ],
+  "warnings": [
+    {
+      "code": "stale_footer_count",
+      "detail": "Footer says 41 items; actual sections contain 48."
+    },
+    {
+      "code": "different_display_versions",
+      "detail": "Header says v2.6 while footer says v2.7."
+    },
+    {
+      "code": "maintenance_price_basis",
+      "detail": "Maintenance explicitly labels separate ใส่ and อู่ prices; they are preserved independently and not added together. The catalog does not define the commercial meaning of ใส่."
+    },
+    {
+      "code": "catalog_not_for_sale",
+      "detail": "Seven tire rows have no numeric price and say ห้ามจำหน่าย. A business decision is needed before changing existing POS availability."
+    },
+    {
+      "code": "repair_kits_absent",
+      "detail": "Engine Repair Kit and Full Repair Kit are absent from this catalog; preserve existing prices and the user-authorized free benefit for active members in both vehicle classes."
+    },
+    {
+      "code": "turbo_name_variant",
+      "detail": "The displayed Bolt-On Upgrade Turbo (BPU) differs from the crafting literal Sport: Bolt-On Upgrade Turbo BPU. Parenthesis removal is not included in automatic normalization."
+    }
+  ]
+}

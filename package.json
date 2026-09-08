@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "node scripts/build-recovered.mjs",
+    "test": "node --test scripts/test-vehicle-pricing.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
