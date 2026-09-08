@@ -67,6 +67,9 @@ for (const file of (await listFiles(versionedRoot)).filter(file => /\.(js|css)$/
       .replaceAll('Ghost Chill Kitchen', 'SABINAGISA Kitchen')
       .replaceAll('GHOST CHILL', 'SABINAGISA')
       .replaceAll('Ghost Chill', 'SABINAGISA')
+      .replaceAll('OWNER:"owner",HEAD_MECHANIC', 'OWNER:"owner",CEO:"ceo",HEAD_MECHANIC')
+      .replaceAll('[I.OWNER]="Owner"', '[I.OWNER]="Owner",[I.CEO]="CEO · ผู้บริหารสาขา"')
+      .replaceAll('I.OWNER,I.CHILL_MANAGER,I.CHILL_STAFF', 'I.OWNER,I.CEO,I.CHILL_MANAGER,I.CHILL_STAFF')
       // Branch names come from Supabase in finance filters; normalize the
       // legacy chill branch label at render-data boundaries as well.
       .replaceAll('h(n),!g&&n[0]&&d(n[0].key)', 'h(n.map(o=>o.key==="chill"?{...o,name:"SABINAGISA"}:o)),!g&&n[0]&&d(n[0].key)')

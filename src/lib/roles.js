@@ -5,6 +5,7 @@
 export const ROLES = {
   GOD: 'god',
   OWNER: 'owner',
+  CEO: 'ceo',
   HEAD_MECHANIC: 'head_mechanic',
   MECHANIC: 'mechanic',
   MECHANIC_TRAINEE: 'mechanic_trainee',
@@ -17,6 +18,7 @@ export const ROLES = {
 export const ROLE_LABELS = {
   [ROLES.GOD]: 'GOD · สิทธิ์สูงสุด',
   [ROLES.OWNER]: 'Owner',
+  [ROLES.CEO]: 'CEO · ผู้บริหารสาขา',
   [ROLES.HEAD_MECHANIC]: 'หัวหน้าช่าง',
   [ROLES.MECHANIC]: 'ช่าง',
   [ROLES.MECHANIC_TRAINEE]: 'ช่างฝึกหัด',
@@ -40,7 +42,7 @@ export const NAV_ITEMS = [
   { key: 'garage', permission: 'garage_access', label: 'Ghost Lab Garage', path: '/garage',
     allow: [ROLES.OWNER, ROLES.HEAD_MECHANIC, ROLES.MECHANIC, ROLES.MECHANIC_TRAINEE] },
   { key: 'chill', permission: 'chill_access', label: 'Ghost Chill', path: '/chill',
-    allow: [ROLES.OWNER, ROLES.CHILL_MANAGER, ROLES.CHILL_STAFF] },
+    allow: [ROLES.OWNER, ROLES.CEO, ROLES.CHILL_MANAGER, ROLES.CHILL_STAFF] },
   { key: 'members', permission: 'members_access', label: 'Members & Coupons', path: '/members',
     allow: [ROLES.OWNER, ROLES.HEAD_MECHANIC, ROLES.CHILL_MANAGER] },
   { key: 'attendance', label: 'ลงเวลา Clock', path: '/attendance', allow: 'all' },
