@@ -511,6 +511,13 @@ function Le({
                 src: chillMenuImage(t),
                 alt: t.name,
                 loading: "lazy",
+                onError: r => {
+                  const image = r.currentTarget;
+                  image.style.display = "none";
+                  image.parentElement.textContent = "IMAGE UNAVAILABLE";
+                  image.parentElement.style.color = "var(--ghost-gray)";
+                  image.parentElement.style.fontSize = "10px";
+                },
                 style: { height: "100%", objectFit: "contain", width: "100%" }
               })
             }), e.jsx("div", {
@@ -1789,6 +1796,14 @@ function Re({
               src: chillMenuImage(s),
               alt: "",
               loading: "lazy",
+              onError: r => {
+                const image = r.currentTarget;
+                image.style.display = "none";
+                image.parentElement.textContent = "ลิงก์รูปใช้ไม่ได้";
+                image.parentElement.style.color = "var(--ghost-gray)";
+                image.parentElement.style.fontSize = "8px";
+                image.parentElement.style.textAlign = "center";
+              },
               style: { height: "100%", objectFit: "contain", width: "100%" }
             }) : e.jsx("span", { style: { color: "var(--ghost-gray)", fontSize: 9 }, children: "NO IMAGE" })
           }), e.jsxs("div", { style: { display: "grid", gap: 4 }, children: [e.jsx("input", {
