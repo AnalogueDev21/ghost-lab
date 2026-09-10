@@ -508,16 +508,15 @@ function Le({
                 overflow: "hidden"
               },
               children: e.jsx("img", {
+                key: chillMenuImage(t),
                 src: chillMenuImage(t),
                 alt: t.name,
                 loading: "lazy",
                 onError: r => {
                   const image = r.currentTarget;
-                  image.style.display = "none";
-                  image.parentElement.textContent = "IMAGE UNAVAILABLE";
-                  image.parentElement.style.color = "var(--ghost-gray)";
-                  image.parentElement.style.fontSize = "10px";
+                  image.style.opacity = "0";
                 },
+                onLoad: r => { r.currentTarget.style.opacity = "1"; },
                 style: { height: "100%", objectFit: "contain", width: "100%" }
               })
             }), e.jsx("div", {
@@ -1820,17 +1819,15 @@ function Re({
           children: [n.key === "chill" && e.jsx("div", {
             style: { alignItems: "center", background: "#090a0c", border: "1px solid var(--line)", borderRadius: 6, display: "flex", height: 36, justifyContent: "center", overflow: "hidden" },
             children: chillMenuImage(s) ? e.jsx("img", {
+              key: chillMenuImage(s),
               src: chillMenuImage(s),
               alt: "",
               loading: "lazy",
               onError: r => {
                 const image = r.currentTarget;
-                image.style.display = "none";
-                image.parentElement.textContent = "ลิงก์รูปใช้ไม่ได้";
-                image.parentElement.style.color = "var(--ghost-gray)";
-                image.parentElement.style.fontSize = "8px";
-                image.parentElement.style.textAlign = "center";
+                image.style.opacity = "0";
               },
+              onLoad: r => { r.currentTarget.style.opacity = "1"; },
               style: { height: "100%", objectFit: "contain", width: "100%" }
             }) : e.jsx("span", { style: { color: "var(--ghost-gray)", fontSize: 9 }, children: "NO IMAGE" })
           }), e.jsxs("div", { style: { display: "grid", gap: 4 }, children: [e.jsx("input", {
