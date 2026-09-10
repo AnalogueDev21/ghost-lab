@@ -1737,11 +1737,6 @@ function Re({
           },
           children: [a.length, " services available", n.key === "garage" ? " · รายการที่ตรงแค็ตตาล็อกใช้ราคาจากไฟล์ (งานบำรุงรักษาใช้ราคาอู่) · รายการอื่นใช้ราคาเดิมสำหรับ Standard" : ""]
         })]
-      }), n.key === "chill" && e.jsx("div", {
-        className: "btn btn-secondary",
-        onClick: createSABINAGISAMenu,
-        title: "สร้างเมนู SABINAGISA ทั้ง 6 รายการ (ราคาเริ่มต้น 0 ต้องตั้งเอง)",
-        children: "+ สร้างเมนู SABINAGISA"
       }), e.jsx("div", {
         onClick: u,
         className: "btn btn-primary",
