@@ -1838,13 +1838,6 @@ function Re({
             value: s.name,
           onChange: r => m(s.id, "name", r.target.value),
             onBlur: r => l(s.id, "name", r.target.value)
-          }), e.jsx("input", {
-            className: "input",
-            value: n.key === "chill" ? (s.image_url || "") : "",
-            placeholder: n.key === "chill" ? "URL รูปภาพ (ถ้ามี)" : "",
-            disabled: n.key !== "chill",
-            onChange: r => n.key === "chill" && m(s.id, "image_url", r.target.value),
-            onBlur: r => n.key === "chill" && l(s.id, "image_url", r.target.value)
           }), n.key === "chill" && e.jsxs("label", {
             className: "btn btn-secondary",
             style: { cursor: "pointer", fontSize: 10, justifyContent: "center", padding: "6px 8px" },
