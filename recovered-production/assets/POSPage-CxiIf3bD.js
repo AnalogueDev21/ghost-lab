@@ -1700,6 +1700,38 @@ function Re({
       } = await x.from("services").update(S).eq("id", s);
     f && console.error(f);
   }
+  async function uploadServiceImage(service, file) {
+    if (!file || n.key !== "chill") return;
+    if (!file.type.startsWith("image/")) {
+      alert("กรุณาเลือกไฟล์รูปภาพ");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("รูปต้องมีขนาดไม่เกิน 5 MB");
+      return;
+    }
+    const extension = (file.name.split(".").pop() || "png").replace(/[^a-z0-9]/gi, "").toLowerCase();
+    const storagePath = `${n.key}/${service.id}-${Date.now()}.${extension}`;
+    const { error: uploadError } = await x.storage.from("service-images").upload(storagePath, file, {
+      cacheControl: "3600",
+      contentType: file.type,
+      upsert: false
+    });
+    if (uploadError) {
+      console.error(uploadError);
+      alert(`อัปโหลดรูปไม่สำเร็จ: ${uploadError.message}`);
+      return;
+    }
+    const { data: publicData } = x.storage.from("service-images").getPublicUrl(storagePath);
+    const imageUrl = publicData?.publicUrl || "";
+    const { error: saveError } = await x.from("services").update({ image_url: imageUrl }).eq("id", service.id);
+    if (saveError) {
+      console.error(saveError);
+      alert(`บันทึกรูปไม่สำเร็จ: ${saveError.message}`);
+      return;
+    }
+    m(service.id, "image_url", imageUrl);
+  }
   async function o(s) {
     if (!confirm("\u0E25\u0E1A\u0E1A\u0E23\u0E34\u0E01\u0E32\u0E23\u0E19\u0E35\u0E49?")) return;
     const {
@@ -1813,6 +1845,15 @@ function Re({
             disabled: n.key !== "chill",
             onChange: r => n.key === "chill" && m(s.id, "image_url", r.target.value),
             onBlur: r => n.key === "chill" && l(s.id, "image_url", r.target.value)
+          }), n.key === "chill" && e.jsxs("label", {
+            className: "btn btn-secondary",
+            style: { cursor: "pointer", fontSize: 10, justifyContent: "center", padding: "6px 8px" },
+            children: ["↑ อัปโหลดรูปจากเครื่อง", e.jsx("input", {
+              type: "file",
+              accept: "image/png,image/jpeg,image/webp,image/gif",
+              style: { display: "none" },
+              onChange: r => uploadServiceImage(s, r.target.files?.[0])
+            })]
           })] }), e.jsx("input", {
             className: "input",
             value: s.category,
