@@ -15,8 +15,8 @@
   "counts": {
     "categories": 5,
     "items": 48,
-    "priced_items": 41,
-    "not_for_sale_items": 7,
+    "priced_items": 48,
+    "not_for_sale_items": 0,
     "maintenance_items": 7,
     "packages": 3,
     "informational_sums": 1
@@ -1056,22 +1056,23 @@
       "name": "Comfort Tire",
       "normalized_name": "comfort tire",
       "aliases": [
-        "Comfort Tire"
+        "Comfort Tire",
+        "Comfort Tires"
       ],
       "description": "ยางสบาย ลดแรงสะเทือน",
       "source_row_number": 1,
       "prices": {
         "standard": {
-          "raw": "5,000 Yen",
+          "raw": "1,500 Yen",
           "status": "priced",
-          "price": 5000,
+          "price": 1500,
           "installation": null,
           "garage": null
         },
         "supercar": {
-          "raw": "10,000 Yen",
+          "raw": "3,000 Yen",
           "status": "priced",
-          "price": 10000,
+          "price": 3000,
           "installation": null,
           "garage": null
         }
@@ -1085,22 +1086,23 @@
       "name": "Sport Tire",
       "normalized_name": "sport tire",
       "aliases": [
-        "Sport Tire"
+        "Sport Tire",
+        "Sport Tires"
       ],
       "description": "ยางสปอร์ตทั่วไป",
       "source_row_number": 2,
       "prices": {
         "standard": {
-          "raw": "10,000 Yen",
+          "raw": "2,000 Yen",
           "status": "priced",
-          "price": 10000,
+          "price": 2000,
           "installation": null,
           "garage": null
         },
         "supercar": {
-          "raw": "20,000 Yen",
+          "raw": "4,000 Yen",
           "status": "priced",
-          "price": 20000,
+          "price": 4000,
           "installation": null,
           "garage": null
         }
@@ -1120,16 +1122,16 @@
       "source_row_number": 3,
       "prices": {
         "standard": {
-          "raw": "8,000 Yen",
+          "raw": "5,500 Yen",
           "status": "priced",
-          "price": 8000,
+          "price": 5500,
           "installation": null,
           "garage": null
         },
         "supercar": {
-          "raw": "16,000 Yen",
+          "raw": "11,000 Yen",
           "status": "priced",
-          "price": 16000,
+          "price": 11000,
           "installation": null,
           "garage": null
         }
@@ -1149,21 +1151,21 @@
       "source_row_number": 4,
       "prices": {
         "standard": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "3,500 Yen",
+          "status": "priced",
+          "price": 3500,
           "installation": null,
           "garage": null
         },
         "supercar": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "7,000 Yen",
+          "status": "priced",
+          "price": 7000,
           "installation": null,
           "garage": null
         }
       },
-      "catalog_status": "not_for_sale"
+      "catalog_status": "priced"
     },
     {
       "id": "tires:drag-tire",
@@ -1178,21 +1180,21 @@
       "source_row_number": 5,
       "prices": {
         "standard": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "5,000 Yen",
+          "status": "priced",
+          "price": 5000,
           "installation": null,
           "garage": null
         },
         "supercar": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "10,000 Yen",
+          "status": "priced",
+          "price": 10000,
           "installation": null,
           "garage": null
         }
       },
-      "catalog_status": "not_for_sale"
+      "catalog_status": "priced"
     },
     {
       "id": "tires:slick-tires-m",
@@ -1207,21 +1209,21 @@
       "source_row_number": 6,
       "prices": {
         "standard": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "4,000 Yen",
+          "status": "priced",
+          "price": 4000,
           "installation": null,
           "garage": null
         },
         "supercar": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "8,000 Yen",
+          "status": "priced",
+          "price": 8000,
           "installation": null,
           "garage": null
         }
       },
-      "catalog_status": "not_for_sale"
+      "catalog_status": "priced"
     },
     {
       "id": "tires:snow-tire",
@@ -1236,21 +1238,21 @@
       "source_row_number": 7,
       "prices": {
         "standard": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "3,500 Yen",
+          "status": "priced",
+          "price": 3500,
           "installation": null,
           "garage": null
         },
         "supercar": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "7,000 Yen",
+          "status": "priced",
+          "price": 7000,
           "installation": null,
           "garage": null
         }
       },
-      "catalog_status": "not_for_sale"
+      "catalog_status": "priced"
     },
     {
       "id": "tires:offroad-tire",
@@ -1265,21 +1267,21 @@
       "source_row_number": 8,
       "prices": {
         "standard": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "5,500 Yen",
+          "status": "priced",
+          "price": 5500,
           "installation": null,
           "garage": null
         },
         "supercar": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "11,000 Yen",
+          "status": "priced",
+          "price": 11000,
           "installation": null,
           "garage": null
         }
       },
-      "catalog_status": "not_for_sale"
+      "catalog_status": "priced"
     },
     {
       "id": "tires:slick-tire-h",
@@ -1294,21 +1296,21 @@
       "source_row_number": 9,
       "prices": {
         "standard": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "3,500 Yen",
+          "status": "priced",
+          "price": 3500,
           "installation": null,
           "garage": null
         },
         "supercar": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "7,000 Yen",
+          "status": "priced",
+          "price": 7000,
           "installation": null,
           "garage": null
         }
       },
-      "catalog_status": "not_for_sale"
+      "catalog_status": "priced"
     },
     {
       "id": "tires:slick-tire-s",
@@ -1323,21 +1325,21 @@
       "source_row_number": 10,
       "prices": {
         "standard": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "6,000 Yen",
+          "status": "priced",
+          "price": 6000,
           "installation": null,
           "garage": null
         },
         "supercar": {
-          "raw": "🚫 ห้ามจำหน่าย",
-          "status": "not_for_sale",
-          "price": null,
+          "raw": "12,000 Yen",
+          "status": "priced",
+          "price": 12000,
           "installation": null,
           "garage": null
         }
       },
-      "catalog_status": "not_for_sale"
+      "catalog_status": "priced"
     },
     {
       "id": "maintenance:engine-oil",

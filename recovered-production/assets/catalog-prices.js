@@ -306,19 +306,21 @@ export const catalogPrices = [
   {
     "id": "tires:comfort-tire",
     "names": [
-      "Comfort Tire"
+      "Comfort Tire",
+      "Comfort Tires"
     ],
-    "standard": 5000,
-    "supercar": 10000,
+    "standard": 1500,
+    "supercar": 3000,
     "status": "priced"
   },
   {
     "id": "tires:sport-tire",
     "names": [
-      "Sport Tire"
+      "Sport Tire",
+      "Sport Tires"
     ],
-    "standard": 10000,
-    "supercar": 20000,
+    "standard": 2000,
+    "supercar": 4000,
     "status": "priced"
   },
   {
@@ -326,8 +328,8 @@ export const catalogPrices = [
     "names": [
       "Drift Tire"
     ],
-    "standard": 8000,
-    "supercar": 16000,
+    "standard": 5500,
+    "supercar": 11000,
     "status": "priced"
   },
   {
@@ -335,63 +337,63 @@ export const catalogPrices = [
     "names": [
       "Semi-Slick Tires"
     ],
-    "standard": null,
-    "supercar": null,
-    "status": "not_for_sale"
+    "standard": 3500,
+    "supercar": 7000,
+    "status": "priced"
   },
   {
     "id": "tires:drag-tire",
     "names": [
       "Drag Tire"
     ],
-    "standard": null,
-    "supercar": null,
-    "status": "not_for_sale"
+    "standard": 5000,
+    "supercar": 10000,
+    "status": "priced"
   },
   {
     "id": "tires:slick-tires-m",
     "names": [
       "Slick Tires (M)"
     ],
-    "standard": null,
-    "supercar": null,
-    "status": "not_for_sale"
+    "standard": 4000,
+    "supercar": 8000,
+    "status": "priced"
   },
   {
     "id": "tires:snow-tire",
     "names": [
       "Snow Tire"
     ],
-    "standard": null,
-    "supercar": null,
-    "status": "not_for_sale"
+    "standard": 3500,
+    "supercar": 7000,
+    "status": "priced"
   },
   {
     "id": "tires:offroad-tire",
     "names": [
       "Offroad Tire"
     ],
-    "standard": null,
-    "supercar": null,
-    "status": "not_for_sale"
+    "standard": 5500,
+    "supercar": 11000,
+    "status": "priced"
   },
   {
     "id": "tires:slick-tire-h",
     "names": [
       "Slick Tire (H)"
     ],
-    "standard": null,
-    "supercar": null,
-    "status": "not_for_sale"
+    "standard": 3500,
+    "supercar": 7000,
+    "status": "priced"
   },
   {
     "id": "tires:slick-tire-s",
     "names": [
       "Slick Tire (S)"
     ],
-    "standard": null,
-    "supercar": null,
-    "status": "not_for_sale"
+    "standard": 6000,
+    "supercar": 12000,
+    "status": "priced"
   },
   {
     "id": "maintenance:engine-oil",

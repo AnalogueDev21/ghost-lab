@@ -79,7 +79,7 @@ function harness(branchKey = 'garage') {
   return { state, writes, render, add, select, setMember, total, button, exports: module.exports, tree: () => tree };
 }
 
-test('all 41 explicit catalog prices resolve for both classes, using garage maintenance prices', () => {
+test('all 48 explicit catalog prices resolve for both classes, using garage maintenance prices', () => {
   for (const item of catalog.items.filter(item => item.catalog_status === 'priced' || item.prices.standard.status === 'priced')) {
     for (const vehicle of ['standard', 'supercar']) {
       const result = pricing.priceService({ name: item.source_name, price: 1 }, vehicle);
@@ -87,7 +87,7 @@ test('all 41 explicit catalog prices resolve for both classes, using garage main
       assert.equal(result.pricingError, '');
     }
   }
-  assert.equal(catalog.counts.priced_items, 41);
+  assert.equal(catalog.counts.priced_items, 48);
 });
 test('explicit legacy aliases and three packages are mapped; unrelated parts are not guessed', () => {
   assert.equal(pricing.priceService({ name: ' Sport : High-Flow Fuel Pump ', price: 1 }, 'supercar').price, 70000);
