@@ -8,6 +8,17 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const sourceRoot = path.join(projectRoot, 'recovered-production')
 const outputRoot = path.join(projectRoot, 'dist')
 
+async function readSupabaseBrowserConfig() {
+  const bundle = await readFile(path.join(sourceRoot, 'assets', 'index-vaWnYKxf.js'), 'utf8')
+  const url = process.env.VITE_SUPABASE_URL || bundle.match(/https:\/\/[a-z0-9-]+\.supabase\.co/i)?.[0]
+  const anonKey = process.env.VITE_SUPABASE_ANON_KEY
+    || bundle.match(/sb_publishable_[A-Za-z0-9_-]+/)?.[0]
+    || bundle.match(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/)?.[0]
+
+  if (!url || !anonKey) throw new Error('Unable to locate the public Supabase browser configuration.')
+  return { url, anonKey }
+}
+
 async function listFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true })
   const files = await Promise.all(entries.map(entry => {
@@ -55,8 +66,9 @@ await cp(path.join(sourceRoot, 'assets'), path.join(outputRoot, 'assets'), { rec
 // A versioned asset directory prevents browsers from mixing restored bundles
 // with changed files that still have the original recovered hash filenames.
 const assetFiles = (await listFiles(path.join(sourceRoot, 'assets'))).sort()
+const supabaseBrowserConfig = await readSupabaseBrowserConfig()
 const digest = createHash('sha256')
-digest.update('release-transform-20260908-ceo-final-5')
+digest.update('release-transform-20260923-order-alerts-1')
 for (const file of assetFiles) digest.update(path.relative(sourceRoot, file)).update(await readFile(file))
 const release = digest.digest('hex').slice(0, 16)
 const versionedRoot = path.join(outputRoot, 'assets', release)
@@ -68,6 +80,8 @@ for (const file of (await listFiles(versionedRoot)).filter(file => /\.(js|css)$/
       .replaceAll('Ghost Chill Kitchen', 'SABINAGISA Kitchen')
       .replaceAll('GHOST CHILL', 'SABINAGISA')
       .replaceAll('Ghost Chill', 'SABINAGISA')
+      .replaceAll('__SUPABASE_URL__', supabaseBrowserConfig.url)
+      .replaceAll('__SUPABASE_ANON_KEY__', supabaseBrowserConfig.anonKey)
   }
   // Vite's dynamic preload map uses assets/foo; relative module imports stay local.
   await writeFile(file, content.replaceAll('assets/', `assets/${release}/`))
