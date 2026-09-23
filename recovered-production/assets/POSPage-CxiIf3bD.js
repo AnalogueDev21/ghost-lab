@@ -61,7 +61,7 @@ function $e({
     [y, j] = i.useState("bill"),
     [k, u] = i.useState(0),
     [m, l] = i.useState(0),
-    o = (g == null ? void 0 : g.role) === "owner" || (g == null ? void 0 : g.role) === "god";
+    o = ["owner", "god", "ceo"].includes(g == null ? void 0 : g.role);
   return i.useEffect(() => {
     x.from("branches").select("*").eq("key", n).single().then(({
       data: s,

@@ -21,6 +21,11 @@ const chillMenuServices = [
   ['SABI UNAGI', 'Main'], ['SABI NAGI HIGHBALL', 'Water'], ['SABI YORU UME', 'Dessert'],
   ['WHIPPED FETA & TOAST', 'Main'], ['GRAPEFRUIT HONEY SODA', 'Water'], ['BEER-BATTERED FISH BITES', 'Dessert'],
 ].map(([name, category], index) => ({ id: `menu-${index}`, name, category, price: 1000 + index * 100 }));
+
+test('CEO can open the Services catalog for the assigned branch', () => {
+  assert.match(source, /\["owner", "god", "ceo"\]\.includes\(g == null \? void 0 : g\.role\)/);
+});
+
 const flatten = node => node == null || typeof node === 'boolean' ? '' : Array.isArray(node) ? node.map(flatten).join('') : typeof node === 'object' ? flatten(node.props?.children) : String(node);
 function nodes(root, predicate) {
   const found = [];
