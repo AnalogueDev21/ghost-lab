@@ -19,7 +19,9 @@ export default function AdminStaff() {
 
   async function load() {
     setLoading(true)
-    const { data, error } = await supabase.from('staff').select('*').eq('active', true).order('name_en')
+    // Keep inactive accounts visible here so an accidental deactivation never
+    // looks like the account was deleted. Login still shows active accounts only.
+    const { data, error } = await supabase.from('staff').select('*').order('active', { ascending: false }).order('name_en')
     if (error) console.error(error)
     setStaffList(data || [])
     setLoading(false)
@@ -31,6 +33,10 @@ export default function AdminStaff() {
 
   async function saveStaff(id) {
     const s = staffList.find(x => x.id === id)
+    if (id === currentStaff?.id && !s.active) return alert('ไม่สามารถปิดบัญชีที่กำลังใช้งานอยู่ได้')
+    if (s.role === 'owner' && !s.active && staffList.filter(item => item.role === 'owner' && item.active).length <= 1) {
+      return alert('ต้องมี Owner ที่ใช้งานได้อย่างน้อย 1 คนในระบบ')
+    }
     setSavingId(id)
     const { error } = await supabase.from('staff').update({
       role: s.role, active: s.active, primary_branch: s.primary_branch, name_th: s.name_th, permissions: s.permissions || [],
@@ -80,7 +86,7 @@ export default function AdminStaff() {
       <div style={{ marginBottom: 16 }}>
         <div className="font-display" style={{ fontSize: 18, fontWeight: 600 }}>จัดการพนักงาน</div>
         <div style={{ fontSize: 12, color: 'var(--ghost-gray)' }}>
-          ปรับยศ สาขา และสิทธิ์เสริมรายคนได้ — Owner เท่านั้นที่สามารถบันทึกการเปลี่ยนแปลง
+          ปรับยศ สาขา สถานะ และสิทธิ์เสริมรายคนได้ — บัญชีปิดใช้งานจะแสดงไว้เพื่อกู้คืนได้
         </div>
       </div>
 
@@ -134,7 +140,7 @@ export default function AdminStaff() {
                       left: s.active ? 18 : 2, transition: 'left .15s'
                     }} />
                   </div>
-                  <span style={{ fontSize: 11, color: 'var(--ghost-gray)' }}>{s.active ? 'ใช้งาน' : 'ปิด'}</span>
+                  <span style={{ fontSize: 11, color: s.active ? 'var(--ghost-gray)' : '#f18b92' }}>{s.active ? 'ใช้งาน' : 'ปิดใช้งาน'}</span>
                 </div>
 
                 <div style={{ display: 'flex', gap: 6 }}>

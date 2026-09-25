@@ -68,7 +68,7 @@ await cp(path.join(sourceRoot, 'assets'), path.join(outputRoot, 'assets'), { rec
 const assetFiles = (await listFiles(path.join(sourceRoot, 'assets'))).sort()
 const supabaseBrowserConfig = await readSupabaseBrowserConfig()
 const digest = createHash('sha256')
-digest.update('release-transform-20260925-remove-pin-reset-panel-1')
+digest.update('release-transform-20260925-account-stability-1')
 for (const file of assetFiles) digest.update(path.relative(sourceRoot, file)).update(await readFile(file))
 const release = digest.digest('hex').slice(0, 16)
 const versionedRoot = path.join(outputRoot, 'assets', release)
@@ -82,6 +82,23 @@ for (const file of (await listFiles(versionedRoot)).filter(file => /\.(js|css)$/
       .replaceAll('Ghost Chill', 'SABINAGISA')
       .replaceAll('__SUPABASE_URL__', supabaseBrowserConfig.url)
       .replaceAll('__SUPABASE_ANON_KEY__', supabaseBrowserConfig.anonKey)
+
+    // The recovered bundle predates the source AuthContext hardening. Apply
+    // the same retry/cache behavior to the deployed bundle so transient RLS or
+    // network failures cannot make a valid staff account look deleted.
+    const oldStaffLoader = 'async function a(f){const{data:v,error:y}=await Ne.from("staff").select("*, branches:primary_branch(*)").eq("auth_user_id",f).single();y&&console.error("[Ghost Lab] Failed to load staff row:",y),s(v||null),o(!1)}'
+    const newStaffLoader = 'async function a(f){let v=null,y=null;for(let g=0;g<3;g++){({data:v,error:y}=await Ne.from("staff").select("*, branches:primary_branch(*)").eq("auth_user_id",f).maybeSingle());if(!y)break;await new Promise(q=>setTimeout(q,250*(g+1)))}if(v){s(v);try{sessionStorage.setItem("ghostlab-staff-session",JSON.stringify(v))}catch{}}else if(y){console.error("[Ghost Lab] Failed to load staff row:",y);try{const g=JSON.parse(sessionStorage.getItem("ghostlab-staff-session")||"null");g?.auth_user_id===f&&s(g)}catch{}}else s(null);o(!1)}'
+    if (file.endsWith('index-vaWnYKxf.js') && !content.includes(oldStaffLoader)) {
+      throw new Error('Recovered auth loader changed unexpectedly; refusing to build without account-stability patch.')
+    }
+    content = content.replace(oldStaffLoader, newStaffLoader)
+
+    // Keep inactive staff visible in Owner's admin list so deactivation is
+    // reversible and cannot be mistaken for account deletion.
+    content = content.replace(
+      'd.from("staff").select("*").eq("active",!0).order("name_en")',
+      'd.from("staff").select("*").order("active",{ascending:!1}).order("name_en")',
+    )
   }
   // Vite's dynamic preload map uses assets/foo; relative module imports stay local.
   await writeFile(file, content.replaceAll('assets/', `assets/${release}/`))

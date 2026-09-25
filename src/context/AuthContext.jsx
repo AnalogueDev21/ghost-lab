@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { toAuthPassword } from '../lib/pin'
 
 const AuthContext = createContext(null)
+const STAFF_CACHE_KEY = 'ghostlab-staff-session'
 
 // Staff PIN-login pattern:
 // Each staff member gets a real Supabase Auth user under the hood, with
@@ -68,11 +69,17 @@ export function AuthProvider({ children }) {
   }, [])
 
   async function loadStaff(authUserId, request = ++authRequest.current, allowRefresh = true) {
-    let { data, error } = await supabase
-      .from('staff')
-      .select('*, branches:primary_branch(*)')
-      .eq('auth_user_id', authUserId)
-      .single()
+    let data = null
+    let error = null
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      ({ data, error } = await supabase
+        .from('staff')
+        .select('*, branches:primary_branch(*)')
+        .eq('auth_user_id', authUserId)
+        .maybeSingle())
+      if (!error) break
+      if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)))
+    }
 
     if (error?.code === 'PGRST303' && allowRefresh) {
       const refreshed = await supabase.auth.refreshSession()
@@ -82,15 +89,28 @@ export function AuthProvider({ children }) {
           .from('staff')
           .select('*, branches:primary_branch(*)')
           .eq('auth_user_id', authUserId)
-          .single())
+          .maybeSingle())
       } else {
         await supabase.auth.signOut({ scope: 'local' })
       }
     }
 
     if (request !== authRequest.current) return
-    if (error) console.error('[Ghost Lab] Failed to load staff row:', error)
-    setStaff(data || null)
+    if (data) {
+      setStaff(data)
+      try { sessionStorage.setItem(STAFF_CACHE_KEY, JSON.stringify(data)) } catch {}
+    } else if (error) {
+      // A transient network/RLS failure must not make a valid account appear
+      // to vanish and redirect the user to Login. Keep the last known profile
+      // for this browser session until the database can be read again.
+      let cached = null
+      try { cached = JSON.parse(sessionStorage.getItem(STAFF_CACHE_KEY) || 'null') } catch {}
+      if (cached?.auth_user_id === authUserId) setStaff(cached)
+      else setStaff(null)
+      console.error('[Ghost Lab] Failed to load staff row:', error)
+    } else {
+      setStaff(null)
+    }
     setLoading(false)
   }
 
