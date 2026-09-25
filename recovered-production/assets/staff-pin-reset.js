@@ -1,6 +1,7 @@
 const SUPABASE_URL = '__SUPABASE_URL__'
 const SUPABASE_ANON_KEY = '__SUPABASE_ANON_KEY__'
 const ADMIN_PATH = '/admin/staff'
+let pinResetMounting = false
 
 export function canManagePinResets(staff) {
   return Boolean(staff?.active && ['owner', 'god'].includes(staff.role))
@@ -110,13 +111,14 @@ function setMessage(panel, text, type = '') {
 }
 
 async function mount() {
-  if (location.pathname !== ADMIN_PATH || document.getElementById('staff-pin-reset')) return
+  if (location.pathname !== ADMIN_PATH || document.getElementById('staff-pin-reset') || pinResetMounting) return
   const host = document.querySelector('.page-enter')
   if (!host) return
 
   const session = readSession()
   if (!session?.access_token || !session?.user?.id) return
 
+  pinResetMounting = true
   try {
     const currentStaff = await loadCurrentStaff(session)
     if (!canManagePinResets(currentStaff)) return
@@ -168,6 +170,8 @@ async function mount() {
     })
   } catch (error) {
     console.warn('[Ghost Lab] Unable to load PIN reset controls:', error)
+  } finally {
+    pinResetMounting = false
   }
 }
 
