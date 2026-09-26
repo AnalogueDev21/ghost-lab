@@ -195,7 +195,7 @@ function Le({
     [E, ne] = i.useState(() => Boolean(initialDraft == null ? void 0 : initialDraft.memberEnabled)),
     [q, se] = i.useState(() => (initialDraft == null ? void 0 : initialDraft.orderType) || "dine_in"),
     [H, ie] = i.useState(() => (initialDraft == null ? void 0 : initialDraft.table) || new URLSearchParams(window.location.search).get("table") || ""),
-    [$, re] = i.useState(() => (initialDraft == null ? void 0 : initialDraft.paymentMethod) || "cash"),
+    [$, re] = i.useState(() => (initialDraft == null ? void 0 : initialDraft.paymentMethod) || "transfer"),
     [I, oe] = i.useState(() => (initialDraft == null ? void 0 : initialDraft.amountReceived) || ""),
     [T, G] = i.useState(""),
     [ae, D] = i.useState([]),
