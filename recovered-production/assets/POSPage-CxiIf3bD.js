@@ -2,6 +2,15 @@ import { u as _e, r as i, s as x, j as e, L as Ce } from "./index-vaWnYKxf.js";
 import { c as he, f as we, g as ke, n as Ne } from "./membership-BI3ZslQk.js";
 import { priceService, priceLabel, repairKitDiscount, vehicleLabels, catalogEntry, catalogVersion, normalizeServiceName } from "./vehicle-pricing.js";
 const ee = "[ghost-lab-bill]";
+const POS_DRAFT_PREFIX = "ghostlab-pos-draft:";
+function readPosDraft(key) {
+  try {
+    const draft = JSON.parse(sessionStorage.getItem(key) || "null");
+    return draft && typeof draft === "object" ? draft : null;
+  } catch {
+    return null;
+  }
+}
 const chillMenuVisuals = new Map([
   ["SABI UNAGI", "/assets/sabinagisa-unagi.png"],
   ["SABI NAGI HIGHBALL", "/assets/sabinagisa-nagi-highball.png"],
@@ -170,22 +179,24 @@ function Le({
   staff: p,
   restaurantMode: v
 }) {
+  const draftStorageKey = `${POS_DRAFT_PREFIX}${n.key}:${(p == null ? void 0 : p.id) || "guest"}`;
+  const initialDraft = readPosDraft(draftStorageKey);
   const [g, h] = i.useState([]),
     [b, y] = i.useState("all"),
     [j, k] = i.useState(""),
-    [cartSelection, m] = i.useState([]),
-    [l, o] = i.useState(""),
-    [s, r] = i.useState(""),
-    [c, S] = i.useState(""),
+    [cartSelection, m] = i.useState(() => Array.isArray(initialDraft == null ? void 0 : initialDraft.cart) ? initialDraft.cart : []),
+    [l, o] = i.useState(() => (initialDraft == null ? void 0 : initialDraft.plate) || ""),
+    [s, r] = i.useState(() => (initialDraft == null ? void 0 : initialDraft.vehicle) || ""),
+    [c, S] = i.useState(() => (initialDraft == null ? void 0 : initialDraft.notes) || ""),
     [f, w] = i.useState(false),
     z = i.useRef(false),
     [R, A] = i.useState(""),
-    [M, te] = i.useState(false),
-    [E, ne] = i.useState(false),
-    [q, se] = i.useState("dine_in"),
-    [H, ie] = i.useState(() => new URLSearchParams(window.location.search).get("table") || ""),
-    [$, re] = i.useState("cash"),
-    [I, oe] = i.useState(""),
+    [M, te] = i.useState(() => Boolean(initialDraft == null ? void 0 : initialDraft.selfService)),
+    [E, ne] = i.useState(() => Boolean(initialDraft == null ? void 0 : initialDraft.memberEnabled)),
+    [q, se] = i.useState(() => (initialDraft == null ? void 0 : initialDraft.orderType) || "dine_in"),
+    [H, ie] = i.useState(() => (initialDraft == null ? void 0 : initialDraft.table) || new URLSearchParams(window.location.search).get("table") || ""),
+    [$, re] = i.useState(() => (initialDraft == null ? void 0 : initialDraft.paymentMethod) || "cash"),
+    [I, oe] = i.useState(() => (initialDraft == null ? void 0 : initialDraft.amountReceived) || ""),
     [T, G] = i.useState(""),
     [ae, D] = i.useState([]),
     [C, P] = i.useState(null),
@@ -193,6 +204,15 @@ function Le({
     [U, le] = i.useState([]),
     [ce, J] = i.useState(false),
     [vehicleClass, setVehicleClass] = i.useState("standard");
+  i.useEffect(() => {
+    try {
+      if (!cartSelection.length && !l && !s && !c && !M && !E) {
+        sessionStorage.removeItem(draftStorageKey);
+        return;
+      }
+      sessionStorage.setItem(draftStorageKey, JSON.stringify({ cart: cartSelection, plate: l, vehicle: s, notes: c, selfService: M, memberEnabled: E, orderType: q, table: H, paymentMethod: $, amountReceived: I }));
+    } catch {}
+  }, [cartSelection, l, s, c, M, E, q, H, $, I, draftStorageKey]);
   const u = cartSelection.map(item => priceService(g.find(service => service.id === item.id) || item, vehicleClass, n.key));
   const pricingBlocked = u.some(item => item.pricingError);
   i.useEffect(() => {
