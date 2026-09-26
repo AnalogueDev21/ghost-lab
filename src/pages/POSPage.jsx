@@ -6,6 +6,16 @@ import { calculateMemberDiscount, formatDate, getMembershipPlan, nextMonthlyExpi
 
 const BILL_NOTE_SNAPSHOT_PREFIX = '[ghost-lab-bill]'
 const MEMBER_FREE_REPAIR_SERVICES = new Set(['engine repair kit', 'full repair kit'])
+const POS_DRAFT_PREFIX = 'ghostlab-pos-draft:'
+
+function readPosDraft(key) {
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(key) || 'null')
+    return parsed && typeof parsed === 'object' ? parsed : null
+  } catch {
+    return null
+  }
+}
 
 function makeBillNotes(note, cart) {
   const snapshot = cart.map(service => ({ name_snapshot: service.name, price_snapshot: service.price }))
@@ -103,17 +113,19 @@ function TabButton({ active, onClick, children }) {
 
 // ---------------- New Bill (POS) ----------------
 function NewBillTab({ branch, title, staff }) {
+  const draftStorageKey = `${POS_DRAFT_PREFIX}${branch.key}:${staff?.id || 'guest'}`
+  const initialDraft = readPosDraft(draftStorageKey)
   const [services, setServices] = useState([])
   const [activeCat, setActiveCat] = useState('all')
   const [serviceSearch, setServiceSearch] = useState('')
-  const [cart, setCart] = useState([])
-  const [plate, setPlate] = useState('')
-  const [vehicle, setVehicle] = useState('')
-  const [notes, setNotes] = useState('')
+  const [cart, setCart] = useState(() => Array.isArray(initialDraft?.cart) ? initialDraft.cart : [])
+  const [plate, setPlate] = useState(() => initialDraft?.plate || '')
+  const [vehicle, setVehicle] = useState(() => initialDraft?.vehicle || '')
+  const [notes, setNotes] = useState(() => initialDraft?.notes || '')
   const [submitting, setSubmitting] = useState(false)
   const [toast, setToast] = useState('')
-  const [selfService, setSelfService] = useState(false)
-  const [memberEnabled, setMemberEnabled] = useState(false)
+  const [selfService, setSelfService] = useState(() => Boolean(initialDraft?.selfService))
+  const [memberEnabled, setMemberEnabled] = useState(() => Boolean(initialDraft?.memberEnabled))
 
   // Customer / member search
   const [customerQuery, setCustomerQuery] = useState('')
@@ -122,6 +134,18 @@ function NewBillTab({ branch, title, staff }) {
   const [showAddMember, setShowAddMember] = useState(false)
   const [availableRewards, setAvailableRewards] = useState([])
   const [useFreeRepair, setUseFreeRepair] = useState(false)
+
+  // Keep an unfinished bill in this browser tab so a background-tab reload or
+  // auth refresh does not discard selected services and entered details.
+  useEffect(() => {
+    try {
+      if (!cart.length && !plate && !vehicle && !notes && !selfService && !memberEnabled) {
+        sessionStorage.removeItem(draftStorageKey)
+        return
+      }
+      sessionStorage.setItem(draftStorageKey, JSON.stringify({ cart, plate, vehicle, notes, selfService, memberEnabled }))
+    } catch {}
+  }, [cart, plate, vehicle, notes, selfService, memberEnabled, draftStorageKey])
 
   useEffect(() => {
     supabase.from('services').select('*').eq('branch_id', branch.id).eq('active', true)
