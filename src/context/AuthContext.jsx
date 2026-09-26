@@ -17,6 +17,7 @@ export function AuthProvider({ children }) {
   const [staff, setStaff] = useState(null)
   const [loading, setLoading] = useState(true)
   const authRequest = useRef(0)
+  const sessionRef = useRef(null)
 
   useEffect(() => {
     let active = true
@@ -26,12 +27,14 @@ export function AuthProvider({ children }) {
       setLoading(true)
 
       if (!nextSession) {
+        sessionRef.current = null
         setSession(null)
         setStaff(null)
         setLoading(false)
         return
       }
 
+      sessionRef.current = nextSession
       setSession(nextSession)
       await loadStaff(nextSession.user.id, request)
     }
@@ -50,7 +53,18 @@ export function AuthProvider({ children }) {
       if (active) await applySession(initialSession)
     })
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, newSession) => {
+      // Supabase refreshes the JWT when a background tab becomes active again.
+      // Keep the current route and staff data intact; reloading the profile here
+      // causes a visible page reset every time the user returns to this tab.
+      if ((event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')
+        && newSession
+        && sessionRef.current?.user?.id === newSession.user.id) {
+        sessionRef.current = newSession
+        setSession(newSession)
+        return
+      }
+
       // Set the loading state before exposing a new session.  Without this,
       // a successful sign-in can render a protected route while its staff row
       // is still being fetched, which sends the user back to Login until a refresh.
