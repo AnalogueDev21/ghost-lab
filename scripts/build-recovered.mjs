@@ -93,6 +93,15 @@ for (const file of (await listFiles(versionedRoot)).filter(file => /\.(js|css)$/
     }
     content = content.replace(oldStaffLoader, newStaffLoader)
 
+    // The recovered production bundle also needs to ignore Supabase's silent
+    // token-refresh event. Otherwise every background-tab return toggles the
+    // global loading state and remounts the current route.
+    const oldAuthState = 'const[e,r]=k.useState(null),[n,s]=k.useState(null),[i,o]=k.useState(!0);k.useEffect(()=>{Ne.auth.getSession().then(({data:v})=>{r(v.session),v.session?a(v.session.user.id):o(!1)});const{data:f}=Ne.auth.onAuthStateChange((v,y)=>{o(!0),r(y),y?a(y.user.id):(s(null),o(!1))});return()=>f.subscription.unsubscribe()},[])'
+    const newAuthState = 'const[e,r]=k.useState(null),[n,s]=k.useState(null),[i,o]=k.useState(!0),sessionRef=k.useRef(null);k.useEffect(()=>{Ne.auth.getSession().then(({data:v})=>{sessionRef.current=v.session,r(v.session),v.session?a(v.session.user.id):o(!1)});const{data:f}=Ne.auth.onAuthStateChange((v,y)=>{if((v==="TOKEN_REFRESHED"||v==="INITIAL_SESSION")&&y&&sessionRef.current?.user?.id===y.user.id){sessionRef.current=y,r(y);return}o(!0),sessionRef.current=y,r(y),y?a(y.user.id):(s(null),o(!1))});return()=>f.subscription.unsubscribe()},[])'
+    if (file.endsWith('index-vaWnYKxf.js') && content.includes(oldAuthState)) {
+      content = content.replace(oldAuthState, newAuthState)
+    }
+
     // Keep inactive staff visible in Owner's admin list so deactivation is
     // reversible and cannot be mistaken for account deletion.
     content = content.replace(
