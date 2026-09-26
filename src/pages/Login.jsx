@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { publicSupabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import './Login.css'
@@ -18,12 +18,18 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { loginWithPin, session, staff, loading } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
 
   // Wait for AuthProvider to finish loading the matching staff row.  This
   // prevents navigating to a protected route in the short gap after PIN auth.
   useEffect(() => {
-    if (session && staff && !loading) navigate('/')
-  }, [session, staff, loading, navigate])
+    if (session && staff && !loading) {
+      const destination = typeof location.state?.from === 'string' && location.state.from.startsWith('/')
+        ? location.state.from
+        : '/'
+      navigate(destination, { replace: true })
+    }
+  }, [session, staff, loading, location.state, navigate])
   useEffect(() => {
     // This uses the isolated anonymous client, so it can load immediately even
     // while AuthProvider is refreshing or clearing an expired user session.
